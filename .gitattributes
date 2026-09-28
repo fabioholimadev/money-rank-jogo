@@ -9,6 +9,10 @@
 *.anim text eol=lf
 *.controller text eol=lf
 *.asmdef text eol=lf
+*.cs text eol=lf
+*.md text eol=lf
+*.txt text eol=lf
+*.inputactions text eol=lf
 *.json text eol=lf
 *.uxml text eol=lf
 *.uss text eol=lf

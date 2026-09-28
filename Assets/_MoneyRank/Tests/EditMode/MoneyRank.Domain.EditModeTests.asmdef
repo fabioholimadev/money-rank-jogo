@@ -1,0 +1,23 @@
+{
+  "name": "MoneyRank.Domain.EditModeTests",
+  "rootNamespace": "MoneyRank.Tests.EditMode",
+  "references": [
+    "MoneyRank.Domain",
+    "MoneyRank.Application"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": false,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false,
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ]
+}
+
