@@ -3,7 +3,9 @@
   "rootNamespace": "MoneyRank.Tests.EditMode",
   "references": [
     "MoneyRank.Domain",
-    "MoneyRank.Application"
+    "MoneyRank.Application",
+    "MoneyRank.Content",
+    "MoneyRank.Presentation"
   ],
   "includePlatforms": [
     "Editor"

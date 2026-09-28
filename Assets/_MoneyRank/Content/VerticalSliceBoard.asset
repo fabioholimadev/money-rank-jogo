@@ -1,0 +1,117 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 26fd9f4e40962a64b83e655ecd784df6, type: 3}
+  m_Name: VerticalSliceBoard
+  m_EditorClassIdentifier: MoneyRank.Content::MoneyRank.Content.BoardDefinitionAsset
+  id: vertical-slice-board
+  startIndex: 0
+  spaces:
+  - id: space-00
+    index: 0
+    typeId: start
+    categoryId: 
+    eventTableId: 
+  - id: space-01
+    index: 1
+    typeId: event
+    categoryId: expense
+    eventTableId: events-expense
+  - id: space-02
+    index: 2
+    typeId: event
+    categoryId: investment
+    eventTableId: events-investment
+  - id: space-03
+    index: 3
+    typeId: event
+    categoryId: citizenship
+    eventTableId: events-citizenship
+  - id: space-04
+    index: 4
+    typeId: event
+    categoryId: opportunity
+    eventTableId: events-opportunity
+  - id: space-05
+    index: 5
+    typeId: event
+    categoryId: expense
+    eventTableId: events-expense
+  - id: space-06
+    index: 6
+    typeId: event
+    categoryId: investment
+    eventTableId: events-investment
+  - id: space-07
+    index: 7
+    typeId: event
+    categoryId: citizenship
+    eventTableId: events-citizenship
+  - id: space-08
+    index: 8
+    typeId: event
+    categoryId: opportunity
+    eventTableId: events-opportunity
+  - id: space-09
+    index: 9
+    typeId: event
+    categoryId: expense
+    eventTableId: events-expense
+  - id: space-10
+    index: 10
+    typeId: event
+    categoryId: investment
+    eventTableId: events-investment
+  - id: space-11
+    index: 11
+    typeId: event
+    categoryId: citizenship
+    eventTableId: events-citizenship
+  - id: space-12
+    index: 12
+    typeId: event
+    categoryId: opportunity
+    eventTableId: events-opportunity
+  - id: space-13
+    index: 13
+    typeId: event
+    categoryId: expense
+    eventTableId: events-expense
+  - id: space-14
+    index: 14
+    typeId: event
+    categoryId: investment
+    eventTableId: events-investment
+  - id: space-15
+    index: 15
+    typeId: event
+    categoryId: citizenship
+    eventTableId: events-citizenship
+  - id: space-16
+    index: 16
+    typeId: event
+    categoryId: opportunity
+    eventTableId: events-opportunity
+  - id: space-17
+    index: 17
+    typeId: event
+    categoryId: expense
+    eventTableId: events-expense
+  - id: space-18
+    index: 18
+    typeId: event
+    categoryId: investment
+    eventTableId: events-investment
+  - id: space-19
+    index: 19
+    typeId: event
+    categoryId: citizenship
+    eventTableId: events-citizenship

@@ -31,6 +31,16 @@ Content -> Application/Domain
 - Testes rápidos de regras e transições.
 - Executados no Unity Test Framework em EditMode.
 
+### `MoneyRank.Content`
+
+- ScriptableObjects usados apenas como definições editáveis.
+- Converte dados serializados para modelos imutáveis do domínio.
+
+### `MoneyRank.Presentation`
+
+- Montagem visual do tabuleiro e animação da peça.
+- Recebe resultados já calculados pelo domínio; não decide regras.
+
 ## Decisões da Fase 0
 
 - `GameSession` é o agregado raiz inicial.
@@ -52,4 +62,9 @@ tributação, captura ou vitória.
 - `ExternalBoardState` mantém posição e voltas por jogador.
 - A integração com `GameSession` ocorrerá junto ao comando `RegisterMove`, após a
   definição do conteúdo temporário do vertical slice.
+- `BoardDefinitionAsset` contém o subset temporário de 20 casas e quatro
+  categorias, mantendo todo o conteúdo editável no Inspector.
+- `BoardLayoutView` monta o perímetro de forma reproduzível a partir da definição.
+- `PlayerPieceView` somente representa um `BoardMoveResult`; posição e voltas são
+  atualizadas primeiro em `ExternalBoardState`.
 

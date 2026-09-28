@@ -1,0 +1,17 @@
+{
+  "name": "MoneyRank.Presentation",
+  "rootNamespace": "MoneyRank.Presentation",
+  "references": [
+    "MoneyRank.Domain",
+    "MoneyRank.Content"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}
