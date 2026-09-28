@@ -12,12 +12,15 @@ financeira e fiscal.
 
 ## Estado atual
 
-O projeto está na **Fase 0 — Foundation**:
+O projeto concluiu a **Fase 0 — Foundation** e iniciou a **Fase 1 — Board
+Vertical Slice**:
 
 - domínio independente de `UnityEngine`;
 - máquina de estados do fluxo-base;
 - sessão configurável para jogadores e ordem de turnos;
 - camada de aplicação e interface de persistência;
+- definição configurável do tabuleiro externo;
+- cálculo de movimento, wrap e voltas independente da apresentação;
 - testes automatizados em EditMode.
 
 Consulte `Docs/MONEY_RANK_UNITY_SPEC.md`, `Docs/ARCHITECTURE.md` e

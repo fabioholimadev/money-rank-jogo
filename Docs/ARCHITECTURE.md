@@ -44,3 +44,12 @@ Content -> Application/Domain
 Não há, nesta fase, regras de movimento, economia, atributos, Hospital,
 tributação, captura ou vitória.
 
+## Fase 1 — núcleo do tabuleiro externo
+
+- `BoardDefinition` contém uma lista ordenada de casas e não pressupõe 28 posições.
+- `startIndex` é configurável para que o layout não determine a regra.
+- `BoardMovementCalculator` calcula destino e voltas sem depender de animação.
+- `ExternalBoardState` mantém posição e voltas por jogador.
+- A integração com `GameSession` ocorrerá junto ao comando `RegisterMove`, após a
+  definição do conteúdo temporário do vertical slice.
+
