@@ -10,19 +10,33 @@ namespace MoneyRank.Domain
         private readonly List<Player> _players = new List<Player>();
         private readonly ReadOnlyCollection<Player> _readOnlyPlayers;
         private readonly GameFlowStateMachine _stateMachine;
+        private readonly Dictionary<PlayerId, ExternalBoardState> _boardStates =
+            new Dictionary<PlayerId, ExternalBoardState>();
+        private readonly BoardMovementCalculator _movementCalculator = new BoardMovementCalculator();
         private int _currentPlayerIndex = -1;
 
         public GameSession(SessionId id, SessionRules rules, GameFlowStateMachine stateMachine)
+            : this(id, rules, stateMachine, null)
+        {
+        }
+
+        public GameSession(
+            SessionId id,
+            SessionRules rules,
+            GameFlowStateMachine stateMachine,
+            BoardDefinition board)
         {
             Id = id;
             Rules = rules ?? throw new ArgumentNullException(nameof(rules));
             _stateMachine = stateMachine ?? throw new ArgumentNullException(nameof(stateMachine));
+            Board = board;
             _readOnlyPlayers = _players.AsReadOnly();
             Phase = GamePhase.Setup;
         }
 
         public SessionId Id { get; }
         public SessionRules Rules { get; }
+        public BoardDefinition Board { get; }
         public GamePhase Phase { get; private set; }
         public IReadOnlyList<Player> Players => _readOnlyPlayers;
         public Player CurrentPlayer => _currentPlayerIndex < 0 ? null : _players[_currentPlayerIndex];
@@ -55,6 +69,11 @@ namespace MoneyRank.Domain
             }
 
             _players.Add(player);
+            if (Board != null)
+            {
+                _boardStates.Add(player.Id, new ExternalBoardState(player.Id, Board));
+            }
+
             return OperationResult.Success();
         }
 
@@ -74,6 +93,49 @@ namespace MoneyRank.Domain
             _players.Sort((left, right) => left.TurnOrder.CompareTo(right.TurnOrder));
             _currentPlayerIndex = 0;
             return OperationResult.Success();
+        }
+
+        public bool TryGetBoardState(PlayerId playerId, out ExternalBoardState boardState) =>
+            _boardStates.TryGetValue(playerId, out boardState);
+
+        public OperationResult<BoardMoveResult> RegisterMove(int steps)
+        {
+            if (Phase != GamePhase.AwaitMove)
+            {
+                return OperationResult<BoardMoveResult>.Failure(
+                    "MOVE_NOT_ALLOWED",
+                    "A move can only be registered during AwaitMove.");
+            }
+
+            if (Board == null)
+            {
+                return OperationResult<BoardMoveResult>.Failure(
+                    "BOARD_NOT_CONFIGURED",
+                    "The session requires a board definition before registering moves.");
+            }
+
+            if (steps < 0)
+            {
+                return OperationResult<BoardMoveResult>.Failure(
+                    "INVALID_MOVE_STEPS",
+                    "Move steps cannot be negative.");
+            }
+
+            if (CurrentPlayer == null || !_boardStates.TryGetValue(CurrentPlayer.Id, out var boardState))
+            {
+                return OperationResult<BoardMoveResult>.Failure(
+                    "PLAYER_BOARD_STATE_NOT_FOUND",
+                    "The current player does not have an external board state.");
+            }
+
+            var transition = TryTransition(GamePhase.ResolveSpace);
+            if (!transition.Succeeded)
+            {
+                return OperationResult<BoardMoveResult>.Failure(transition.ErrorCode, transition.Message);
+            }
+
+            var move = boardState.Move(Board, steps, _movementCalculator);
+            return OperationResult<BoardMoveResult>.Success(move);
         }
 
         public OperationResult TryTransition(GamePhase nextPhase)

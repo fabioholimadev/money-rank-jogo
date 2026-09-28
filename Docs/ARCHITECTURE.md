@@ -60,8 +60,9 @@ tributação, captura ou vitória.
 - `startIndex` é configurável para que o layout não determine a regra.
 - `BoardMovementCalculator` calcula destino e voltas sem depender de animação.
 - `ExternalBoardState` mantém posição e voltas por jogador.
-- A integração com `GameSession` ocorrerá junto ao comando `RegisterMove`, após a
-  definição do conteúdo temporário do vertical slice.
+- `GameSession.RegisterMove` valida a fase, atualiza apenas o estado do jogador
+  atual e avança de `AwaitMove` para `ResolveSpace`.
+- `GameSessionService.RegisterMove` persiste somente movimentos aceitos.
 - `BoardDefinitionAsset` contém o subset temporário de 20 casas e quatro
   categorias, mantendo todo o conteúdo editável no Inspector.
 - `BoardLayoutView` monta o perímetro de forma reproduzível a partir da definição.

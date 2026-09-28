@@ -14,7 +14,12 @@ namespace MoneyRank.Application
 
         public GameSession Create(SessionId sessionId, SessionRules rules)
         {
-            var session = new GameSession(sessionId, rules, new GameFlowStateMachine());
+            return Create(sessionId, rules, null);
+        }
+
+        public GameSession Create(SessionId sessionId, SessionRules rules, BoardDefinition board)
+        {
+            var session = new GameSession(sessionId, rules, new GameFlowStateMachine(), board);
             _repository.Save(session);
             return session;
         }
@@ -23,6 +28,18 @@ namespace MoneyRank.Application
         {
             var session = RequireSession(sessionId);
             var result = session.AddPlayer(player);
+            if (result.Succeeded)
+            {
+                _repository.Save(session);
+            }
+
+            return result;
+        }
+
+        public OperationResult<BoardMoveResult> RegisterMove(SessionId sessionId, int steps)
+        {
+            var session = RequireSession(sessionId);
+            var result = session.RegisterMove(steps);
             if (result.Succeeded)
             {
                 _repository.Save(session);
