@@ -3,7 +3,9 @@
   "rootNamespace": "MoneyRank.Presentation",
   "references": [
     "MoneyRank.Domain",
-    "MoneyRank.Content"
+    "MoneyRank.Application",
+    "MoneyRank.Content",
+    "MoneyRank.Infrastructure"
   ],
   "includePlatforms": [],
   "excludePlatforms": [],

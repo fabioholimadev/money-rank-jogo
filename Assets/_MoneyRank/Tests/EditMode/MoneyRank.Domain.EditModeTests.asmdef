@@ -5,7 +5,8 @@
     "MoneyRank.Domain",
     "MoneyRank.Application",
     "MoneyRank.Content",
-    "MoneyRank.Presentation"
+    "MoneyRank.Presentation",
+    "MoneyRank.Infrastructure"
   ],
   "includePlatforms": [
     "Editor"

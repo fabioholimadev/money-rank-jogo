@@ -52,7 +52,7 @@ namespace MoneyRank.Tests.EditMode
             var session = service.Create(sessionId, new SessionRules(1, 4), board);
             service.AddPlayer(sessionId, new Player(new PlayerId("p1"), "Player", 0));
             service.Start(sessionId);
-            session.TryTransition(GamePhase.AwaitMove);
+            service.BeginTurn(sessionId);
             var savesBeforeMove = repository.SaveCount;
 
             var result = service.RegisterMove(sessionId, 1);
@@ -60,6 +60,51 @@ namespace MoneyRank.Tests.EditMode
             Assert.That(result.Succeeded, Is.True);
             Assert.That(result.Value.Destination, Is.EqualTo(1));
             Assert.That(repository.SaveCount, Is.EqualTo(savesBeforeMove + 1));
+        }
+
+        [Test]
+        public void SuccessfulTurnLifecycleCommandsPersistOnceEach()
+        {
+            var repository = new MemoryRepository();
+            var service = new GameSessionService(repository);
+            var sessionId = new SessionId("turn-lifecycle-test");
+            var session = service.Create(sessionId, new SessionRules(1, 4));
+            service.AddPlayer(sessionId, new Player(new PlayerId("p1"), "Player", 0));
+            service.Start(sessionId);
+
+            var savesBeforeBegin = repository.SaveCount;
+            var beginResult = service.BeginTurn(sessionId);
+            session.TryTransition(GamePhase.ResolveSpace);
+            session.TryTransition(GamePhase.ApplyEffects);
+            session.TryTransition(GamePhase.CheckProgress);
+            session.TryTransition(GamePhase.EndTurn);
+            var savesBeforeComplete = repository.SaveCount;
+            var completeResult = service.CompleteTurn(sessionId);
+
+            Assert.That(beginResult.Succeeded, Is.True);
+            Assert.That(completeResult.Succeeded, Is.True);
+            Assert.That(repository.SaveCount, Is.EqualTo(savesBeforeComplete + 1));
+            Assert.That(savesBeforeComplete, Is.EqualTo(savesBeforeBegin + 1));
+        }
+
+        [Test]
+        public void FailedTurnLifecycleCommandsDoNotPersist()
+        {
+            var repository = new MemoryRepository();
+            var service = new GameSessionService(repository);
+            var sessionId = new SessionId("invalid-turn-lifecycle-test");
+            service.Create(sessionId, new SessionRules(1, 4));
+            service.AddPlayer(sessionId, new Player(new PlayerId("p1"), "Player", 0));
+            service.Start(sessionId);
+            service.BeginTurn(sessionId);
+            var savesBeforeFailures = repository.SaveCount;
+
+            var beginResult = service.BeginTurn(sessionId);
+            var completeResult = service.CompleteTurn(sessionId);
+
+            Assert.That(beginResult.Succeeded, Is.False);
+            Assert.That(completeResult.Succeeded, Is.False);
+            Assert.That(repository.SaveCount, Is.EqualTo(savesBeforeFailures));
         }
 
         private sealed class MemoryRepository : IGameSessionRepository

@@ -20,6 +20,7 @@
 /.consulo/
 *.csproj
 *.sln
+*.slnx
 *.suo
 *.tmp
 *.user

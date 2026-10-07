@@ -10,11 +10,18 @@ namespace MoneyRank.Presentation.Board
         [SerializeField, Min(0.01f)] private float secondsPerSpace = 0.18f;
         [SerializeField, Min(0f)] private float verticalOffset = 0.9f;
 
+        private Vector3 _boardOffset;
+
         public bool IsAnimating { get; private set; }
 
         public void SnapTo(int index, IReadOnlyList<Transform> anchors)
         {
             transform.position = GetTargetPosition(index, anchors);
+        }
+
+        public void SetBoardOffset(Vector3 boardOffset)
+        {
+            _boardOffset = boardOffset;
         }
 
         public IEnumerator Animate(BoardMoveResult result, IReadOnlyList<Transform> anchors)
@@ -44,7 +51,7 @@ namespace MoneyRank.Presentation.Board
 
         private Vector3 GetTargetPosition(int index, IReadOnlyList<Transform> anchors)
         {
-            return anchors[index].position + Vector3.up * verticalOffset;
+            return anchors[index].position + Vector3.up * verticalOffset + _boardOffset;
         }
     }
 }

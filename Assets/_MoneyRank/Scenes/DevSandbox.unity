@@ -498,6 +498,7 @@ GameObject:
   - component: {fileID: 1484463074}
   - component: {fileID: 1484463073}
   - component: {fileID: 1484463072}
+  - component: {fileID: 1484463075}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -579,6 +580,21 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1484463075
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1484463071}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 53c730744da84f51a0c19c15985d92de, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: MoneyRank.Presentation::MoneyRank.Presentation.CameraSystem.BoardCameraController
+  positionSharpness: 6
+  rotationSharpness: 8
+  focusOffset: {x: 0, y: 6, z: -6}
 --- !u!1 &1497986482
 GameObject:
   m_ObjectHideFlags: 0
@@ -642,9 +658,23 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: MoneyRank.Presentation::MoneyRank.Presentation.Board.BoardSandboxController
   definition: {fileID: 11400000, guid: da89b8f480056ce449f04ef682ce74ed, type: 2}
+  eventCatalog: {fileID: 11400000, guid: c3f024d85e58431dba85cc8b40000001, type: 2}
+  eventSelectionPolicyId: sandbox-table-index
+  innerBoardDefinition: {fileID: 11400000, guid: e7f024d85e58431dba85cc8b40000001, type: 2}
+  attributeDefinitionAssets:
+  - {fileID: 11400000, guid: e6f024d85e58431dba85cc8b40000001, type: 2}
+  - {fileID: 11400000, guid: e6f024d85e58431dba85cc8b40000002, type: 2}
+  - {fileID: 11400000, guid: e6f024d85e58431dba85cc8b40000003, type: 2}
+  characterDefinitionAssets:
+  - {fileID: 11400000, guid: e5f024d85e58431dba85cc8b40000001, type: 2}
+  - {fileID: 11400000, guid: e5f024d85e58431dba85cc8b40000002, type: 2}
   boardView: {fileID: 1497986484}
   playerPiece: {fileID: 792690265}
+  cameraController: {fileID: 1484463075}
   demonstrationSteps: 3
+  usePersistentSave: 1
+  restoreExistingSave: 1
+  saveFolderName: MoneyRank/Saves
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

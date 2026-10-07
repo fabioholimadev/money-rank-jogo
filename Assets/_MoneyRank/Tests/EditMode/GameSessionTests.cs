@@ -33,6 +33,30 @@ namespace MoneyRank.Tests.EditMode
         }
 
         [Test]
+        public void BeginTurnEntersAwaitMove()
+        {
+            var session = CreateStartedSession();
+
+            var result = session.BeginTurn();
+
+            Assert.That(result.Succeeded, Is.True);
+            Assert.That(session.Phase, Is.EqualTo(GamePhase.AwaitMove));
+        }
+
+        [Test]
+        public void BeginTurnOutsideStartTurnDoesNotChangePhase()
+        {
+            var session = CreateStartedSession();
+            session.BeginTurn();
+
+            var result = session.BeginTurn();
+
+            Assert.That(result.Succeeded, Is.False);
+            Assert.That(result.ErrorCode, Is.EqualTo("TURN_NOT_READY_TO_BEGIN"));
+            Assert.That(session.Phase, Is.EqualTo(GamePhase.AwaitMove));
+        }
+
+        [Test]
         public void CompleteTurnRotatesToNextPlayer()
         {
             var session = CreateStartedSession();
@@ -153,6 +177,73 @@ namespace MoneyRank.Tests.EditMode
             Assert.That(session.Phase, Is.EqualTo(GamePhase.AwaitMove));
         }
 
+        [Test]
+        public void ConfiguredProgressionCreatesIndependentPlayerState()
+        {
+            var attribute = new AttributeDefinition(
+                "test-attribute",
+                "Test attribute",
+                "test-type",
+                3,
+                "test-overflow",
+                System.Array.Empty<MoneyRank.Domain.Events.GameEffectDefinition>());
+            var innerBoard = new InnerBoardDefinition(
+                "inner-board",
+                new[]
+                {
+                    new InnerBoardSpaceDefinition("start", 0, "start"),
+                    new InnerBoardSpaceDefinition("goal", 1, "goal", isGoal: true)
+                },
+                0,
+                "test-movement",
+                "test-capture",
+                "test-victory");
+            var session = new GameSession(
+                new SessionId("session-test"),
+                new SessionRules(2, 4),
+                new GameFlowStateMachine(),
+                null,
+                innerBoard,
+                new[] { attribute });
+
+            session.AddPlayer(CreatePlayer("p1", 0));
+            session.AddPlayer(CreatePlayer("p2", 1));
+
+            Assert.That(
+                session.TryGetAttributeState(new PlayerId("p1"), "test-attribute", out var firstAttribute),
+                Is.True);
+            Assert.That(
+                session.TryGetAttributeState(new PlayerId("p2"), "test-attribute", out var secondAttribute),
+                Is.True);
+            Assert.That(firstAttribute, Is.Not.SameAs(secondAttribute));
+            Assert.That(
+                session.TryGetInnerBoardState(new PlayerId("p1"), out var firstInnerState),
+                Is.True);
+            Assert.That(firstInnerState.Position, Is.EqualTo(innerBoard.StartIndex));
+            Assert.That(session.GetInnerBoardStates(), Has.Count.EqualTo(2));
+        }
+
+        [Test]
+        public void DuplicateConfiguredAttributeIdsAreRejected()
+        {
+            var attribute = new AttributeDefinition(
+                "same",
+                "Test attribute",
+                "test-type",
+                3,
+                "test-overflow",
+                System.Array.Empty<MoneyRank.Domain.Events.GameEffectDefinition>());
+
+            Assert.Throws<System.ArgumentException>(() =>
+                new GameSession(
+                    new SessionId("session-test"),
+                    new SessionRules(2, 4),
+                    new GameFlowStateMachine(),
+                    null,
+                    null,
+                    new[] { attribute, attribute }));
+        }
+
         private static GameSession CreateSession(int minimumPlayers = 2, int maximumPlayers = 4) =>
             new GameSession(
                 new SessionId("session-test"),
@@ -190,7 +281,7 @@ namespace MoneyRank.Tests.EditMode
 
         private static void AdvanceToEndTurn(GameSession session)
         {
-            session.TryTransition(GamePhase.AwaitMove);
+            session.BeginTurn();
             session.TryTransition(GamePhase.ResolveSpace);
             session.TryTransition(GamePhase.ApplyEffects);
             session.TryTransition(GamePhase.CheckProgress);

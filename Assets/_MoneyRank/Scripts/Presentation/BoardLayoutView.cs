@@ -90,7 +90,7 @@ namespace MoneyRank.Presentation.Board
             var existingRoot = transform.Find("Generated Spaces");
             if (existingRoot == null) return;
 
-            if (Application.isPlaying)
+            if (UnityEngine.Application.isPlaying)
                 Destroy(existingRoot.gameObject);
             else
                 DestroyImmediate(existingRoot.gameObject);

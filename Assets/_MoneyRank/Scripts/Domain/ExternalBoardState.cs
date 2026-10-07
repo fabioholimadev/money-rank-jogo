@@ -28,5 +28,19 @@ namespace MoneyRank.Domain
             CompletedLaps += result.CompletedLaps;
             return result;
         }
+
+        public void Restore(BoardDefinition board, int position, int completedLaps)
+        {
+            if (board == null) throw new ArgumentNullException(nameof(board));
+            if (!string.Equals(BoardId, board.Id, StringComparison.Ordinal))
+                throw new InvalidOperationException("Board state cannot be restored using a different board definition.");
+            if (position < 0 || position >= board.SpaceCount)
+                throw new ArgumentOutOfRangeException(nameof(position));
+            if (completedLaps < 0)
+                throw new ArgumentOutOfRangeException(nameof(completedLaps));
+
+            Position = position;
+            CompletedLaps = completedLaps;
+        }
     }
 }

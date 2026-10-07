@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d4f024d85e58431dba85cc8b40000001, type: 3}
+  m_Name: SandboxInvestment01
+  m_EditorClassIdentifier: MoneyRank.Content::MoneyRank.Content.EventDefinitionAsset
+  definition:
+    id: sandbox-investment-01
+    version: 1
+    categoryId: investment
+    title: Investimento de teste A
+    educationalText: Evento temporario para exercitar uma tabela de investimento.
+    tags: []
+    conditions: []
+    options:
+    - id: continue
+      label: Continuar
+      description: Registra a passagem por este evento de demonstracao.
+      requirements: []
+      effects:
+      - targetId: last-event
+        operationId: state.set
+        value: sandbox-investment-01
+        durationId: 
+        sourceId: event:sandbox-investment-01@1
+      visibilityId: always
+    durationId: 
+    presentationId: sandbox-card

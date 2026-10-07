@@ -1,0 +1,23 @@
+{
+  "name": "MoneyRank.PlayModeTests",
+  "rootNamespace": "MoneyRank.Tests.PlayMode",
+  "references": [
+    "MoneyRank.Domain",
+    "MoneyRank.Application",
+    "MoneyRank.Content",
+    "MoneyRank.Presentation",
+    "MoneyRank.Infrastructure"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": false,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false,
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ]
+}
