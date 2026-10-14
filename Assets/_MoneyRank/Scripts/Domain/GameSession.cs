@@ -568,6 +568,22 @@ namespace MoneyRank.Domain
             return OperationResult.Success();
         }
 
+        public OperationResult SkipActiveEventChoice()
+        {
+            if (Phase != GamePhase.AwaitChoice || ActiveEvent == null)
+                return OperationResult.Failure(
+                    "EVENT_CHOICE_NOT_ACTIVE",
+                    "There is no active event choice to skip.");
+            if (!_stateMachine.CanTransition(Phase, GamePhase.ApplyEffects))
+                return OperationResult.Failure(
+                    "INVALID_PHASE_TRANSITION",
+                    $"Transition from {Phase} to {GamePhase.ApplyEffects} is not allowed.");
+
+            Phase = GamePhase.ApplyEffects;
+            ActiveEvent = null;
+            return OperationResult.Success();
+        }
+
         public OperationResult CompleteProgressCheck(InnerBoardVictoryEvaluation evaluation)
         {
             if (evaluation == null)

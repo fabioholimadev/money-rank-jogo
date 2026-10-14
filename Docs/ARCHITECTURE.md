@@ -125,7 +125,8 @@ aprovadas como conteúdo antes de serem ativadas.
 - `GameSessionService` persiste os comandos de início e encerramento apenas
   quando aceitos pelo domínio.
 - `GameSessionService.RegisterMove` persiste somente movimentos aceitos.
-- `BoardDefinitionAsset` contém o subset temporário de 20 casas e quatro
+- `BoardDefinitionAsset` contém as 36 posições temporárias do perímetro visual
+  (quatro cantos e oito casas entre eles) e quatro
   categorias, mantendo todo o conteúdo editável no Inspector.
 - `BoardLayoutView` monta o perímetro de forma reproduzível a partir da definição.
 - `PlayerPieceView` somente representa um `BoardMoveResult`; posição e voltas são

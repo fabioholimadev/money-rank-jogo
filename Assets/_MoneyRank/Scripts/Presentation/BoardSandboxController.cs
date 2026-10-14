@@ -21,7 +21,23 @@ namespace MoneyRank.Presentation.Board
         private static readonly PlayerId[] SandboxPlayerIds =
         {
             new PlayerId("sandbox-player-1"),
-            new PlayerId("sandbox-player-2")
+            new PlayerId("sandbox-player-2"),
+            new PlayerId("sandbox-player-3"),
+            new PlayerId("sandbox-player-4")
+        };
+        private static readonly Vector3[] PlayerBoardOffsets =
+        {
+            new Vector3(-0.22f, 0f, -0.22f),
+            new Vector3(0.22f, 0f, -0.22f),
+            new Vector3(-0.22f, 0f, 0.22f),
+            new Vector3(0.22f, 0f, 0.22f)
+        };
+        private static readonly Color[] PlayerColors =
+        {
+            new Color(0.62f, 0.62f, 0.62f),
+            new Color(0.62f, 0.62f, 0.62f),
+            new Color(0.62f, 0.62f, 0.62f),
+            new Color(0.62f, 0.62f, 0.62f)
         };
 
         [SerializeField] private BoardDefinitionAsset definition;
@@ -35,9 +51,10 @@ namespace MoneyRank.Presentation.Board
         [SerializeField] private BoardLayoutView boardView;
         [SerializeField] private PlayerPieceView playerPiece;
         [SerializeField] private BoardCameraController cameraController;
+        [SerializeField, Range(2, 4)] private int configuredPlayerCount = 2;
         [SerializeField, Min(0)] private int demonstrationSteps = 3;
         [SerializeField] private bool usePersistentSave = true;
-        [SerializeField] private bool restoreExistingSave = true;
+        [SerializeField] private bool restoreExistingSave;
         [SerializeField] private string saveFolderName = "MoneyRank/Saves";
 
         private readonly Dictionary<PlayerId, PlayerPieceView> _playerPieces =
@@ -73,7 +90,65 @@ namespace MoneyRank.Presentation.Board
 
         private void Start()
         {
+            var startMenu = GetComponent<BoardStartMenuView>();
+            if (startMenu == null)
+                startMenu = gameObject.AddComponent<BoardStartMenuView>();
+            startMenu.Bind(this);
+        }
+
+        public bool HasSavedGame
+        {
+            get
+            {
+                if (!usePersistentSave)
+                    return false;
+
+                try
+                {
+                    var root = string.IsNullOrWhiteSpace(_saveRootOverride)
+                        ? ResolveConfiguredSaveRoot()
+                        : _saveRootOverride;
+                    var store = new FileGameSessionSaveStore(root);
+                    return File.Exists(store.GetSavePath(SandboxSessionId));
+                }
+                catch (Exception exception)
+                {
+                    LastErrorCode = $"SAVE_CHECK_FAILED: {exception.Message}";
+                    return false;
+                }
+            }
+        }
+
+        public bool StartNewGame()
+        {
+            return StartNewGame(configuredPlayerCount);
+        }
+
+        public bool StartNewGame(int playerCount)
+        {
+            if (Session != null)
+                return false;
+            if (playerCount < 2 || playerCount > SandboxPlayerIds.Length)
+            {
+                LastErrorCode = "PLAYER_COUNT_OUT_OF_RANGE";
+                return false;
+            }
+
+            configuredPlayerCount = playerCount;
+            restoreExistingSave = false;
+            RestoredExistingSave = false;
             Initialize();
+            return Session != null;
+        }
+
+        public bool ContinueSavedGame()
+        {
+            if (Session != null || !HasSavedGame)
+                return false;
+
+            restoreExistingSave = true;
+            Initialize();
+            return RestoredExistingSave;
         }
 
         public void Initialize()
@@ -89,6 +164,7 @@ namespace MoneyRank.Presentation.Board
             EventPanel.OptionRequested += HandleOptionRequested;
             EventPanel.ConfirmationRequested += HandleConfirmationRequested;
             EventPanel.CancellationRequested += HandleCancellationRequested;
+            EventPanel.CloseRequested += HandleEventCloseRequested;
             ControlPanel = GetComponent<SandboxControlPanelView>();
             if (ControlPanel == null)
                 ControlPanel = gameObject.AddComponent<SandboxControlPanelView>();
@@ -110,13 +186,22 @@ namespace MoneyRank.Presentation.Board
                 boardView.Rebuild();
             }
 
-            var secondPiece = Instantiate(playerPiece, playerPiece.transform.parent);
-            secondPiece.name = "PlayerPiece 2";
+            var playerCount = ResolvePlayerCount();
+            boardView.SetActivePlayerCount(playerCount);
             playerPiece.name = "PlayerPiece 1";
-            playerPiece.SetBoardOffset(new Vector3(-0.3f, 0f, 0f));
-            secondPiece.SetBoardOffset(new Vector3(0.3f, 0f, 0f));
-            _playerPieces.Add(SandboxPlayerIds[0], playerPiece);
-            _playerPieces.Add(SandboxPlayerIds[1], secondPiece);
+            var pieces = new PlayerPieceView[playerCount];
+            pieces[0] = playerPiece;
+            for (var index = 1; index < pieces.Length; index++)
+                pieces[index] = Instantiate(playerPiece, playerPiece.transform.parent);
+
+            for (var index = 0; index < playerCount; index++)
+            {
+                var piece = pieces[index];
+                piece.name = $"PlayerPiece {index + 1}";
+                piece.SetBoardOffset(PlayerBoardOffsets[index]);
+                piece.SetPlayerColor(PlayerColors[index]);
+                _playerPieces.Add(SandboxPlayerIds[index], piece);
+            }
 
             var repository = CreateRepository();
             _actionRecorder = new SessionActionRecorder("sandbox-ui", "sandbox-facilitator");
@@ -126,13 +211,13 @@ namespace MoneyRank.Presentation.Board
             _sessionStartedAt = DateTimeOffset.UtcNow;
             Session = new GameSession(
                 SandboxSessionId,
-                new SessionRules(2, 2),
+                new SessionRules(2, 4),
                 new GameFlowStateMachine(),
                 board,
                 innerBoard,
                 attributes,
                 characterDefinitions: characters);
-            for (var index = 0; index < SandboxPlayerIds.Length; index++)
+            for (var index = 0; index < playerCount; index++)
             {
                 EnsureSucceeded(
                     Session.AddPlayer(
@@ -141,9 +226,8 @@ namespace MoneyRank.Presentation.Board
             }
             if (characters.Count > 0)
             {
-                if (characters.Count < SandboxPlayerIds.Length)
-                    throw new InvalidOperationException("The sandbox needs one configured character per player.");
-                for (var index = 0; index < SandboxPlayerIds.Length; index++)
+                var playersWithCharacters = Math.Min(characters.Count, playerCount);
+                for (var index = 0; index < playersWithCharacters; index++)
                 {
                     EnsureSucceeded(
                         Session.AssignCharacter(SandboxPlayerIds[index], characters[index].Id),
@@ -234,8 +318,8 @@ namespace MoneyRank.Presentation.Board
             else
             {
                 currentPiece.SnapTo(result.Value.Destination, boardView.SpaceAnchors);
-                cameraController.SetState(BoardCameraState.FocusSpace, boardView.SpaceAnchors[result.Value.Destination]);
-                OpenCurrentSpaceEvent();
+                cameraController.SetState(BoardCameraState.FocusSpace, currentPiece.transform);
+                ShowLandingEvent();
             }
 
             return true;
@@ -269,10 +353,22 @@ namespace MoneyRank.Presentation.Board
             _activeEventDefinition = null;
             _activePreview = null;
             EventPanel.Hide();
-            cameraController.SetState(
-                BoardCameraState.FocusCurrentPlayer,
-                _playerPieces[Session.CurrentPlayer.Id].transform);
+            cameraController.ReturnToOverview();
             return true;
+        }
+
+        public bool ReopenPendingEvent()
+        {
+            if (Session == null ||
+                Session.Phase != GamePhase.AwaitChoice ||
+                EventPanel == null ||
+                EventPanel.Model.IsVisible)
+            {
+                return false;
+            }
+
+            ResumeOrOpenEvent();
+            return EventPanel.Model.IsVisible;
         }
 
         public bool ResolveDemonstrationProgress(int steps)
@@ -318,9 +414,7 @@ namespace MoneyRank.Presentation.Board
             {
                 EnsureSucceeded(_sessionService.CompleteTurn(SandboxSessionId), "complete the sandbox turn");
                 EnsureSucceeded(_sessionService.BeginTurn(SandboxSessionId), "begin the next sandbox turn");
-                cameraController.SetState(
-                    BoardCameraState.FocusCurrentPlayer,
-                    _playerPieces[Session.CurrentPlayer.Id].transform);
+                cameraController.ReturnToOverview();
             }
             else if (Session.Phase == GamePhase.GameEnd)
             {
@@ -396,8 +490,8 @@ namespace MoneyRank.Presentation.Board
         {
             cameraController.SetState(BoardCameraState.FollowPiece, currentPiece.transform);
             yield return currentPiece.Animate(result, boardView.SpaceAnchors);
-            cameraController.SetState(BoardCameraState.FocusSpace, boardView.SpaceAnchors[result.Destination]);
-            OpenCurrentSpaceEvent();
+            cameraController.SetState(BoardCameraState.FocusSpace, currentPiece.transform);
+            ShowLandingEvent();
         }
 
         private void ConfigureEventFlow(IGameSessionRepository repository)
@@ -504,57 +598,95 @@ namespace MoneyRank.Presentation.Board
                 cameraController.SetState(BoardCameraState.Results);
                 return;
             }
-            if (_eventSelectionService == null)
-                return;
-
             if (Session.Phase == GamePhase.AwaitChoice)
             {
-                var active = _eventSelectionService.GetActiveDefinition(SandboxSessionId);
-                if (!active.Succeeded)
+                var skipped = Session.SkipActiveEventChoice();
+                if (!skipped.Succeeded)
                 {
-                    LastErrorCode = active.ErrorCode;
-                    EventPanel.ShowError(active.Message);
+                    LastErrorCode = skipped.ErrorCode;
+                    EventPanel.Hide();
                     return;
                 }
 
-                _activeEventDefinition = active.Value;
-                ShowEventWithAvailability(_activeEventDefinition);
+                LastErrorCode = string.Empty;
+                _activeEventDefinition = null;
+                _activePreview = null;
+                EventPanel.Hide();
+                CompleteDemonstrationTurn();
                 return;
             }
 
             if (Session.Phase == GamePhase.ResolveSpace)
-                OpenCurrentSpaceEvent();
+                ShowLandingEvent();
         }
 
-        private bool OpenCurrentSpaceEvent()
+        private bool _isPrototypeEventOpen;
+
+        private void ShowLandingEvent()
         {
-            if (_eventSelectionService == null || Session.Phase != GamePhase.ResolveSpace)
-                return false;
-            if (Session.CurrentPlayer == null ||
-                !Session.TryGetBoardState(Session.CurrentPlayer.Id, out var boardState))
-                return false;
+            if (Session == null || Session.Phase != GamePhase.ResolveSpace || EventPanel == null)
+                return;
 
+            var player = Session.CurrentPlayer;
+            if (!Session.TryGetBoardState(player.Id, out var boardState))
+                return;
             var space = Session.Board.GetSpace(boardState.Position);
-            if (string.IsNullOrWhiteSpace(space.EventTableId))
-                return false;
+            var categoryId = string.IsNullOrWhiteSpace(space.CategoryId) ? "special-space" : space.CategoryId;
+            var categoryName = GetCategoryDisplayName(categoryId);
+            var options = new[] { "X", "Y", "Z" }
+                .Select(choice => new EventOptionDefinition(
+                    choice,
+                    choice,
+                    "Opção provisória para este protótipo; ainda sem efeito de jogo.",
+                    new RequirementDefinition[0],
+                    new GameEffectDefinition[0],
+                    "public"));
+            _activeEventDefinition = new EventDefinition(
+                $"prototype-space-{space.Index:00}",
+                1,
+                categoryId,
+                $"Evento de {space.DisplayName}",
+                $"Categoria: {categoryName}\nEscolha uma carta para continuar a partida.",
+                new[] { "prototype" },
+                new RequirementDefinition[0],
+                options,
+                presentationId: "prototype-cards");
+            _activePreview = null;
+            _isPrototypeEventOpen = true;
+            EventPanel.ShowPrototype(_activeEventDefinition);
+        }
 
-            var selected = _eventSelectionService.SelectCurrentSpace(
-                SandboxSessionId,
-                eventSelectionPolicyId,
-                Session.EventHistory.Records.Count,
-                Array.Empty<DefinitionParameter>());
-            if (!selected.Succeeded)
+        private static string GetCategoryDisplayName(string categoryId)
+        {
+            switch (categoryId)
             {
-                LastErrorCode = selected.ErrorCode;
-                EventPanel.ShowError(selected.Message);
-                return false;
+                case "essential-expense": return "Despesa essencial";
+                case "non-essential-expense": return "Despesa não essencial";
+                case "investment": return "Investimento";
+                case "tax": return "Imposto";
+                case "debt": return "Dívida";
+                case "life-progress": return "Progresso de vida";
+                case "opportunity": return "Oportunidade";
+                case "leisure": return "Lazer";
+                case "special-space": return "Casa especial";
+                default: return categoryId;
             }
+        }
+
+        private bool CompleteLandingWithoutEvent()
+        {
+            if (Session == null || Session.Phase != GamePhase.ResolveSpace)
+                return false;
 
             LastErrorCode = string.Empty;
-            _activeEventDefinition = selected.Value.Definition;
+            _activeEventDefinition = null;
             _activePreview = null;
-            ShowEventWithAvailability(_activeEventDefinition);
-            return true;
+            _isPrototypeEventOpen = false;
+            EventPanel.Hide();
+            var completed = CompleteDemonstrationTurn();
+            if (!completed && string.IsNullOrEmpty(LastErrorCode))
+                LastErrorCode = "LANDING_TURN_COMPLETION_FAILED";
+            return completed;
         }
 
         private void ShowEventWithAvailability(EventDefinition definitionToShow)
@@ -574,6 +706,15 @@ namespace MoneyRank.Presentation.Board
 
         private void HandleOptionRequested(string optionId)
         {
+            if (_isPrototypeEventOpen)
+            {
+                _isPrototypeEventOpen = false;
+                EventPanel.Hide();
+                ControlPanel.ReportStatus($"Carta {optionId} selecionada. Vez do próximo jogador.");
+                CompleteLandingWithoutEvent();
+                return;
+            }
+
             if (_eventService == null || _activeEventDefinition == null)
                 return;
 
@@ -619,7 +760,11 @@ namespace MoneyRank.Presentation.Board
 
             _undoCheckpointIds.Add(checkpointId);
             LastErrorCode = string.Empty;
-            EventPanel.ShowConfirmation(confirmation.Value);
+            _activeEventDefinition = null;
+            _activePreview = null;
+            EventPanel.Hide();
+            ControlPanel.ReportStatus(
+                "Evento confirmado. Informe os passos da progressão para continuar o turno.");
         }
 
         private void HandleCancellationRequested()
@@ -632,6 +777,35 @@ namespace MoneyRank.Presentation.Board
             EventPanel.Model.CancelPreview();
         }
 
+        private void HandleEventCloseRequested()
+        {
+            if (_isPrototypeEventOpen && Session?.Phase == GamePhase.ResolveSpace)
+            {
+                _isPrototypeEventOpen = false;
+                CompleteLandingWithoutEvent();
+                return;
+            }
+
+            if (Session?.Phase == GamePhase.AwaitChoice)
+            {
+                if (UndoLastAction() && Session.Phase == GamePhase.AwaitMove)
+                {
+                    ControlPanel.ReportStatus(
+                        "Evento fechado. Você voltou ao controle do movimento; ajuste os passos e tente novamente.");
+                    return;
+                }
+
+                EventPanel.ShowError(
+                    $"Não foi possível voltar ao controle do movimento: {LastErrorCode}.");
+                return;
+            }
+
+            _activeEventDefinition = null;
+            _activePreview = null;
+            _isPrototypeEventOpen = false;
+            EventPanel.Hide();
+        }
+
         private IGameSessionRepository CreateRepository()
         {
             if (!usePersistentSave)
@@ -641,6 +815,26 @@ namespace MoneyRank.Presentation.Board
                 ? ResolveConfiguredSaveRoot()
                 : _saveRootOverride;
             return new FileBackedGameSessionRepository(new FileGameSessionSaveStore(ActiveSaveRoot));
+        }
+
+        private int ResolvePlayerCount()
+        {
+            if (!restoreExistingSave || !usePersistentSave)
+                return configuredPlayerCount;
+
+            var saveRoot = string.IsNullOrWhiteSpace(_saveRootOverride)
+                ? ResolveConfiguredSaveRoot()
+                : _saveRootOverride;
+            var savedSession = new FileGameSessionSaveStore(saveRoot).Load(SandboxSessionId);
+            if (!savedSession.Succeeded)
+                throw new InvalidOperationException(
+                    $"Could not read the saved player count: {savedSession.ErrorCode}.");
+
+            var playerCount = savedSession.Value.Players.Count;
+            if (playerCount < 2 || playerCount > SandboxPlayerIds.Length)
+                throw new InvalidOperationException(
+                    $"The saved session has {playerCount} players; this build supports between 2 and {SandboxPlayerIds.Length}.");
+            return playerCount;
         }
 
         private string ResolveConfiguredSaveRoot()
@@ -709,9 +903,7 @@ namespace MoneyRank.Presentation.Board
             if (Session.Phase == GamePhase.AwaitChoice)
                 ResumeOrOpenEvent();
             else if (Session.CurrentPlayer != null)
-                cameraController.SetState(
-                    BoardCameraState.FocusCurrentPlayer,
-                    _playerPieces[Session.CurrentPlayer.Id].transform);
+                cameraController.ReturnToOverview();
         }
 
         private void AttachFreshSession(IGameSessionRepository repository)

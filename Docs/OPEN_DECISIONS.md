@@ -6,7 +6,7 @@ de virar regra rígida sem aprovação.
 
 ## Conteúdo e layout
 
-1. Mapa, ordem e numeração exatos das 24 casas de evento no tabuleiro externo.
+1. Compatibilizar o mapa externo: a V3 aprovada define 28 posições (24 eventos), enquanto o documento de distribuição recebido em 04/09/2026 lista 36 posições (32 eventos e quatro cantos). O sandbox foi atualizado para o mapa de 36 posições solicitado; confirmar futuramente qual versão será a regra oficial.
 2. Posições exatas dos dois pontos de salvamento e das casas protegidas no
    tabuleiro interno.
 3. Quantidade e representação visual das peças internas por jogador.
@@ -62,6 +62,9 @@ de virar regra rígida sem aprovação.
 - Limites de jogadores são fornecidos por `SessionRules`.
 - A fundação de atributos, tabuleiro interno, captura, vitória, economia e
   tributação usa políticas e IDs configuráveis.
-- O sandbox ainda usa 20 casas, quatro categorias, três atributos genéricos,
-  dois personagens genéricos e caminho interno de seis posições. Esses números
-  são conteúdo temporário de teste, não regras do Money Rank.
+- O sandbox usa 36 posições externas seguindo o documento de distribuição recebido:
+  quatro cantos e oito casas em cada setor, com oito categorias repetidas quatro
+  vezes. A V3 aprovada ainda descreve 28 posições, portanto a divergência está
+  pendente de decisão editorial. As cartas X/Y/Z são somente protótipos sem efeitos.
+- O sandbox ainda usa três atributos genéricos, dois personagens genéricos e
+  caminho interno de seis posições; esses dados continuam temporários.

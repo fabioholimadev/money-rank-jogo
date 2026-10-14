@@ -136,7 +136,9 @@ namespace MoneyRank.Presentation
 
         private void OnGUI()
         {
-            if (_controller?.Session == null) return;
+            if (_controller?.Session == null || _controller.EventPanel?.Model.IsVisible == true)
+                return;
+
             panelRect = GUI.Window(_windowId, panelRect, DrawWindow, "Money Rank — Painel do Mestre");
         }
 
@@ -170,6 +172,15 @@ namespace MoneyRank.Presentation
             }
 
             GUILayout.Space(12f);
+            if (session.Phase == GamePhase.AwaitChoice && !_controller.EventPanel.Model.IsVisible)
+            {
+                if (GUILayout.Button("Reabrir evento pendente", GUILayout.Height(40f)) &&
+                    !_controller.ReopenPendingEvent())
+                {
+                    StatusMessage = $"Não foi possível reabrir o evento: {_controller.LastErrorCode}.";
+                }
+            }
+
             GUILayout.Label("Passos informados pelo mestre");
             stepInput = GUILayout.TextField(stepInput, 8, GUILayout.Height(32f));
 
