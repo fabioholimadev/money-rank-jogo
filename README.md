@@ -79,3 +79,9 @@ unity build --target StandaloneWindows64 --output-path Builds/Windows/MoneyRank.
 O build validado localmente é gerado em `Builds/Windows/` (diretório ignorado
 pelo Git). Saves do player ficam no diretório gravável retornado por
 `Application.persistentDataPath`.
+
+## Para conhecer o Money Rank
+
+Este repositório contém o painel digital em Unity do Money Rank Jogo, um jogo físico-digital voltado à educação financeira e fiscal. O jogo foi desenvolvido a partir da iniciativa Money Rank no contexto do Espaço CRIAs, com participação de uma equipe multidisciplinar.
+
+A [plataforma Money Rank](https://github.com/fabioholimadev/Money-Rank) é uma frente relacionada e tem seu próprio repositório. O jogo está em desenvolvimento; o sandbox e a documentação técnica abaixo descrevem o estado atual e as decisões ainda pendentes.
