@@ -28,6 +28,29 @@ Este documento será expandido junto ao vertical slice.
 
 `EventOptionDefinition` contém texto, `visibilityId`, requisitos e efeitos.
 
+### Cartas de Oportunidade
+
+Eventos da categoria `opportunity` usam tags estáveis para definir o conjunto
+elegível:
+
+- `opportunity:general` para cartas gerais;
+- `opportunity:profession:<characterId>` para uma profissão específica;
+- `opportunity:profession-card` para identificar carta profissional descartável;
+- `effect:pending-approval` para conteúdo provisório cujos efeitos não podem ser
+  executados.
+
+Ao cair numa casa, a tela considera somente os eventos da tabela daquela casa,
+filtra cartas gerais e da profissão atual, sorteia até três sem repetição e
+atribui peso 0,5 a cartas gerais já confirmadas. Consultar a descrição não muda
+o estado da carta; o uso/descarte só é registrado após confirmação. Recusar todas
+encerra a ação sem modificar cartas nem atributos.
+
+Uma carta marcada `effect:pending-approval` pode ser consultada e escolhida para
+encerrar a ação, mas a confirmação usa uma cópia sem seus efeitos. A carta fica
+identificada na interface como provisória. O alcance do descarte profissional
+é controlado pelo campo `discardProfessionCardsForAllPlayersWithSameProfession`
+no controlador do sandbox e continua pendente de decisão final.
+
 Como atributos, recursos e operações finais ainda não foram congelados,
 `RequirementDefinition` usa `typeId` e parâmetros chave/valor, enquanto
 `GameEffectDefinition` usa IDs de alvo, operação, duração e origem. O valor do

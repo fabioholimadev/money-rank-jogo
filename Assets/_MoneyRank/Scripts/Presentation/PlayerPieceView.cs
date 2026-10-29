@@ -51,9 +51,13 @@ namespace MoneyRank.Presentation.Board
             var bodyTinted = false;
             foreach (var renderer in _playerModel.GetComponentsInChildren<Renderer>())
             {
+                // The high-poly imported mesh was self-shadowing into tiny speckles.
+                // Board surfaces do not receive shadows either, so keep these clean.
+                renderer.receiveShadows = false;
                 var materials = renderer.materials;
                 for (var index = 0; index < materials.Length; index++)
                 {
+                    SetMatteFinish(materials[index]);
                     if (!materials[index].name.Contains("capybara_body") &&
                         !(materials[index].name.Contains("(Instance)") && !bodyTinted))
                         continue;
@@ -120,6 +124,16 @@ namespace MoneyRank.Presentation.Board
                 material.SetColor("_BaseColor", color);
             if (material.HasProperty("_Color"))
                 material.SetColor("_Color", color);
+        }
+
+        private static void SetMatteFinish(Material material)
+        {
+            if (material == null) return;
+            if (material.HasProperty("_Metallic")) material.SetFloat("_Metallic", 0f);
+            if (material.HasProperty("_Smoothness")) material.SetFloat("_Smoothness", 0.12f);
+            if (material.HasProperty("_Glossiness")) material.SetFloat("_Glossiness", 0.12f);
+            if (material.HasProperty("_SpecularHighlights")) material.SetFloat("_SpecularHighlights", 0f);
+            if (material.HasProperty("_EnvironmentReflections")) material.SetFloat("_EnvironmentReflections", 0f);
         }
     }
 }

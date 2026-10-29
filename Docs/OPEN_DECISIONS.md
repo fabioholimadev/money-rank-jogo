@@ -13,11 +13,29 @@ de virar regra rígida sem aprovação.
 4. Três exemplos finais de carta para cada uma das oito categorias.
 5. Assets finais: identidade visual, ícones, fontes, materiais, personagens,
    animações, áudio e licenças.
+- Definir e cadastrar o conteúdo/efeito da carta Moradia; até lá, não existe
+  cobrança automática por casas possuídas.
+
+### Cartas de Oportunidade
+
+- Definir os efeitos aprovados para cada carta; as duas cartas atuais do
+  sandbox são protótipos sem efeito de jogo.
+- Confirmar se o descarte de carta profissional vale para todos os jogadores
+  daquela profissão ou somente para quem confirmou o uso. O sandbox deixa esse
+  comportamento configurável e usa o escopo por jogador enquanto a decisão não
+  for tomada.
+- Criar conteúdo de cartas gerais e específicas por profissão. A interface
+  atualmente oferece somente as cartas cadastradas na tabela de Oportunidade
+  da casa e mostra até três.
 
 ## Configuração da partida
 
 6. Personagens podem se repetir ou devem ser exclusivos por sessão?
-7. A seleção inicial será manual, aleatória ou oferecerá as duas opções?
+7. Quais atributos, habilidades e contrapesos oficiais serão cadastrados nos
+   seis perfis de personagem? No protótipo, o sorteio é feito fora do jogo e o
+   mestre registra manualmente o resultado na tela de seleção. O protótipo
+   permite personagens repetidos; a regra definitiva de exclusividade continua
+   pendente.
 8. Quais permissões distinguem mestre/facilitador e operador/aluno?
 
 ## Regras que exigem validação
@@ -33,8 +51,12 @@ de virar regra rígida sem aprovação.
 ## Produto futuro — fora do MVP inicial
 
 14. Protocolo do modo físico-digital e eventual hardware.
-15. Participação por celular.
-16. Multiplayer online, contas, nuvem e matchmaking.
+15. Suporte Android/participação por celular — em implementação conforme a
+    solicitação da Fase 2; faltam build e testes em aparelho real.
+16. Multiplayer online — em implementação com Unity Multiplayer Services,
+    Relay e Netcode for GameObjects. O MVP técnico de sala e código está iniciado;
+    sincronização autoritativa de gameplay, reconexão e configuração operacional
+    dos serviços ainda precisam ser concluídas e testadas.
 17. O dado de inflação não aparece como regra ativa na V3; qualquer retorno
     precisa de aprovação explícita.
 

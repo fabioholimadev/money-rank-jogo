@@ -12,6 +12,7 @@ using MoneyRank.Infrastructure.Persistence;
 using MoneyRank.Presentation.CameraSystem;
 using MoneyRank.Presentation.Events;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace MoneyRank.Presentation.Board
 {
@@ -43,6 +44,7 @@ namespace MoneyRank.Presentation.Board
         [SerializeField] private BoardDefinitionAsset definition;
         [SerializeField] private EventContentCatalogAsset eventCatalog;
         [SerializeField] private string eventSelectionPolicyId = "sandbox-table-index";
+        [SerializeField] private bool discardProfessionCardsForAllPlayersWithSameProfession;
         [SerializeField] private InnerBoardDefinitionAsset innerBoardDefinition;
         [SerializeField] private List<AttributeDefinitionAsset> attributeDefinitionAssets =
             new List<AttributeDefinitionAsset>();
@@ -51,7 +53,7 @@ namespace MoneyRank.Presentation.Board
         [SerializeField] private BoardLayoutView boardView;
         [SerializeField] private PlayerPieceView playerPiece;
         [SerializeField] private BoardCameraController cameraController;
-        [SerializeField, Range(2, 4)] private int configuredPlayerCount = 2;
+        [SerializeField, Range(1, 4)] private int configuredPlayerCount = 2;
         [SerializeField, Min(0)] private int demonstrationSteps = 3;
         [SerializeField] private bool usePersistentSave = true;
         [SerializeField] private bool restoreExistingSave;
@@ -63,12 +65,19 @@ namespace MoneyRank.Presentation.Board
         private SessionActionRecorder _actionRecorder;
         private GameEventSelectionService _eventSelectionService;
         private GameEventService _eventService;
+        private IGameSessionRepository _sessionRepository;
+        private EventContentCatalog _eventContentCatalog;
         private GameProgressionService _progressionService;
         private EventDefinition _activeEventDefinition;
+        private EventDefinition _selectedOpportunityCard;
         private EventResolutionPreview _activePreview;
         private InnerBoardResolutionResult _lastProgressionResult;
         private string _saveRootOverride;
         private readonly List<string> _undoCheckpointIds = new List<string>();
+        private string[] _newGameCharacterIds;
+        private int[] _newGameTurnOrders;
+        private float _timeScaleBeforePause = 1f;
+        private bool _changedTimeScaleForPause;
         private SessionUndoJournal _undoJournal;
         private GameUndoService _undoService;
         private DateTimeOffset _sessionStartedAt;
@@ -81,12 +90,24 @@ namespace MoneyRank.Presentation.Board
         public string ActiveSaveRoot { get; private set; } = string.Empty;
         public bool RestoredExistingSave { get; private set; }
         public bool IsAnimating => _playerPieces.Values.Any(piece => piece.IsAnimating);
+        public bool IsPaused { get; private set; }
+        public bool IsOnlineSession => GetComponent<OnlineSessionCoordinator>()?.IsInRoom == true;
         public EventDefinition ActiveEventDefinition => _activeEventDefinition;
         public EventResolutionPreview ActivePreview => _activePreview;
         public InnerBoardResolutionResult LastProgressionResult => _lastProgressionResult;
         public bool CanUndo => _undoCheckpointIds.Count > 0;
         public string LastExportDirectory { get; private set; } = string.Empty;
         public SessionUndoJournal UndoJournal => _undoJournal;
+        public IReadOnlyList<MoneyRank.Domain.Characters.CharacterDefinition> CharacterDefinitions =>
+            characterDefinitionAssets.Where(asset => asset != null).Select(asset => asset.ToDomain()).ToList();
+
+        private void Awake()
+        {
+#if UNITY_ANDROID && !UNITY_EDITOR
+            // Keep the Android build horizontal. Windows and the Editor keep their existing display settings.
+            Screen.orientation = ScreenOrientation.LandscapeLeft;
+#endif
+        }
 
         private void Start()
         {
@@ -126,15 +147,55 @@ namespace MoneyRank.Presentation.Board
 
         public bool StartNewGame(int playerCount)
         {
+            return StartNewGame(playerCount, null);
+        }
+
+        public bool StartNewGame(int playerCount, IReadOnlyList<int> characterSelections)
+        {
+            return StartNewGame(playerCount, characterSelections, null);
+        }
+
+        public bool StartNewGame(
+            int playerCount,
+            IReadOnlyList<int> characterSelections,
+            IReadOnlyList<int> turnOrders)
+        {
             if (Session != null)
                 return false;
-            if (playerCount < 2 || playerCount > SandboxPlayerIds.Length)
+            if (playerCount < 1 || playerCount > SandboxPlayerIds.Length)
             {
                 LastErrorCode = "PLAYER_COUNT_OUT_OF_RANGE";
                 return false;
             }
 
+            var resolvedTurnOrders = turnOrders == null
+                ? Enumerable.Range(0, playerCount).ToArray()
+                : turnOrders.Take(playerCount).ToArray();
+            if (resolvedTurnOrders.Length != playerCount ||
+                resolvedTurnOrders.Any(order => order < 0 || order >= playerCount) ||
+                resolvedTurnOrders.Distinct().Count() != playerCount)
+            {
+                LastErrorCode = "TURN_ORDER_INVALID";
+                return false;
+            }
+            _newGameTurnOrders = resolvedTurnOrders;
+
             configuredPlayerCount = playerCount;
+            if (characterSelections != null)
+            {
+                if (characterDefinitionAssets.Count < 6 || characterSelections.Count < playerCount ||
+                    characterSelections.Take(playerCount).Any(index => index < 0 || index >= characterDefinitionAssets.Count))
+                {
+                    LastErrorCode = "CHARACTER_SELECTION_INVALID";
+                    return false;
+                }
+                _newGameCharacterIds = characterSelections.Take(playerCount)
+                    .Select(index => characterDefinitionAssets[index].ToDomain().Id).ToArray();
+            }
+            else
+            {
+                _newGameCharacterIds = null;
+            }
             restoreExistingSave = false;
             RestoredExistingSave = false;
             Initialize();
@@ -165,9 +226,15 @@ namespace MoneyRank.Presentation.Board
             EventPanel.ConfirmationRequested += HandleConfirmationRequested;
             EventPanel.CancellationRequested += HandleCancellationRequested;
             EventPanel.CloseRequested += HandleEventCloseRequested;
+            EventPanel.OpportunityChosen += HandleOpportunityChosen;
+            EventPanel.OpportunityDeclined += HandleOpportunityDeclined;
             ControlPanel = GetComponent<SandboxControlPanelView>();
             if (ControlPanel == null)
                 ControlPanel = gameObject.AddComponent<SandboxControlPanelView>();
+            var pauseMenu = GetComponent<PauseMenuView>();
+            if (pauseMenu == null)
+                pauseMenu = gameObject.AddComponent<PauseMenuView>();
+            pauseMenu.Bind(this);
 
             var board = definition.ToDomain();
             var innerBoard = innerBoardDefinition == null ? null : innerBoardDefinition.ToDomain();
@@ -187,6 +254,8 @@ namespace MoneyRank.Presentation.Board
             }
 
             var playerCount = ResolvePlayerCount();
+            if (_newGameTurnOrders == null || _newGameTurnOrders.Length != playerCount)
+                _newGameTurnOrders = Enumerable.Range(0, playerCount).ToArray();
             boardView.SetActivePlayerCount(playerCount);
             playerPiece.name = "PlayerPiece 1";
             var pieces = new PlayerPieceView[playerCount];
@@ -204,6 +273,7 @@ namespace MoneyRank.Presentation.Board
             }
 
             var repository = CreateRepository();
+            _sessionRepository = repository;
             _actionRecorder = new SessionActionRecorder("sandbox-ui", "sandbox-facilitator");
             _sessionService = new GameSessionService(repository, _actionRecorder);
             _undoJournal = new SessionUndoJournal();
@@ -211,7 +281,7 @@ namespace MoneyRank.Presentation.Board
             _sessionStartedAt = DateTimeOffset.UtcNow;
             Session = new GameSession(
                 SandboxSessionId,
-                new SessionRules(2, 4),
+                new SessionRules(1, 4),
                 new GameFlowStateMachine(),
                 board,
                 innerBoard,
@@ -221,10 +291,19 @@ namespace MoneyRank.Presentation.Board
             {
                 EnsureSucceeded(
                     Session.AddPlayer(
-                        new Player(SandboxPlayerIds[index], $"Sandbox Player {index + 1}", index)),
+                        new Player(SandboxPlayerIds[index], $"Sandbox Player {index + 1}", _newGameTurnOrders[index])),
                     "configure a sandbox player");
             }
-            if (characters.Count > 0)
+            if (_newGameCharacterIds != null)
+            {
+                for (var index = 0; index < _newGameCharacterIds.Length; index++)
+                {
+                    EnsureSucceeded(
+                        Session.AssignCharacter(SandboxPlayerIds[index], _newGameCharacterIds[index]),
+                        "assign a selected sandbox character");
+                }
+            }
+            else if (characters.Count > 0)
             {
                 var playersWithCharacters = Math.Min(characters.Count, playerCount);
                 for (var index = 0; index < playersWithCharacters; index++)
@@ -284,6 +363,81 @@ namespace MoneyRank.Presentation.Board
             usePersistentSave = true;
             restoreExistingSave = restoreExisting;
             _saveRootOverride = Path.GetFullPath(saveRoot);
+        }
+
+        public void SetPaused(bool paused)
+        {
+            if (Session == null || IsPaused == paused)
+                return;
+
+            IsPaused = paused;
+            EventPanel?.SetPaused(paused);
+            if (IsOnlineSession)
+            {
+                _changedTimeScaleForPause = false;
+                return;
+            }
+
+            if (paused)
+            {
+                _timeScaleBeforePause = Time.timeScale;
+                _changedTimeScaleForPause = true;
+                Time.timeScale = 0f;
+            }
+            else if (_changedTimeScaleForPause)
+            {
+                Time.timeScale = _timeScaleBeforePause;
+                _changedTimeScaleForPause = false;
+            }
+        }
+
+        public bool TrySaveCurrentGame(out string error)
+        {
+            error = string.Empty;
+            if (Session == null)
+            {
+                error = "Não há partida ativa para salvar.";
+                return false;
+            }
+            if (IsOnlineSession)
+            {
+                error = "Salvar e retomar partidas online ainda não é suportado: o estado da partida não é sincronizado entre os jogadores.";
+                return false;
+            }
+            if (!usePersistentSave)
+            {
+                error = "O salvamento persistente está desativado nesta sessão.";
+                return false;
+            }
+
+            try
+            {
+                ActiveSaveRoot = string.IsNullOrWhiteSpace(ActiveSaveRoot)
+                    ? ResolveConfiguredSaveRoot()
+                    : ActiveSaveRoot;
+                var save = new FileGameSessionSaveStore(ActiveSaveRoot).Save(Session.CreateMemento());
+                if (save.Succeeded)
+                    return true;
+
+                error = $"Falha ao salvar ({save.ErrorCode}): {save.Message}";
+                LastErrorCode = save.ErrorCode;
+                return false;
+            }
+            catch (Exception exception)
+            {
+                error = $"Falha ao salvar: {exception.Message}";
+                LastErrorCode = $"SAVE_FAILED: {exception.Message}";
+                return false;
+            }
+        }
+
+        public void ReturnToMenuAfterSaving()
+        {
+            SetPaused(false);
+            var activeScene = SceneManager.GetActiveScene();
+            SceneManager.LoadScene(string.IsNullOrWhiteSpace(activeScene.path)
+                ? activeScene.name
+                : activeScene.path);
         }
 
         [ContextMenu("Move Demonstration Steps")]
@@ -500,6 +654,7 @@ namespace MoneyRank.Presentation.Board
                 return;
 
             var catalog = eventCatalog.ToDomain();
+            _eventContentCatalog = catalog;
             var effectExecutor = new EffectExecutor(
                 new IEffectHandler[]
                 {
@@ -632,6 +787,10 @@ namespace MoneyRank.Presentation.Board
                 return;
             var space = Session.Board.GetSpace(boardState.Position);
             var categoryId = string.IsNullOrWhiteSpace(space.CategoryId) ? "special-space" : space.CategoryId;
+            if (string.Equals(categoryId, "opportunity", StringComparison.Ordinal) &&
+                TryShowOpportunityOffer(space.EventTableId))
+                return;
+
             var categoryName = GetCategoryDisplayName(categoryId);
             var options = new[] { "X", "Y", "Z" }
                 .Select(choice => new EventOptionDefinition(
@@ -654,6 +813,156 @@ namespace MoneyRank.Presentation.Board
             _activePreview = null;
             _isPrototypeEventOpen = true;
             EventPanel.ShowPrototype(_activeEventDefinition);
+        }
+
+        private bool TryShowOpportunityOffer(string tableId)
+        {
+            if (_eventContentCatalog == null || string.IsNullOrWhiteSpace(tableId))
+                return false;
+            var table = _eventContentCatalog.GetTable(tableId);
+            if (table == null)
+                return false;
+
+            var player = Session.CurrentPlayer;
+            var professionId = Session.TryGetCharacter(player.Id, out var character) ? character.Id : string.Empty;
+            var usedGeneral = GetOpportunityCardIds("opportunity.general.used.");
+            var usedProfession = GetPlayerOpportunityCardIds(player.Id, "opportunity.profession.used.");
+            var eligible = table.Events
+                .Select(key => _eventContentCatalog.GetEvent(key))
+                .Where(card => card != null && string.Equals(card.CategoryId, "opportunity", StringComparison.Ordinal))
+                .Where(card => card.Tags.Contains("opportunity:general") ||
+                    (!string.IsNullOrEmpty(professionId) && card.Tags.Contains($"opportunity:profession:{professionId}")))
+                .Where(card => !IsProfessionOpportunityCard(card) || !usedProfession.Contains(card.Id))
+                .ToList();
+
+            var offer = new List<EventDefinition>(Math.Min(3, eligible.Count));
+            while (offer.Count < 3 && eligible.Count > 0)
+            {
+                var weights = eligible.Select(card =>
+                    card.Tags.Contains("opportunity:general") && usedGeneral.Contains(card.Id) ? 0.5f : 1f).ToArray();
+                var totalWeight = weights.Sum();
+                if (totalWeight <= 0f)
+                    break;
+                var draw = UnityEngine.Random.value * totalWeight;
+                var selectedIndex = 0;
+                for (; selectedIndex < weights.Length - 1; selectedIndex++)
+                {
+                    draw -= weights[selectedIndex];
+                    if (draw < 0f)
+                        break;
+                }
+                offer.Add(eligible[selectedIndex]);
+                eligible.RemoveAt(selectedIndex);
+            }
+
+            _selectedOpportunityCard = null;
+            _isPrototypeEventOpen = false;
+            EventPanel.ShowOpportunityOffer(offer);
+            return true;
+        }
+
+        private static bool IsProfessionOpportunityCard(EventDefinition card) =>
+            card.Tags.Contains("opportunity:profession-card") ||
+            card.Tags.Any(tag => tag.StartsWith("opportunity:profession:", StringComparison.Ordinal));
+
+        private HashSet<string> GetOpportunityCardIds(string keyPrefix)
+        {
+            var ids = new HashSet<string>(StringComparer.Ordinal);
+            foreach (var player in Session.Players)
+            {
+                if (!Session.TryGetEventState(player.Id, out var state))
+                    continue;
+                foreach (var key in state.CreateSnapshot().Values.Keys)
+                    if (key.StartsWith(keyPrefix, StringComparison.Ordinal))
+                        ids.Add(key.Substring(keyPrefix.Length));
+            }
+            return ids;
+        }
+
+        private HashSet<string> GetPlayerOpportunityCardIds(PlayerId playerId, string keyPrefix)
+        {
+            var ids = new HashSet<string>(StringComparer.Ordinal);
+            if (!Session.TryGetEventState(playerId, out var state))
+                return ids;
+            foreach (var key in state.CreateSnapshot().Values.Keys)
+                if (key.StartsWith(keyPrefix, StringComparison.Ordinal))
+                    ids.Add(key.Substring(keyPrefix.Length));
+            return ids;
+        }
+
+        private void HandleOpportunityChosen(EventDefinition card)
+        {
+            if (card == null || Session == null || Session.Phase != GamePhase.ResolveSpace || _sessionRepository == null)
+                return;
+            if (!Session.TryGetBoardState(Session.CurrentPlayer.Id, out var boardState))
+                return;
+            var space = Session.Board.GetSpace(boardState.Position);
+            var table = _eventContentCatalog?.GetTable(space.EventTableId);
+            var cardKey = new EventDefinitionKey(card.Id, card.Version);
+            if (table == null || !table.Events.Contains(cardKey))
+            {
+                LastErrorCode = "OPPORTUNITY_CARD_NOT_IN_SPACE_TABLE";
+                EventPanel.ShowError("Esta carta não pertence à lista configurada para a casa.");
+                return;
+            }
+
+            // Pending effects are intentionally stripped from the playable definition until approved.
+            var playableCard = card.Tags.Contains("effect:pending-approval")
+                ? new EventDefinition(card.Id, card.Version, card.CategoryId, card.Title, card.EducationalText,
+                    card.Tags, card.Conditions, card.Options.Select(option => new EventOptionDefinition(
+                        option.Id, option.Label, option.Description, option.Requirements,
+                        Array.Empty<GameEffectDefinition>(), option.VisibilityId)),
+                    card.DurationId, card.PresentationId)
+                : card;
+            var selection = new EventSelectionResult(playableCard, table.Id, eventSelectionPolicyId, 0);
+            var beginChoice = Session.BeginEventChoice(selection, space.Id);
+            if (!beginChoice.Succeeded)
+            {
+                LastErrorCode = beginChoice.ErrorCode;
+                EventPanel.ShowError(beginChoice.Message);
+                return;
+            }
+
+            _sessionRepository.Save(Session);
+            _selectedOpportunityCard = card;
+            _activeEventDefinition = playableCard;
+            _activePreview = null;
+            LastErrorCode = string.Empty;
+            ShowEventWithAvailability(playableCard);
+        }
+
+        private void HandleOpportunityDeclined()
+        {
+            if (Session == null || Session.Phase != GamePhase.ResolveSpace)
+                return;
+            _selectedOpportunityCard = null;
+            CompleteLandingWithoutEvent();
+        }
+
+        private void RecordConfirmedOpportunityCard(EventDefinition card)
+        {
+            if (card == null || Session == null)
+                return;
+            var keyPrefix = card.Tags.Contains("opportunity:general")
+                ? "opportunity.general.used."
+                : "opportunity.profession.used.";
+            foreach (var player in Session.Players)
+            {
+                if (keyPrefix.StartsWith("opportunity.profession", StringComparison.Ordinal))
+                {
+                    var shouldRecord = player.Id == Session.CurrentPlayer.Id;
+                    if (discardProfessionCardsForAllPlayersWithSameProfession &&
+                        Session.TryGetCharacter(Session.CurrentPlayer.Id, out var currentCharacter) &&
+                        Session.TryGetCharacter(player.Id, out var otherCharacter))
+                        shouldRecord = string.Equals(currentCharacter.Id, otherCharacter.Id, StringComparison.Ordinal);
+                    if (!shouldRecord)
+                        continue;
+                }
+
+                if (Session.TryGetEventState(player.Id, out var state))
+                    state.SetValue(keyPrefix + card.Id, "true");
+            }
+            _sessionRepository?.Save(Session);
         }
 
         private static string GetCategoryDisplayName(string categoryId)
@@ -759,9 +1068,11 @@ namespace MoneyRank.Presentation.Board
             }
 
             _undoCheckpointIds.Add(checkpointId);
+            RecordConfirmedOpportunityCard(_selectedOpportunityCard);
             LastErrorCode = string.Empty;
             _activeEventDefinition = null;
             _activePreview = null;
+            _selectedOpportunityCard = null;
             EventPanel.Hide();
             ControlPanel.ReportStatus(
                 "Evento confirmado. Informe os passos da progressão para continuar o turno.");
@@ -831,9 +1142,9 @@ namespace MoneyRank.Presentation.Board
                     $"Could not read the saved player count: {savedSession.ErrorCode}.");
 
             var playerCount = savedSession.Value.Players.Count;
-            if (playerCount < 2 || playerCount > SandboxPlayerIds.Length)
+            if (playerCount < 1 || playerCount > SandboxPlayerIds.Length)
                 throw new InvalidOperationException(
-                    $"The saved session has {playerCount} players; this build supports between 2 and {SandboxPlayerIds.Length}.");
+                    $"The saved session has {playerCount} players; this build supports between 1 and {SandboxPlayerIds.Length}.");
             return playerCount;
         }
 
@@ -857,6 +1168,15 @@ namespace MoneyRank.Presentation.Board
                 return Path.Combine(_saveRootOverride, "Exports");
 
             return Path.Combine(UnityEngine.Application.persistentDataPath, "MoneyRank", "Exports");
+        }
+
+        private void OnDestroy()
+        {
+            if (_changedTimeScaleForPause)
+            {
+                Time.timeScale = _timeScaleBeforePause;
+                _changedTimeScaleForPause = false;
+            }
         }
 
         private string CreateUndoCheckpoint(string label)

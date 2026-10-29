@@ -14,25 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: MoneyRank.Content::MoneyRank.Content.CharacterDefinitionAsset
   definition:
     id: sandbox-character-b
-    displayName: Personagem de teste B
-    description: Segundo personagem generico para validar o vertical slice.
+    displayName: Capivara Médica
+    description: Perfil de personagem para atribuição no início da partida. Regras específicas ainda não configuradas.
     salaryRules: []
     startingResources: []
     startingAttributes: []
-    passiveAbilities:
-    - id: sandbox-advantage-b
-      displayName: Vantagem de demonstracao
-      description: Marcador tecnico sem regra oficial associada.
-      typeId: sandbox.note
-      parameters: []
-      effects: []
-    disadvantages:
-    - id: sandbox-limitation-b
-      displayName: Limitacao de demonstracao
-      description: Marcador tecnico sem regra oficial associada.
-      typeId: sandbox.note
-      parameters: []
-      effects: []
+    passiveAbilities: []
+    disadvantages: []
     progressionTrackId: sandbox-inner-board
     visualPrefabId: sandbox-piece-b
     portraitId: sandbox-portrait-b

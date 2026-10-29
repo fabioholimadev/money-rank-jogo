@@ -34,7 +34,7 @@ namespace MoneyRank.Presentation.Board
         [SerializeField] private Color startColor = new Color(0.1f, 0.75f, 0.4f);
         [SerializeField] private Color eventColor = new Color(0.15f, 0.4f, 0.85f);
         [SerializeField] private Vector2 innerBoardSize = new Vector2(6.6f, 6.6f);
-        [SerializeField, Range(2, 4)] private int activePlayerCount = 4;
+        [SerializeField, Range(1, 4)] private int activePlayerCount = 4;
 
         private readonly List<Transform> _spaceAnchors = new List<Transform>();
         private readonly Transform[] _outerSlots = new Transform[OuterSlotCount];
@@ -48,7 +48,7 @@ namespace MoneyRank.Presentation.Board
 
         public void SetActivePlayerCount(int playerCount)
         {
-            var clampedCount = Mathf.Clamp(playerCount, 2, 4);
+            var clampedCount = Mathf.Clamp(playerCount, 1, 4);
             if (activePlayerCount == clampedCount && _generatedRoot != null)
                 return;
 
@@ -115,17 +115,17 @@ namespace MoneyRank.Presentation.Board
                     continue;
                 }
 
-                var tileSize = new Vector3(stepX * 0.92f, 0.20f, stepZ * 0.92f);
+                var tileSize = new Vector3(stepX * 0.80f, 0.20f, stepZ * 0.80f);
                 CreateBox(
                     $"Event Space Border {eventOrdinal + 1:00}",
                     _generatedRoot,
-                    position + Vector3.up * 0.05f,
-                    new Vector3(stepX * 0.96f, 0.20f, stepZ * 0.96f),
+                    position + Vector3.up * 0.10f,
+                    new Vector3(stepX * 0.90f, 0.20f, stepZ * 0.90f),
                     HexColor("4A4A4A"));
                 CreateBox(
                     $"Event Space {eventOrdinal + 1:00}",
                     _generatedRoot,
-                    position + Vector3.up * 0.17f,
+                    position + Vector3.up * 0.22f,
                     tileSize,
                     SpaceGray);
 
@@ -532,6 +532,7 @@ namespace MoneyRank.Presentation.Board
             gameObject.AddComponent<MeshFilter>().sharedMesh = mesh;
             var renderer = gameObject.AddComponent<MeshRenderer>();
             renderer.sharedMaterial = GetAtlasMaterial(atlas);
+            DisableBoardSurfaceShadows(renderer);
         }
 
         private Material GetAtlasMaterial(Texture2D atlas)
@@ -734,10 +735,11 @@ namespace MoneyRank.Presentation.Board
         private void ApplyColor(Renderer renderer, Color color)
         {
             if (renderer == null) return;
+            DisableBoardSurfaceShadows(renderer);
             if (!_colorMaterials.TryGetValue(color, out var material))
             {
-                var shader = Shader.Find("Universal Render Pipeline/Lit") ??
-                             Shader.Find("Universal Render Pipeline/Unlit") ??
+                var shader = Shader.Find("Universal Render Pipeline/Unlit") ??
+                             Shader.Find("Universal Render Pipeline/Lit") ??
                              Shader.Find("Unlit/Color") ??
                              Shader.Find("Standard");
                 if (shader == null)
@@ -755,6 +757,14 @@ namespace MoneyRank.Presentation.Board
             }
 
             renderer.sharedMaterial = material;
+        }
+
+        private static void DisableBoardSurfaceShadows(Renderer renderer)
+        {
+            // The generated board is made from many shallow, overlapping slabs. Avoid
+            // shadow-map acne and speckled self-shadowing on those large flat surfaces.
+            renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            renderer.receiveShadows = false;
         }
 
         private void OnDestroy()

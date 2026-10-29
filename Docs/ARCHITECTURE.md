@@ -277,8 +277,12 @@ aprovadas como conteúdo antes de serem ativadas.
   coordenadas pelos serviços: tipo, jogador, fase anterior/posterior, horário,
   operador, origem e parâmetros. Undo preserva os registros anteriores e inclui
   `action.undone`.
-- O painel do sandbox mostra fase, jogador, posições, personagem e ações
-  recentes; oferece Undo da última ação reversível e exportação local. Os
+- O menu de nova partida coleta 2–4 jogadores e, antes de criar a sessão, recebe
+  a atribuição feita pelo mestre após o sorteio físico entre seis perfis de
+  personagem. A atribuição é salva pela sessão; perfis repetidos são permitidos
+  no protótipo enquanto a decisão de exclusividade estiver pendente.
+- O painel do mestre prioriza o jogador, personagem, casa e a ação do turno.
+  Undo e exportação local ficam recolhidos em Ferramentas do mestre. Os
   checkpoints de UI permanecem em memória durante a execução atual, enquanto o
   registro da reversão e o estado restaurado são persistidos.
 - `GameResult` guarda vencedor e código do motivo. Apenas uma avaliação de
@@ -294,4 +298,25 @@ aprovadas como conteúdo antes de serem ativadas.
   `Builds/Windows/` e não é versionada.
 - O player usa `Application.persistentDataPath`, portanto não depende de acesso
   de escrita ao diretório de instalação.
+
+## Fase 2 — início do online e Android
+
+- O projeto foi vinculado a um Unity Cloud Project e usa o Multiplayer Services
+  SDK com sessões hospedadas pelo PC através do Relay. O nome exibido é salvo
+  localmente e também enviado como propriedade pública da sessão; a autenticação
+  é anônima e não usa o nickname como credencial.
+- `OnlineSessionCoordinator` cria sessões no desktop e permite entrar por código.
+  A lista de participantes vem dos eventos e estado atuais da sessão. A tela do
+  mestre gera um QR local para o mesmo código; o cliente móvel solicita acesso à
+  câmera apenas quando o usuário escolhe ler o QR.
+- A build Android não pode criar ou continuar partidas locais como mestre; o
+  coordenador também rejeita criação de sala em Android/iOS. O limite de sessão
+  é cinco conexões (mestre + até quatro participantes).
+- Esta etapa implementa infraestrutura e sala de espera. Sincronização da partida
+  Money Rank (comandos e estado autoritativo do tabuleiro), botão do mestre para
+  iniciar a partida sincronizada, reconexão após perda de rede e validação em
+  dispositivos ainda são pendentes; não declarar multiplayer jogável antes
+  dessas etapas.
+- QR usa ZXing.Net para Unity (Apache 2.0), empacotado com o aviso de licença em
+  `Assets/_MoneyRank/ThirdParty/ZXing/`. O QR contém somente o código da sessão.
 
