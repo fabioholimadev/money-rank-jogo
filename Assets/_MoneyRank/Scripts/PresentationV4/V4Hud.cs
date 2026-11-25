@@ -355,7 +355,7 @@ namespace MoneyRank.V4.Presentation
 #if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
             var ports = MoneyRank.Infrastructure.V4.WindowsSerialCofferTransport.ListPorts();
             var x = 16f;
-            foreach (var port in ports.Take(4))
+            foreach (var port in ports.Take(3))
             {
                 var name = port;
                 V4Ui.Btn(bank, name, 14, V4Ui.PanelLight, V4Ui.TextMain, UiAnchor.TL, x, 212, 70, 30, () => ConnectDisplay(name));
