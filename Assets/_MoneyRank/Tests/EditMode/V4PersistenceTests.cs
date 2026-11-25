@@ -60,6 +60,37 @@ namespace MoneyRank.Tests.EditMode
             Assert.That(t.Sent.Last(), Does.EndWith("|80"));
         }
 
+#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
+        [Test]
+        public void WindowsSerialTransportListsPortsAndUnavailablePortNeverThrowsOrBlocks()
+        {
+            Assert.That(WindowsSerialCofferTransport.ListPorts(), Is.Not.Null);
+            var transport = new WindowsSerialCofferTransport("COM250");   // surely absent
+            try
+            {
+                Assert.That(transport.Status, Is.Not.EqualTo(CofferLinkStatus.Connected));
+                Assert.That(transport.TrySend("COFRE|1|10"), Is.False, "no link: caller keeps playing, balance is shown on screen");
+                Assert.That(transport.TryReceive(), Is.Null);
+            }
+            finally { transport.Dispose(); }
+            Assert.That(transport.Status, Is.EqualTo(CofferLinkStatus.Disconnected));
+        }
+#endif
+
+        [Test]
+        public void SwappingTheTransportResendsTheLastBalance()
+        {
+            var a = new FakeTransport { Status = CofferLinkStatus.Connected };
+            var sync = new CofferDisplaySync(a, 2);
+            sync.Publish(120); sync.Tick();
+            a.Replies.Enqueue("ACK|" + a.Sent[0].Split('|')[1]); sync.Tick();
+            Assert.That(sync.LastAckedBalance, Is.EqualTo(120));
+            var b = new FakeTransport { Status = CofferLinkStatus.Connected };
+            sync.SetTransport(b);
+            sync.Tick();
+            Assert.That(b.Sent.Single(), Does.EndWith("|120"));
+        }
+
         [Test]
         public void ProtocolFormatsAndParsesStrictly()
         {

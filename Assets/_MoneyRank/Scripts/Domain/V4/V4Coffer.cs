@@ -60,7 +60,7 @@ namespace MoneyRank.Domain.V4
     /// </summary>
     public sealed class CofferDisplaySync
     {
-        private readonly ICofferDisplayTransport _transport;
+        private ICofferDisplayTransport _transport;
         private readonly int _resendAfterTicks;
         private int _seq;
         private int _pendingSeq = -1;
@@ -76,6 +76,14 @@ namespace MoneyRank.Domain.V4
         {
             _transport = transport ?? new NullCofferTransport();
             _resendAfterTicks = Math.Max(1, resendAfterTicks);
+        }
+
+        /// <summary>Swap the transport at runtime (e.g. the master picked a COM port). Resends the last known balance.</summary>
+        public void SetTransport(ICofferDisplayTransport transport)
+        {
+            _transport = transport ?? new NullCofferTransport();
+            _wasConnected = false;
+            if (_pendingBalance >= 0 || LastAckedBalance >= 0) Resync(_pendingBalance >= 0 ? _pendingBalance : LastAckedBalance);
         }
 
         /// <summary>Call whenever the authoritative balance may have changed (cheap: only sends when it differs from the last ACK).</summary>

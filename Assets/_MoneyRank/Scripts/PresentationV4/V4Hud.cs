@@ -316,7 +316,7 @@ namespace MoneyRank.V4.Presentation
         {
             V4Ui.Clear(_sideRoot);
             var s = _session.S;
-            var bank = V4Ui.Rect(_sideRoot, "Bank", UiAnchor.TL, 0, 0, 392, 214);
+            var bank = V4Ui.Rect(_sideRoot, "Bank", UiAnchor.TL, 0, 0, 392, 256);
             V4Ui.Box(bank, "Bg", V4Ui.Panel, UiAnchor.Stretch, 0, 0, 0, 0);
             V4Ui.Label(bank, "BANCO E COFRE", 18, V4Ui.Gold, TextAnchor.MiddleLeft, UiAnchor.TL, 16, 6, 360, 28, FontStyle.Bold);
             V4Ui.Label(bank, "Banco  " + V4Ui.Money(s.BankCash), 24, V4Ui.TextMain, TextAnchor.MiddleLeft, UiAnchor.TL, 16, 36, 360, 32, FontStyle.Bold);
@@ -328,10 +328,11 @@ namespace MoneyRank.V4.Presentation
             V4Ui.Label(bank, "Caixa total " + V4Ui.Money(_session.Engine.TotalCash()) + (ok ? "  ✓ conferido" : "  ✗ DIVERGENTE"), 16, ok ? V4Ui.Good : V4Ui.Bad, TextAnchor.MiddleLeft, UiAnchor.TL, 16, 158, 360, 24);
             var link = _session.Coffer.Status == CofferLinkStatus.Connected ? "Display do cofre: conectado" : (_session.Coffer.Status == CofferLinkStatus.Reconnecting ? "Display do cofre: reconectando…" : "Display do cofre: desconectado (saldo na tela)");
             V4Ui.Label(bank, link, 14, V4Ui.TextMuted, TextAnchor.MiddleLeft, UiAnchor.TL, 16, 184, 360, 22);
+            BuildDisplayPicker(bank);
             if (s.LiquidityBlocked)
-                V4Ui.Btn(_sideRoot, "PAUSADO: falta de troco/caixa — ajustei fisicamente", 16, V4Ui.Bad, V4Ui.Ink, UiAnchor.TL, 0, 222, 392, 46, () => Toast(_session.Exec(e => e.ClearLiquidityBlock(V4Session.NewCommandId(), "ajuste físico pelo mestre")).Ok ? "Pausa liberada." : "Falha."));
+                V4Ui.Btn(_sideRoot, "PAUSADO: falta de troco/caixa — ajustei fisicamente", 16, V4Ui.Bad, V4Ui.Ink, UiAnchor.TL, 0, 264, 392, 46, () => Toast(_session.Exec(e => e.ClearLiquidityBlock(V4Session.NewCommandId(), "ajuste físico pelo mestre")).Ok ? "Pausa liberada." : "Falha."));
 
-            var logTop = s.LiquidityBlocked ? 276 : 222;
+            var logTop = s.LiquidityBlocked ? 318 : 264;
             var log = V4Ui.Rect(_sideRoot, "Log", UiAnchor.TL, 0, logTop, 392, 980 - logTop);
             V4Ui.Box(log, "Bg", V4Ui.Panel, UiAnchor.Stretch, 0, 0, 0, 0);
             V4Ui.Label(log, "EVENTOS RECENTES", 18, V4Ui.Gold, TextAnchor.MiddleLeft, UiAnchor.TL, 16, 6, 360, 28, FontStyle.Bold);
@@ -344,6 +345,45 @@ namespace MoneyRank.V4.Presentation
                 if (y > 900 - logTop) break;
             }
         }
+
+        // ------------------------------------------------------------------ coffer display (serial)
+
+        private IDisposable _serial;
+
+        private void BuildDisplayPicker(Transform bank)
+        {
+#if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
+            var ports = MoneyRank.Infrastructure.V4.WindowsSerialCofferTransport.ListPorts();
+            var x = 16f;
+            foreach (var port in ports.Take(4))
+            {
+                var name = port;
+                V4Ui.Btn(bank, name, 14, V4Ui.PanelLight, V4Ui.TextMain, UiAnchor.TL, x, 212, 70, 30, () => ConnectDisplay(name));
+                x += 76f;
+            }
+            if (ports.Count == 0) V4Ui.Label(bank, "Nenhuma porta COM encontrada.", 13, V4Ui.TextMuted, TextAnchor.MiddleLeft, UiAnchor.TL, 16, 212, 250, 30);
+            V4Ui.Btn(bank, "Sem display", 14, V4Ui.PanelLight, V4Ui.TextMuted, UiAnchor.TR, 14, 212, 90, 30, () => ConnectDisplay(null));
+#endif
+        }
+
+        private void ConnectDisplay(string port)
+        {
+#if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
+            _serial?.Dispose();
+            _serial = null;
+            if (port == null) { _session.Coffer.SetTransport(null); Toast("Display do cofre desconectado."); }
+            else
+            {
+                var transport = new MoneyRank.Infrastructure.V4.WindowsSerialCofferTransport(port);
+                _serial = transport;
+                _session.Coffer.SetTransport(transport);
+                Toast("Conectando ao display em " + port + "… (saldo absoluto será reenviado)");
+            }
+            Refresh();
+#endif
+        }
+
+        private void OnDestroy() { _serial?.Dispose(); }
 
         // ------------------------------------------------------------------ control bar
 
