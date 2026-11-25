@@ -1,0 +1,128 @@
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using MoneyRank.Domain.V4;
+using MoneyRank.Infrastructure.V4;
+using NUnit.Framework;
+
+namespace MoneyRank.Tests.EditMode
+{
+    /// <summary>Acceptance scenarios HW*, DATA01 and save robustness.</summary>
+    public sealed class V4PersistenceTests
+    {
+        private sealed class FakeTransport : ICofferDisplayTransport
+        {
+            public CofferLinkStatus Status { get; set; } = CofferLinkStatus.Disconnected;
+            public readonly List<string> Sent = new List<string>();
+            public readonly Queue<string> Replies = new Queue<string>();
+            public bool TrySend(string line) { if (Status != CofferLinkStatus.Connected) return false; Sent.Add(line); return true; }
+            public string TryReceive() => Replies.Count > 0 ? Replies.Dequeue() : null;
+        }
+
+        private static string TempDir() => Path.Combine(Path.GetTempPath(), "mr-v4-" + System.Guid.NewGuid().ToString("N"));
+
+        [Test]
+        public void HW01_DisconnectedDisplayNeverBlocksAndReconnectSendsTheAbsoluteBalance()
+        {
+            var t = new FakeTransport();
+            var sync = new CofferDisplaySync(t, 3);
+            sync.Publish(150);
+            for (var i = 0; i < 10; i++) sync.Tick();
+            Assert.That(t.Sent, Is.Empty);
+            t.Status = CofferLinkStatus.Connected;
+            sync.Tick();
+            Assert.That(t.Sent.Single(), Does.EndWith("|150"));
+            Assert.That(t.Sent.Single(), Does.StartWith("COFRE|"));
+        }
+
+        [Test]
+        public void HW02_LostAckIsResentAndTheDisplayEndsOnTheLatestBalance()
+        {
+            var t = new FakeTransport { Status = CofferLinkStatus.Connected };
+            var sync = new CofferDisplaySync(t, 2);
+            sync.Publish(150);
+            sync.Tick();
+            Assert.That(t.Sent.Count, Is.EqualTo(1));
+            for (var i = 0; i < 6; i++) sync.Tick();           // ACK lost -> resent with the same sequence
+            Assert.That(t.Sent.Count, Is.GreaterThan(1));
+            Assert.That(t.Sent.Distinct().Count(), Is.EqualTo(1));
+            var oldSeq = int.Parse(t.Sent.Last().Split('|')[1]);
+            sync.Publish(80);                                  // balance changes while waiting
+            sync.Tick();
+            var newSeq = int.Parse(t.Sent.Last().Split('|')[1]);
+            Assert.That(newSeq, Is.Not.EqualTo(oldSeq));
+            t.Replies.Enqueue("ACK|" + oldSeq);                // late ACK of the old sequence is ignored
+            sync.Tick();
+            Assert.That(sync.LastAckedBalance, Is.Not.EqualTo(80));
+            t.Replies.Enqueue("ACK|" + newSeq);
+            sync.Tick();
+            Assert.That(sync.LastAckedBalance, Is.EqualTo(80));
+            Assert.That(t.Sent.Last(), Does.EndWith("|80"));
+        }
+
+        [Test]
+        public void ProtocolFormatsAndParsesStrictly()
+        {
+            Assert.That(CofferProtocol.FormatBalance(7, 1234), Is.EqualTo("COFRE|7|1234"));
+            Assert.That(CofferProtocol.DisplayText(1234), Is.EqualTo("COFRE  1234 UMR"));
+            bool ack; int seq;
+            Assert.That(CofferProtocol.TryParseReply("ACK|7", out ack, out seq) && ack && seq == 7, Is.True);
+            Assert.That(CofferProtocol.TryParseReply("ERR|9", out ack, out seq) && !ack && seq == 9, Is.True);
+            Assert.That(CofferProtocol.TryParseReply("ACK|x", out ack, out seq), Is.False);
+            Assert.That(CofferProtocol.TryParseReply("NOPE|1", out ack, out seq), Is.False);
+            Assert.Throws<System.ArgumentOutOfRangeException>(() => CofferProtocol.FormatBalance(1, -1));
+        }
+
+        [Test]
+        public void SaveRoundTripsAtomicallyAndRecoversFromACorruptedMainFile()
+        {
+            var dir = TempDir();
+            try
+            {
+                var g = V4Game.New(new[] { V4Game.Professora, V4Game.Medica });
+                g.Land("H02");
+                var store = new V4SaveStore(dir);
+                string error;
+                Assert.That(store.Save(g.S, out error), Is.True, error);
+                Assert.That(store.Save(g.S, out error), Is.True, error); // second save creates the .bak
+                var loaded = store.Load(g.S.SessionId);
+                Assert.That(loaded.Ok, Is.True);
+                Assert.That(StateJson.Write(loaded.State), Is.EqualTo(StateJson.Write(g.S)));
+                File.WriteAllText(store.PathFor(g.S.SessionId), "{ corrupted");
+                var recovered = store.Load(g.S.SessionId);
+                Assert.That(recovered.Ok && recovered.RecoveredFromBackup, Is.True);
+                Assert.That(store.ListSessionIds(), Does.Contain(g.S.SessionId));
+                Assert.That(store.Archive(g.S.SessionId), Is.Not.Null);
+                Assert.That(store.Load(g.S.SessionId).Ok, Is.True, "backup still allows recovery after archiving the main file");
+            }
+            finally { if (Directory.Exists(dir)) Directory.Delete(dir, true); }
+        }
+
+        [Test]
+        public void DATA01_TwoExportedSessionsHaveDistinctIdsFilesAndFullTables()
+        {
+            var dir = TempDir();
+            try
+            {
+                var a = V4Game.New(new[] { V4Game.Professora, V4Game.Medica });
+                var engineB = new V4Engine(V4TestContent.Content);
+                engineB.Setup(new[]
+                {
+                    new V4PlayerSetup { Id = "p1", ProfessionId = "P03", Color = "verde" },
+                    new V4PlayerSetup { Id = "p2", ProfessionId = "P04", Color = "azul" }
+                }, new V4Config { DifficultyId = "B2_facil" });
+                a.Land("H02"); a.Choose("H02_O01");
+                var filesA = V4Exporter.Export(a.S, dir, "r1");
+                var filesB = V4Exporter.Export(engineB.State, dir, "r1");
+                Assert.That(a.S.SessionId, Is.Not.EqualTo(engineB.State.SessionId));
+                Assert.That(filesA.Intersect(filesB), Is.Empty);
+                Assert.That(filesA.All(File.Exists), Is.True);
+                var ledger = File.ReadAllText(filesA.First(f => f.EndsWith("-ledger.csv")));
+                Assert.That(ledger, Does.Contain("despesa"));
+                var session = File.ReadAllText(filesB.First(f => f.EndsWith("-session.csv")));
+                Assert.That(session, Does.Contain("B2_facil"));
+            }
+            finally { if (Directory.Exists(dir)) Directory.Delete(dir, true); }
+        }
+    }
+}

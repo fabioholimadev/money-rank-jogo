@@ -60,13 +60,44 @@ namespace MoneyRank.Tests.EditMode
             S.BankCash -= diff;
         }
 
+        /// <summary>Plays neutral turns (decisions get their last option) until it is the given player's turn.</summary>
+        public void TurnOf(int playerIndex)
+        {
+            var guard = 0;
+            while (S.Phase != V4Phase.GameEnd && !(S.Phase == V4Phase.AwaitRoll && Cur.Id == P(playerIndex).Id) && guard++ < 50)
+            {
+                if (S.Phase == V4Phase.AwaitDecision) { AnswerPending(); continue; }
+                Assert.That(Land("H01").Ok, Is.True);
+            }
+        }
+
+        /// <summary>Answers whatever is pending in the cheapest neutral way (pay taxes, happy coin, first hospital option).</summary>
+        public void AnswerPending()
+        {
+            var d = S.Pending;
+            V4Result r;
+            switch (d.Kind)
+            {
+                case DecisionKind.TaxCoin:
+                case DecisionKind.FiscalCoin: r = Coin(true); break;
+                case DecisionKind.HospitalModality: r = Hospital(d.OptionIds[0]); break;
+                case DecisionKind.AbilityChoice: r = Engine.ChooseAbility(Cmd(), d.Id, d.OptionIds[d.OptionIds.Count - 1]); break;
+                default:
+                    var isTax = d.Tag != null && d.Tag.StartsWith("tax:");
+                    r = Choose(isTax ? d.OptionIds[0] : d.OptionIds[d.OptionIds.Count - 1]);
+                    break;
+            }
+            Assert.That(r.Ok, Is.True, r.Error);
+        }
+
         public void AssertIdentity() => Assert.That(Engine.TotalCash(), Is.EqualTo(28260));
 
         /// <summary>Plays neutral turns (landing on H01) until the target number of completed rounds, paying IR when asked.</summary>
         public void PlayNeutralUntilRounds(int rounds, bool payIr = true)
         {
             var guard = 0;
-            while (S.CompletedRounds < rounds && S.Phase != V4Phase.GameEnd && guard++ < 200)
+            // keep going until the rounds are done AND any annual close (IR decisions) has fully finished
+            while ((S.CompletedRounds < rounds || S.Phase != V4Phase.AwaitRoll) && S.Phase != V4Phase.GameEnd && guard++ < 200)
             {
                 if (S.Phase == V4Phase.AwaitDecision)
                 {

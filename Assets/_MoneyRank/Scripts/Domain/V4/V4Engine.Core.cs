@@ -47,6 +47,10 @@ namespace MoneyRank.Domain.V4
         public V4ContentSet Content { get; }
         public V4State State { get; private set; }
         private V4Result _current;
+        // In-memory undo stack (local master correction only). Not persisted: a reload clears the ability to undo.
+        private readonly List<V4State> _snapshots = new List<V4State>();
+        private const int MaxUndoSnapshots = 60;
+        public bool CanUndo => _snapshots.Count > 0;
 
         public V4Engine(V4ContentSet content, V4State state = null)
         {
@@ -70,7 +74,7 @@ namespace MoneyRank.Domain.V4
 
         // ------------------------------------------------------------------ atomic command runner
 
-        private V4Result Run(string commandId, Func<V4Result> body, bool allowWhileBlocked = false)
+        private V4Result Run(string commandId, Func<V4Result> body, bool allowWhileBlocked = false, bool recordUndo = true)
         {
             if (!string.IsNullOrEmpty(commandId) && State.ProcessedCommands.Contains(commandId))
                 return new V4Result { Ok = true, Duplicate = true };
@@ -99,6 +103,11 @@ namespace MoneyRank.Domain.V4
             }
             if (!result.Ok) { State = backup; return result; }
             if (!string.IsNullOrEmpty(commandId)) State.ProcessedCommands.Add(commandId);
+            if (recordUndo)
+            {
+                _snapshots.Add(backup);
+                if (_snapshots.Count > MaxUndoSnapshots) _snapshots.RemoveAt(0);
+            }
             if (TotalCash() != Rules.PhysicalMoneyTotal)
             {
                 var broken = TotalCash();
@@ -256,7 +265,35 @@ namespace MoneyRank.Domain.V4
                 State.LiquidityNote = null;
                 Log(null, "liquidity_cleared", null, null, "Ajuste físico de troco registrado: " + note);
                 return V4Result.Success();
-            }, allowWhileBlocked: true);
+            }, allowWhileBlocked: true, recordUndo: false);
+        }
+
+        /// <summary>
+        /// Local master correction: restores the snapshot taken before the last confirmed command. History and ledger are never
+        /// erased: reverted entries stay, flagged Undone/Reversed, so analytics can ignore them. Forbidden for online players.
+        /// The caller must resend the coffer balance after an undo (CofferDisplaySync.Resync).
+        /// </summary>
+        public V4Result Undo(string commandId, string reason)
+        {
+            return Run(commandId, () =>
+            {
+                if (State.Config.Mode == "online") return V4Result.Fail("Undo competitivo não é permitido no modo online.");
+                if (_snapshots.Count == 0) return V4Result.Fail("Nada para desfazer.");
+                var target = _snapshots[_snapshots.Count - 1];
+                _snapshots.RemoveAt(_snapshots.Count - 1);
+                var undoneLedger = State.Ledger.Skip(target.Ledger.Count).ToList();
+                var undoneHistory = State.History.Skip(target.History.Count).ToList();
+                var next = StateClone.Clone(target);
+                foreach (var l in undoneLedger) { l.Reversed = true; next.Ledger.Add(l); }
+                foreach (var h in undoneHistory) { h.Undone = true; next.History.Add(h); }
+                next.ProcessedCommands = State.ProcessedCommands.ToList();
+                next.Rng = State.Rng.ToList();
+                next.NextLedgerNumber = State.NextLedgerNumber;
+                next.NextDecisionNumber = State.NextDecisionNumber;
+                State = next;
+                Log(null, "undo", null, null, "Ação desfeita pelo mestre: " + (string.IsNullOrEmpty(reason) ? "sem justificativa" : reason) + ".");
+                return V4Result.Success();
+            }, allowWhileBlocked: true, recordUndo: false);
         }
 
         // ------------------------------------------------------------------ cycles -> pawn concessions
@@ -347,7 +384,7 @@ namespace MoneyRank.Domain.V4
                 if (!d.OptionIds.Contains(choice)) return V4Result.Fail("Opção indisponível.");
                 var p = Player(d.PlayerId);
                 State.Pending = null;
-                if (choice == "decline") { var k0 = int.Parse(State.CycleQueue[0].Substring(2), CultureInfo.InvariantCulture); State.CycleQueue.RemoveAt(0); DoAdvance(p, Math.Min(VehicleActive(p) ? 2 : 1, Rules.MaxStepsPerPositiveCycle)); }
+                if (choice == "decline") { State.CycleQueue.RemoveAt(0); DoAdvance(p, Math.Min(VehicleActive(p) ? 2 : 1, Rules.MaxStepsPerPositiveCycle)); }
                 else if (choice == "advance2")
                 {
                     State.CycleQueue.RemoveAt(0);
