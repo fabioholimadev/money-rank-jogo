@@ -86,8 +86,8 @@ namespace MoneyRank.V4.Presentation
         {
             _c = content;
             _font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-            _lit = MakeBase("Universal Render Pipeline/Lit", "Standard");
-            _unlit = MakeBase("Universal Render Pipeline/Unlit", "Unlit/Texture");
+            _lit = Resources.Load<Material>("V4/Materials/V4_Lit") ?? MakeBase("Universal Render Pipeline/Lit", "Standard");
+            _unlit = Resources.Load<Material>("V4/Materials/V4_Unlit") ?? MakeBase("Universal Render Pipeline/Unlit", "Unlit/Texture");
             for (var i = 0; i < 36; i++) _ring[i] = RingCell(i);
 
             BuildEnvironment();
@@ -103,6 +103,7 @@ namespace MoneyRank.V4.Presentation
         private static Material MakeBase(string shader, string fallback)
         {
             var s = Shader.Find(shader) ?? Shader.Find(fallback);
+            if (s == null) throw new System.InvalidOperationException("No usable shader found (" + shader + "). Run MoneyRank/V4/Fix Render Setup in the Editor.");
             return new Material(s);
         }
 
