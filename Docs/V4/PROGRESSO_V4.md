@@ -29,9 +29,9 @@ Reuso: asmdefs, padrão de save atômico, pacotes UGS/Netcode, exportação anal
 | 2 | Contas/ledger, salário/rodada, 6 atributos e multiplicadores | **feito** no motor e ligado à cena V4 |
 | 3 | Ludo real, 4 peões, captura/checkpoints | **feito** (motor + tabuleiro 3D gerado das rotas) |
 | 4 | 36 casas, impostos, hospital, progressão, investimentos, habilidades, liquidez | **feito** no motor + modais na UI |
-| 5 | Save atômico, export, undo, protocolo do cofre | **feito**; falta transporte serial Windows (P/Invoke) e sketch Arduino |
+| 5 | Save atômico, export, undo, protocolo do cofre, serial | **feito** (serial P/Invoke + sketch; hardware real NÃO testado) |
 | 6 | Design/UI, visual, cena real | **primeira versão feita e validada em Play** (setup, tabuleiro, HUD, modais, fiscal/histórico, fim). Falta polimento (ver abaixo) |
-| 7 | Baterias 1/2, cenários de aceite, relatório final | cenários automatizados no motor; relatório final pendente |
+| 7 | Baterias 1/2, cenários de aceite, relatório final | **60/61 cenários automatizados passando**; relatório final em `RELATORIO_ENTREGA_V4.md`; baterias humanas pendentes |
 
 ## Como validar a UI (Editor aberto + capturas)
 1. `unity open .` e esperar `unity pipeline list` mostrar `Servidor acessível`.
@@ -41,16 +41,16 @@ Reuso: asmdefs, padrão de save atômico, pacotes UGS/Netcode, exportação anal
 4. Clicar botões da UI por texto com `eval_file` (script em `Logs/shots/click.cs`) e capturar com `capture_game_view --save_path Logs/shots/x.png`
    (o arquivo cai em `Assets/Logs/shots/`; está no `.git/info/exclude`; apagar `Assets/Logs` ao fim).
 
-## Pendências / próximos passos exatos
-1. Transporte serial Windows `WindowsSerialCofferTransport : ICofferDisplayTransport` (P/Invoke kernel32: CreateFile/SetCommState/WriteFile/ReadFile em thread própria,
-   115200 8N1, reconexão) + seleção de porta COM na UI + sketch `Docs/Hardware/cofre_display/cofre_display.ino` (LCD I2C ou OLED, parser `COFRE|seq|saldo`, responde `ACK|seq`/`ERR|seq`).
-2. Corrigir B10: `BoardPresentationTests` (2) e `DevSandboxSceneTests` (5) — testes do sandbox antigo que falham no HEAD original.
-3. Polimento visual: luz/sombras, UI em 1024x768/1280x720/1920x1080 sem clipping (testar), cards com ícone da casa, animação de dado, painel de moedas físico.
-4. Relatório final `Docs/V4/RELATORIO_ENTREGA_V4.md`: arquivos alterados, comandos, resultados reais dos testes, limitações, hash da build, capturas.
-5. Build Windows: `unity build --target StandaloneWindows64 --output-path Builds/Windows/MoneyRank.exe --allow-dirty-build .` (Editor fechado) e smoke test.
-6. Modo online (P2): não iniciado; manter lobby existente sem prometer jogo online. O motor já é autoritativo (comandos com `playerId`, idempotência por `commandId`).
-7. Cenários sem teste automatizado: UI01 (resoluções), HW real, NET01/02 com rede real.
+## Pendências / próximos passos exatos (após o relatório de entrega)
+1. Testar o display físico real (confirmar módulo/endereço I2C, porta COM) e ajustar o sketch.
+2. Polimento visual e de UI: ícone da casa nos cartões, animação do dado, painel de moedas, verificar 1024x768, 1280x720, 1920x1080, tablet/touch; modelos 3D licenciados (precisa autorização do usuário para baixar) ou manter placeholders.
+3. Testes de PlayMode da cena V4 (clicar UI, salvar/recarregar no meio de decisão).
+4. Online autoritativo (P2): lobby V4, cliente envia intenção, host aplica comando, RNG autoritativo persistido; reutilizar `V4Engine`.
+5. Reabrir os 5 testes legados em quarentena (DevSandbox) ou removê-los junto com o legado quando o usuário decidir aposentar o sandbox.
+6. Decidir o ritmo do Ludo (`DECISION_REQUIRED` em OPEN_DECISIONS.md) após a bateria 1 humana; só então ajustar parâmetros (CSV/`parametros.json`) com versão.
+7. Se tudo acima estiver feito: escrever CONCLUIDO em `Docs/V4/.heartbeat` e desabilitar a tarefa agendada `money-rank-v4-retomar`.
 
 ## Registro de sessões
 - 2026-11-25: pacote extraído, repositório real identificado, branch criada; Etapa 1 e motor V4 implementados; 28/28 testes V4 (conteúdo+núcleo) passando.
 - 2026-11-25 (cont.): cena V4 criada e validada em Play (setup→partida→jogada→modal de decisão→confirmação); commits: docs, conteúdo, motor, undo/cofre/save, cena+HUD. 75/76→76/76 testes V4 (após correção de teste).
+- 2026-11-25 (fim da 1ª sessão longa): serial+sketch, simulações (36 aleatórias + 5 bots), quarentena B10, correção do pipeline URP no Player, build Windows com fumaça OK, matriz de aceite atualizada, relatório de entrega escrito.
