@@ -1,0 +1,10 @@
+﻿id,titulo,texto,acao,parametros_json,arte
+SYS_IR,Imposto de renda anual,Escolha pagar ou tentar sonegar. Alíquota por dificuldade sobre salário bruto anual.,ir_anual,"{""destino"":""cofre"",""base"":""salario_atual"",""taxa"":""dificuldade.ir_pct""}",03_visual/cartas/SYS_IR.png
+SYS_FISCAL,Fiscalização,"Com pendência anterior, lance moeda. Se descoberta, pague o dobro do principal ainda não autuado e regularize após pagamento.",fiscalizacao,"{""moeda_feliz"":""mantem"",""moeda_triste"":""cobra"",""cortisol_base"":1}",03_visual/cartas/SYS_FISCAL.png
+SYS_PUBLICO,Tratamento público,Cofre público financia a recuperação. Perde dois turnos.,hospital_publico,"{""custo"":150,""turnos"":2,""origem"":""cofre"",""destino"":""banco""}",03_visual/cartas/SYS_PUBLICO.png
+SYS_PRIVADO,Tratamento particular,Pague com seu dinheiro ou resgate a reserva. Perde um turno.,hospital_particular,"{""custo"":250,""turnos"":1,""origem"":""jogador"",""destino"":""banco""}",03_visual/cartas/SYS_PRIVADO.png
+SYS_EMERGENCIA,Sem recursos para atendimento,Conforme dificuldade: recuperação emergencial ou eliminação.,hospital_emergencia,"{""config"":""dificuldades.csv""}",03_visual/cartas/SYS_EMERGENCIA.png
+SYS_RESgate,Resgatar reserva,Solicite ao banco a devolução imediata de parte ou de toda a reserva.,resgatar_reserva,"{""custo_turno"":0,""taxa"":0}",03_visual/cartas/SYS_RESgate.png
+SYS_CHECKPOINT,Instalar ponto de salvamento,Use um direito de imóvel para instalar checkpoint na posição atual do peão ativo.,instalar_checkpoint,"{""consome_direito"":1}",03_visual/cartas/SYS_CHECKPOINT.png
+SYS_FIMANO,Fechamento anual,"Salário, tributação, rendimentos, retornos pendentes e renovação de habilidades.",fechamento_anual,"{""rodadas"":3}",03_visual/cartas/SYS_FIMANO.png
+SYS_PAUSA,Flexibilidade de Jornada,Motorista troca movimento por recuperação de dois pontos-base em Toxina ou Cortisol.,habilidade_motorista,"{""usos_ano"":1,""reducao"":2}",03_visual/cartas/SYS_PAUSA.png

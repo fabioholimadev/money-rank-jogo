@@ -1,0 +1,37 @@
+﻿id,posicao,indice_unity,setor,titulo,categoria,cor,handler,icone,texto,status,referencia_visual
+H01,1,0,extremidade,Início,especial,#126B79,inicio,03_visual/icones/H01.png,Casa de referência; sem salário por passagem ou chegada.,consolidado,faixa original / foto física
+H02,2,1,1,Compra por impulso,nao_essencial,#FF3038,escolha,03_visual/icones/H02.png,Apresenta alternativas fixas; aplica exatamente uma; recusa conforme categoria.,consolidado,faixa original / foto física
+H03,3,2,1,Curso gratuito,oportunidade,#9849FF,escolha,03_visual/icones/H03.png,Apresenta alternativas fixas; aplica exatamente uma; recusa conforme categoria.,consolidado,faixa original / foto física
+H04,4,3,1,Alimentação,essencial,#FFAA13,escolha,03_visual/icones/H04.png,Apresenta alternativas fixas; aplica exatamente uma; recusa conforme categoria.,consolidado,faixa original / foto física
+H05,5,4,1,Reserva de emergência,investimento,#39934B,reserva,03_visual/icones/H05.png,Deposita no banco; teto = salário atual; rendimento anual 10%; resgate imediato.,consolidado,faixa original / foto física
+H06,6,5,1,Descanso,lazer,#28CD43,automatico,03_visual/icones/H06.png,Recupera 1 Toxina e 1 Cortisol sem custo.,consolidado,faixa original / foto física
+H07,7,6,1,IPTU,imposto,#FFDD12,imposto,03_visual/icones/H07.png,"Calcula tributo devido, verifica pendências anteriores e oferece pagar/sonegar; sem tributo se isento.",consolidado,faixa original / foto física
+H08,8,7,1,Qualificação,progressao,#2CB1F3,progressao,03_visual/icones/H08.png,Exibe próxima carta exclusiva da profissão; 4 etapas; recusa preserva oferta.,consolidado,faixa original / foto física
+H09,9,8,1,Cartão de crédito,divida,#CF294D,escolha,03_visual/icones/H09.png,Apresenta alternativas fixas; aplica exatamente uma; recusa conforme categoria.,consolidado,faixa original / foto física
+H10,10,9,extremidade,Hospital,especial,#126B79,visita_hospital,03_visual/icones/H10.png,Visita neutra se não estiver internado (complemento).,complemento,faixa original / foto física
+H11,11,10,2,IPVA,imposto,#FFDD12,imposto,03_visual/icones/H11.png,"Calcula tributo devido, verifica pendências anteriores e oferece pagar/sonegar; sem tributo se isento.",consolidado,faixa original / foto física
+H12,12,11,2,Atividade física,lazer,#28CD43,escolha,03_visual/icones/H12.png,Apresenta alternativas fixas; aplica exatamente uma; recusa conforme categoria.,consolidado,faixa original / foto física
+H13,13,12,2,Empréstimo,divida,#CF294D,escolha,03_visual/icones/H13.png,Apresenta alternativas fixas; aplica exatamente uma; recusa conforme categoria.,consolidado,faixa original / foto física
+H14,14,13,2,Veículo,investimento,#39934B,veiculo,03_visual/icones/H14.png,Compra se não possui ativo; manutenção se possui; pode recusar.,consolidado,faixa original / foto física
+H15,15,14,2,Moradia,essencial,#FFAA13,escolha,03_visual/icones/H15.png,Apresenta alternativas fixas; aplica exatamente uma; recusa conforme categoria.,consolidado,faixa original / foto física
+H16,16,15,2,Marco de carreira,progressao,#2CB1F3,progressao,03_visual/icones/H16.png,Exibe próxima carta exclusiva da profissão; 4 etapas; recusa preserva oferta.,consolidado,faixa original / foto física
+H17,17,16,2,Assinaturas e aplicativos,nao_essencial,#FF3038,escolha,03_visual/icones/H17.png,Apresenta alternativas fixas; aplica exatamente uma; recusa conforme categoria.,consolidado,faixa original / foto física
+H18,18,17,2,Trabalho extra,oportunidade,#9849FF,escolha,03_visual/icones/H18.png,Apresenta alternativas fixas; aplica exatamente uma; recusa conforme categoria.,consolidado,faixa original / foto física
+H19,19,18,extremidade,Direto para o hospital,especial,#126B79,internar,03_visual/icones/H19.png,Envia ao hospital imediatamente e abre escolha de tratamento.,consolidado,faixa original; substituição visual
+H20,20,19,3,Imóvel,investimento,#39934B,imovel,03_visual/icones/H20.png,Compra opcional repetível; cada imóvel concede checkpoint.,consolidado,faixa original / foto física
+H21,21,20,3,Energia e água,essencial,#FFAA13,escolha,03_visual/icones/H21.png,Apresenta alternativas fixas; aplica exatamente uma; recusa conforme categoria.,consolidado,faixa original / foto física
+H22,22,21,3,Parceria,oportunidade,#9849FF,escolha,03_visual/icones/H22.png,Apresenta alternativas fixas; aplica exatamente uma; recusa conforme categoria.,consolidado,faixa original / foto física
+H23,23,22,3,Tecnologia,nao_essencial,#FF3038,escolha,03_visual/icones/H23.png,Apresenta alternativas fixas; aplica exatamente uma; recusa conforme categoria.,consolidado,faixa original / foto física
+H24,24,23,3,Projeto pessoal,progressao,#2CB1F3,progressao,03_visual/icones/H24.png,Exibe próxima carta exclusiva da profissão; 4 etapas; recusa preserva oferta.,consolidado,faixa original / foto física
+H25,25,24,3,ISS,imposto,#FFDD12,imposto,03_visual/icones/H25.png,"Calcula tributo devido, verifica pendências anteriores e oferece pagar/sonegar; sem tributo se isento.",consolidado,faixa original; substituição visual
+H26,26,25,3,Cultura,lazer,#28CD43,escolha,03_visual/icones/H26.png,Apresenta alternativas fixas; aplica exatamente uma; recusa conforme categoria.,consolidado,faixa original / foto física
+H27,27,26,3,Conta atrasada,divida,#CF294D,escolha,03_visual/icones/H27.png,Apresenta alternativas fixas; aplica exatamente uma; recusa conforme categoria.,consolidado,faixa original / foto física
+H28,28,27,extremidade,Cofre público,especial,#126B79,consulta_cofre,03_visual/icones/H28.png,Mostra saldo e finalidade exclusiva: tratamento público; contribuição voluntária proposta.,complemento,faixa original / foto física
+H29,29,28,4,Contribuição comunitária,progressao,#2CB1F3,progressao,03_visual/icones/H29.png,Exibe próxima carta exclusiva da profissão; 4 etapas; recusa preserva oferta.,consolidado,faixa original / foto física
+H30,30,29,4,Renegociação,divida,#CF294D,renegociacao,03_visual/icones/H30.png,"Se barra atual de Dívidas = 0, encerra sem efeito; caso contrário, oferece opções.",consolidado,faixa original / foto física
+H31,31,30,4,Férias,lazer,#28CD43,escolha,03_visual/icones/H31.png,Apresenta alternativas fixas; aplica exatamente uma; recusa conforme categoria.,consolidado,faixa original / foto física
+H32,32,31,4,ICMS,imposto,#FFDD12,imposto,03_visual/icones/H32.png,"Calcula tributo devido, verifica pendências anteriores e oferece pagar/sonegar; sem tributo se isento.",consolidado,faixa original; substituição visual
+H33,33,32,4,Lazer premium,nao_essencial,#FF3038,escolha,03_visual/icones/H33.png,Apresenta alternativas fixas; aplica exatamente uma; recusa conforme categoria.,consolidado,faixa original / foto física
+H34,34,33,4,Investimento livre,investimento,#39934B,investimento_livre,03_visual/icones/H34.png,"Escolhe uma operação de reserva, veículo ou imóvel; ou recusa.",consolidado,faixa original; substituição visual
+H35,35,34,4,Transporte e saúde,essencial,#FFAA13,escolha,03_visual/icones/H35.png,Apresenta alternativas fixas; aplica exatamente uma; recusa conforme categoria.,consolidado,faixa original / foto física
+H36,36,35,4,Bolsa pública,oportunidade,#9849FF,escolha,03_visual/icones/H36.png,Apresenta alternativas fixas; aplica exatamente uma; recusa conforme categoria.,consolidado,faixa original / foto física

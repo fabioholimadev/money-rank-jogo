@@ -1,0 +1,2 @@
+Validação estática executada: 36 casas, 9 categorias incluindo especiais, 4 por categoria; 115 opções, 24 progressões, 9 eventos de sistema; IDs únicos; 14 pontos-base por profissão; 360 moedas / 28.260 UMR; referências visuais presentes. Não é teste de Unity nem de balanceamento.
+Rotas propostas: 52 células únicas do anel; quatro percursos de 57 posições, 228 registros, sem repetição de índice por cor. 61 cenários de aceite especificados, NÃO executados.
