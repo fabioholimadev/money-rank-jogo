@@ -4,7 +4,13 @@ namespace MoneyRank.Domain
 {
     public sealed class BoardSpaceDefinition
     {
-        public BoardSpaceDefinition(string id, int index, string typeId, string categoryId = null, string eventTableId = null)
+        public BoardSpaceDefinition(
+            string id,
+            int index,
+            string typeId,
+            string categoryId = null,
+            string eventTableId = null,
+            string displayName = null)
         {
             if (string.IsNullOrWhiteSpace(id)) throw new ArgumentException("Space ID cannot be empty.", nameof(id));
             if (index < 0) throw new ArgumentOutOfRangeException(nameof(index));
@@ -15,6 +21,7 @@ namespace MoneyRank.Domain
             TypeId = typeId;
             CategoryId = categoryId;
             EventTableId = eventTableId;
+            DisplayName = string.IsNullOrWhiteSpace(displayName) ? id : displayName;
         }
 
         public string Id { get; }
@@ -22,5 +29,6 @@ namespace MoneyRank.Domain
         public string TypeId { get; }
         public string CategoryId { get; }
         public string EventTableId { get; }
+        public string DisplayName { get; }
     }
 }

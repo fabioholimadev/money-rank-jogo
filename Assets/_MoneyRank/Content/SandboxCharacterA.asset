@@ -14,25 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: MoneyRank.Content::MoneyRank.Content.CharacterDefinitionAsset
   definition:
     id: sandbox-character-a
-    displayName: Personagem de teste A
-    description: Personagem generico para validar atribuicao e persistencia.
+    displayName: Capivara Professora
+    description: Perfil de personagem para atribuição no início da partida. Regras específicas ainda não configuradas.
     salaryRules: []
     startingResources: []
     startingAttributes: []
-    passiveAbilities:
-    - id: sandbox-advantage-a
-      displayName: Vantagem de demonstracao
-      description: Marcador tecnico sem regra oficial associada.
-      typeId: sandbox.note
-      parameters: []
-      effects: []
-    disadvantages:
-    - id: sandbox-limitation-a
-      displayName: Limitacao de demonstracao
-      description: Marcador tecnico sem regra oficial associada.
-      typeId: sandbox.note
-      parameters: []
-      effects: []
+    passiveAbilities: []
+    disadvantages: []
     progressionTrackId: sandbox-inner-board
     visualPrefabId: sandbox-piece-a
     portraitId: sandbox-portrait-a

@@ -17,7 +17,7 @@ namespace MoneyRank.Tests.EditMode
                 var board = asset.ToDomain();
 
                 Assert.That(board.Id, Is.EqualTo("vertical-slice-board"));
-                Assert.That(board.SpaceCount, Is.EqualTo(20));
+                Assert.That(board.SpaceCount, Is.EqualTo(36), "legacy sandbox board matches the 36-slot perimeter");
                 Assert.That(board.GetSpace(0).TypeId, Is.EqualTo("start"));
                 Assert.That(board.GetSpace(1).CategoryId, Is.EqualTo("expense"));
             }
@@ -39,7 +39,7 @@ namespace MoneyRank.Tests.EditMode
                 view.Initialize(asset);
 
                 Assert.That(view.SpaceAnchors, Has.Count.EqualTo(asset.Spaces.Count));
-                Assert.That(view.SpaceAnchors[0].name, Does.Contain("start"));
+                Assert.That(view.SpaceAnchors[0].name, Does.StartWith("Anchor 00"));
             }
             finally
             {

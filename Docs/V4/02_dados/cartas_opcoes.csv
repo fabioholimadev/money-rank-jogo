@@ -1,0 +1,116 @@
+﻿id,casa_id,ordem,titulo,texto,custo_umr,recompensa_imediata_umr,recompensa_pct_salario_atual,conhecimento,investimento,cidadania,toxina,cortisol,dividas,acao,condicao,parametros_json,status,arte
+H01_O01,H01,1,Início,Casa de referência: não há pagamento extra por passagem ou chegada.,0,0,0,0,0,0,0,0,0,neutro,sempre,{},aprovado,03_visual/cartas/H01_O01.png
+H02_O01,H02,1,Pequeno agrado,Pequeno agrado,30,0,0,0,0,0,0,-1,0,normal,sempre,{},aprovado,03_visual/cartas/H02_O01.png
+H02_O02,H02,2,Compra de conforto,Compra de conforto,60,0,0,0,0,0,0,-2,0,normal,sempre,{},aprovado,03_visual/cartas/H02_O02.png
+H02_O03,H02,3,Compra útil planejada,Compra útil planejada,90,0,0,1,0,0,0,-1,0,normal,sempre,{},aprovado,03_visual/cartas/H02_O03.png
+H02_O04,H02,4,Recusar,Não contratar ou comprar. Sem efeitos.,0,0,0,0,0,0,0,0,0,recusar,sempre,{},aprovado,03_visual/cartas/H02_O04.png
+H03_O01,H03,1,Oficina introdutória,"Capacitação gratuita, sem custo em moedas.",0,0,0,1,0,0,0,0,0,normal,sempre,{},aprovado,03_visual/cartas/H03_O01.png
+H03_O02,H03,2,Curso de capacitação,"Capacitação gratuita, sem custo em moedas.",0,0,0,2,0,0,0,1,0,normal,sempre,{},aprovado,03_visual/cartas/H03_O02.png
+H03_O03,H03,3,Formação intensiva,"Capacitação gratuita, sem custo em moedas.",0,0,0,3,0,1,0,2,0,normal,sempre,{},aprovado,03_visual/cartas/H03_O03.png
+H03_O04,H03,4,Recusar,Não contratar ou comprar. Sem efeitos.,0,0,0,0,0,0,0,0,0,recusar,sempre,{},aprovado,03_visual/cartas/H03_O04.png
+H04_O01,H04,1,Alimentação econômica,Alimentação econômica,30,0,0,0,0,0,1,0,0,normal,sempre,{},proposta_preteste,03_visual/cartas/H04_O01.png
+H04_O02,H04,2,Refeição equilibrada,Refeição equilibrada,50,0,0,0,0,0,0,0,0,normal,sempre,{},proposta_preteste,03_visual/cartas/H04_O02.png
+H04_O03,H04,3,Alimentação saudável,Alimentação saudável,80,0,0,0,0,0,-1,0,0,normal,sempre,{},proposta_preteste,03_visual/cartas/H04_O03.png
+H04_O04,H04,4,Não consegue pagar,Nenhuma alternativa é acessível. Registra dificuldade financeira.,0,0,0,0,0,0,0,0,3,inadimplencia,nenhuma_opcao_paga_acessivel,{},aprovado,03_visual/cartas/H04_O04.png
+H05_O01,H05,1,Depositar 50 CRIA Coin,Entregue moedas ao banco e aumente a reserva. Ganho de Investimento depende do recorde de principal depositado.,50,0,0,0,1,0,0,0,0,depositar_reserva,saldo_e_teto,"{""teto"":""salario_atual"",""pontos_condicionais"":""recorde_principal""}",aprovado,03_visual/cartas/H05_O01.png
+H05_O02,H05,2,Depositar 100 CRIA Coin,Entregue moedas ao banco e aumente a reserva. Ganho de Investimento depende do recorde de principal depositado.,100,0,0,0,2,0,0,0,0,depositar_reserva,saldo_e_teto,"{""teto"":""salario_atual"",""pontos_condicionais"":""recorde_principal""}",aprovado,03_visual/cartas/H05_O02.png
+H05_O03,H05,3,Depositar 200 CRIA Coin,Entregue moedas ao banco e aumente a reserva. Ganho de Investimento depende do recorde de principal depositado.,200,0,0,0,3,0,0,0,0,depositar_reserva,saldo_e_teto,"{""teto"":""salario_atual"",""pontos_condicionais"":""recorde_principal""}",aprovado,03_visual/cartas/H05_O03.png
+H05_O04,H05,4,Recusar,Não contratar ou comprar. Sem efeitos.,0,0,0,0,0,0,0,0,0,recusar,sempre,{},aprovado,03_visual/cartas/H05_O04.png
+H06_O01,H06,1,Descansar em casa,"Recupere um ponto de Toxina e Cortisol, até zero.",0,0,0,0,0,0,-1,-1,0,automatico,sempre,{},aprovado,03_visual/cartas/H06_O01.png
+H07_O01,H07,1,Pagar imposto,Pague o tributo devido ao cofre público.,0,0,0,0,0,0,0,0,0,pagar_imposto,imoveis_maior_que_zero,"{""base_umr"":50,""multiplicar_por"":""imoveis"",""destino"":""cofre""}",aprovado,03_visual/cartas/H07_O01.png
+H07_O02,H07,2,Tentar sonegar,Lance a moeda: feliz registra pendência; triste cobra o dobro e acrescenta Cortisol.,0,0,0,0,0,0,0,0,0,sonegar_imposto,imoveis_maior_que_zero,"{""base_umr"":50,""multiplicar_por"":""imoveis""}",aprovado,03_visual/cartas/H07_O02.png
+H07_O03,H07,3,Sem recursos,"Se não puder pagar o tributo, registre pendência e três pontos-base de Dívidas.",0,0,0,0,0,0,0,0,3,imposto_sem_recursos,tributo_devido_e_sem_recursos,"{""base_umr"":50,""multiplicar_por"":""imoveis""}",aprovado,03_visual/cartas/H07_O03.png
+H07_O04,H07,4,Isento nesta casa,Não possui patrimônio tributável correspondente.,0,0,0,0,0,0,0,0,0,isento,sem_patrimonio_tributavel,{},aprovado,03_visual/cartas/H07_O04.png
+H08_O01,H08,1,Próxima evolução profissional,Consulte a próxima carta da sua profissão; pode comprar ou recusar. A oferta permanece até aquisição.,0,0,0,0,0,0,0,0,0,progressao,etapa_menor_que_4,{},aprovado,03_visual/cartas/H08_O01.png
+H08_O02,H08,2,Carreira completa,Você já concluiu as quatro evoluções.,0,0,0,0,0,0,0,0,0,neutro,etapa_igual_4,{},aprovado,03_visual/cartas/H08_O02.png
+H09_O01,H09,1,Pagar a fatura integralmente,Pagar a fatura integralmente,100,0,0,0,0,0,0,0,-2,normal,sempre,{},aprovado,03_visual/cartas/H09_O01.png
+H09_O02,H09,2,Pagar parcialmente,Pagar parcialmente,50,0,0,0,0,0,0,0,1,normal,sempre,{},aprovado,03_visual/cartas/H09_O02.png
+H09_O03,H09,3,Não pagar a fatura,Não pagar a fatura,0,0,0,0,0,0,0,0,3,normal,sempre,{},aprovado,03_visual/cartas/H09_O03.png
+H10_O01,H10,1,Visitar hospital,"Se não estiver internado, siga normalmente.",0,0,0,0,0,0,0,0,0,neutro,sempre,{},complemento,03_visual/cartas/H10_O01.png
+H11_O01,H11,1,Pagar imposto,Pague o tributo devido ao cofre público.,0,0,0,0,0,0,0,0,0,pagar_imposto,veiculo_ativo,"{""base_umr"":40,""multiplicar_por"":""1"",""destino"":""cofre""}",aprovado,03_visual/cartas/H11_O01.png
+H11_O02,H11,2,Tentar sonegar,Lance a moeda: feliz registra pendência; triste cobra o dobro e acrescenta Cortisol.,0,0,0,0,0,0,0,0,0,sonegar_imposto,veiculo_ativo,"{""base_umr"":40,""multiplicar_por"":""1""}",aprovado,03_visual/cartas/H11_O02.png
+H11_O03,H11,3,Sem recursos,"Se não puder pagar o tributo, registre pendência e três pontos-base de Dívidas.",0,0,0,0,0,0,0,0,3,imposto_sem_recursos,tributo_devido_e_sem_recursos,"{""base_umr"":40,""multiplicar_por"":""1""}",aprovado,03_visual/cartas/H11_O03.png
+H11_O04,H11,4,Isento nesta casa,Não possui patrimônio tributável correspondente.,0,0,0,0,0,0,0,0,0,isento,sem_patrimonio_tributavel,{},aprovado,03_visual/cartas/H11_O04.png
+H12_O01,H12,1,Prática esportiva,Prática esportiva,30,0,0,0,0,0,-2,0,0,normal,sempre,{},aprovado,03_visual/cartas/H12_O01.png
+H12_O02,H12,2,Academia,Academia,60,0,0,0,0,0,-2,-2,0,normal,sempre,{},aprovado,03_visual/cartas/H12_O02.png
+H12_O03,H12,3,Treinamento orientado,Treinamento orientado,100,0,0,0,0,0,-3,-3,0,normal,sempre,{},aprovado,03_visual/cartas/H12_O03.png
+H12_O04,H12,4,Recusar,Não contratar ou comprar. Sem efeitos.,0,0,0,0,0,0,0,0,0,recusar,sempre,{},aprovado,03_visual/cartas/H12_O04.png
+H13_O01,H13,1,Não contratar,Não recebe dinheiro nem altera os atributos.,0,0,0,0,0,0,0,0,0,recusar,sempre,{},aprovado,03_visual/cartas/H13_O01.png
+H13_O02,H13,2,Crédito simbólico pequeno,Receba 50 CRIA Coin; aumente Dívidas. Não há contrato ou parcelas.,0,50,0,0,0,0,0,0,2,normal,sempre,{},aprovado,03_visual/cartas/H13_O02.png
+H13_O03,H13,3,Crédito simbólico maior,Receba 100 CRIA Coin; aumente Dívidas. Não há contrato ou parcelas.,0,100,0,0,0,0,0,0,4,normal,sempre,{},aprovado,03_visual/cartas/H13_O03.png
+H14_O01,H14,1,Comprar veículo,Adquira um veículo por três anos. Avanços positivos internos dobram enquanto ativo.,400,0,0,0,4,0,0,0,0,comprar_veiculo,sem_veiculo_ativo,"{""duracao_anos"":3}",aprovado,03_visual/cartas/H14_O01.png
+H14_O02,H14,2,Manutenção preventiva,Prolongue em um ano a validade do veículo ativo.,150,0,0,0,1,0,0,0,0,manter_veiculo,veiculo_ativo,"{""extensao_anos"":1}",aprovado,03_visual/cartas/H14_O02.png
+H14_O03,H14,3,Recusar,Não contratar ou comprar. Sem efeitos.,0,0,0,0,0,0,0,0,0,recusar,sempre,{},aprovado,03_visual/cartas/H14_O03.png
+H15_O01,H15,1,Moradia básica,Moradia básica,50,0,0,0,0,0,0,1,0,normal,sempre,{},proposta_preteste,03_visual/cartas/H15_O01.png
+H15_O02,H15,2,Moradia adequada,Moradia adequada,80,0,0,0,0,0,0,0,0,normal,sempre,{},proposta_preteste,03_visual/cartas/H15_O02.png
+H15_O03,H15,3,Moradia confortável,Moradia confortável,120,0,0,0,0,0,0,-1,0,normal,sempre,{},proposta_preteste,03_visual/cartas/H15_O03.png
+H15_O04,H15,4,Não consegue pagar,Nenhuma alternativa é acessível. Registra dificuldade financeira.,0,0,0,0,0,0,0,0,3,inadimplencia,nenhuma_opcao_paga_acessivel,{},aprovado,03_visual/cartas/H15_O04.png
+H16_O01,H16,1,Próxima evolução profissional,Consulte a próxima carta da sua profissão; pode comprar ou recusar. A oferta permanece até aquisição.,0,0,0,0,0,0,0,0,0,progressao,etapa_menor_que_4,{},aprovado,03_visual/cartas/H16_O01.png
+H16_O02,H16,2,Carreira completa,Você já concluiu as quatro evoluções.,0,0,0,0,0,0,0,0,0,neutro,etapa_igual_4,{},aprovado,03_visual/cartas/H16_O02.png
+H17_O01,H17,1,Assinatura básica,Assinatura básica,30,0,0,0,0,0,0,-1,0,normal,sempre,{},aprovado,03_visual/cartas/H17_O01.png
+H17_O02,H17,2,Assinatura educacional,Assinatura educacional,80,0,0,1,0,0,0,-1,0,normal,sempre,{},aprovado,03_visual/cartas/H17_O02.png
+H17_O03,H17,3,Pacote completo,Pacote completo,150,0,0,2,0,0,0,-2,0,normal,sempre,{},aprovado,03_visual/cartas/H17_O03.png
+H17_O04,H17,4,Recusar,Não contratar ou comprar. Sem efeitos.,0,0,0,0,0,0,0,0,0,recusar,sempre,{},aprovado,03_visual/cartas/H17_O04.png
+H18_O01,H18,1,Trabalho pontual,"Receba renda extra imediatamente, sem alterar seu salário.",0,0,25,0,0,0,0,1,0,normal,sempre,{},aprovado,03_visual/cartas/H18_O01.png
+H18_O02,H18,2,Jornada extra,"Receba renda extra imediatamente, sem alterar seu salário.",0,0,50,0,0,0,0,2,0,normal,sempre,{},aprovado,03_visual/cartas/H18_O02.png
+H18_O03,H18,3,Projeto intensivo,"Receba renda extra imediatamente, sem alterar seu salário.",0,0,75,0,0,0,1,3,0,normal,sempre,{},aprovado,03_visual/cartas/H18_O03.png
+H18_O04,H18,4,Recusar,Não contratar ou comprar. Sem efeitos.,0,0,0,0,0,0,0,0,0,recusar,sempre,{},aprovado,03_visual/cartas/H18_O04.png
+H19_O01,H19,1,Internação imediata,Vá diretamente ao hospital e selecione modalidade de atendimento.,0,0,0,0,0,0,0,0,0,internar,sempre,{},aprovado,03_visual/cartas/H19_O01.png
+H20_O01,H20,1,Comprar imóvel,Adquira propriedade permanente e um direito de posicionar checkpoint.,500,0,0,0,4,0,0,0,0,comprar_imovel,sempre,"{""direitos_checkpoint"":1}",aprovado,03_visual/cartas/H20_O01.png
+H20_O02,H20,2,Recusar,Não contratar ou comprar. Sem efeitos.,0,0,0,0,0,0,0,0,0,recusar,sempre,{},aprovado,03_visual/cartas/H20_O02.png
+H21_O01,H21,1,Consumo mínimo,Consumo mínimo,30,0,0,0,0,0,0,1,0,normal,sempre,{},proposta_preteste,03_visual/cartas/H21_O01.png
+H21_O02,H21,2,Consumo regular,Consumo regular,50,0,0,0,0,0,0,0,0,normal,sempre,{},proposta_preteste,03_visual/cartas/H21_O02.png
+H21_O03,H21,3,Consumo eficiente,Consumo eficiente,80,0,0,0,0,1,0,0,0,normal,sempre,{},proposta_preteste,03_visual/cartas/H21_O03.png
+H21_O04,H21,4,Não consegue pagar,Nenhuma alternativa é acessível. Registra dificuldade financeira.,0,0,0,0,0,0,0,0,3,inadimplencia,nenhuma_opcao_paga_acessivel,{},aprovado,03_visual/cartas/H21_O04.png
+H22_O01,H22,1,Parceria local,Pague agora; retorno total garantido no próximo fechamento anual.,50,0,0,0,0,0,0,1,0,parceria,sempre,"{""retorno_total_umr"":100,""vencimento"":""proximo_fechamento_anual""}",aprovado,03_visual/cartas/H22_O01.png
+H22_O02,H22,2,Sociedade temporária,Pague agora; retorno total garantido no próximo fechamento anual.,100,0,0,0,0,0,1,2,0,parceria,sempre,"{""retorno_total_umr"":200,""vencimento"":""proximo_fechamento_anual""}",aprovado,03_visual/cartas/H22_O02.png
+H22_O03,H22,3,Negócio intensivo,Pague agora; retorno total garantido no próximo fechamento anual.,150,0,0,0,0,0,2,3,0,parceria,sempre,"{""retorno_total_umr"":300,""vencimento"":""proximo_fechamento_anual""}",aprovado,03_visual/cartas/H22_O03.png
+H22_O04,H22,4,Recusar,Não contratar ou comprar. Sem efeitos.,0,0,0,0,0,0,0,0,0,recusar,sempre,{},aprovado,03_visual/cartas/H22_O04.png
+H23_O01,H23,1,Acessório útil,Acessório útil,100,0,0,1,0,0,0,0,0,normal,sempre,{},aprovado,03_visual/cartas/H23_O01.png
+H23_O02,H23,2,Equipamento de estudo,Equipamento de estudo,200,0,0,2,0,0,0,0,0,normal,sempre,{},aprovado,03_visual/cartas/H23_O02.png
+H23_O03,H23,3,Equipamento completo,Equipamento completo,300,0,0,2,0,0,0,-1,0,normal,sempre,{},aprovado,03_visual/cartas/H23_O03.png
+H23_O04,H23,4,Recusar,Não contratar ou comprar. Sem efeitos.,0,0,0,0,0,0,0,0,0,recusar,sempre,{},aprovado,03_visual/cartas/H23_O04.png
+H24_O01,H24,1,Próxima evolução profissional,Consulte a próxima carta da sua profissão; pode comprar ou recusar. A oferta permanece até aquisição.,0,0,0,0,0,0,0,0,0,progressao,etapa_menor_que_4,{},aprovado,03_visual/cartas/H24_O01.png
+H24_O02,H24,2,Carreira completa,Você já concluiu as quatro evoluções.,0,0,0,0,0,0,0,0,0,neutro,etapa_igual_4,{},aprovado,03_visual/cartas/H24_O02.png
+H25_O01,H25,1,Pagar imposto,Pague o tributo devido ao cofre público.,0,0,0,0,0,0,0,0,0,pagar_imposto,sempre,"{""base_umr"":30,""multiplicar_por"":""1"",""destino"":""cofre""}",aprovado,03_visual/cartas/H25_O01.png
+H25_O02,H25,2,Tentar sonegar,Lance a moeda: feliz registra pendência; triste cobra o dobro e acrescenta Cortisol.,0,0,0,0,0,0,0,0,0,sonegar_imposto,sempre,"{""base_umr"":30,""multiplicar_por"":""1""}",aprovado,03_visual/cartas/H25_O02.png
+H25_O03,H25,3,Sem recursos,"Se não puder pagar o tributo, registre pendência e três pontos-base de Dívidas.",0,0,0,0,0,0,0,0,3,imposto_sem_recursos,tributo_devido_e_sem_recursos,"{""base_umr"":30,""multiplicar_por"":""1""}",aprovado,03_visual/cartas/H25_O03.png
+H26_O01,H26,1,Cinema,Cinema,30,0,0,1,0,0,0,-1,0,normal,sempre,{},aprovado,03_visual/cartas/H26_O01.png
+H26_O02,H26,2,Museu ou exposição,Museu ou exposição,60,0,0,2,0,1,0,0,0,normal,sempre,{},aprovado,03_visual/cartas/H26_O02.png
+H26_O03,H26,3,Experiência cultural completa,Experiência cultural completa,100,0,0,3,0,2,0,-1,0,normal,sempre,{},aprovado,03_visual/cartas/H26_O03.png
+H26_O04,H26,4,Recusar,Não contratar ou comprar. Sem efeitos.,0,0,0,0,0,0,0,0,0,recusar,sempre,{},aprovado,03_visual/cartas/H26_O04.png
+H27_O01,H27,1,Quitar conta atrasada,Quitar conta atrasada,60,0,0,0,0,0,0,0,-1,normal,sempre,{},aprovado,03_visual/cartas/H27_O01.png
+H27_O02,H27,2,Pagamento parcial,Pagamento parcial,30,0,0,0,0,0,0,0,0,normal,sempre,{},aprovado,03_visual/cartas/H27_O02.png
+H27_O03,H27,3,Não pagar,Não pagar,0,0,0,0,0,0,0,0,3,normal,sempre,{},aprovado,03_visual/cartas/H27_O03.png
+H28_O01,H28,1,Consultar cofre público,"Confira o saldo acumulado, destinado exclusivamente ao hospital.",0,0,0,0,0,0,0,0,0,consulta_cofre,sempre,{},aprovado,03_visual/cartas/H28_O01.png
+H28_O02,H28,2,Contribuir voluntariamente,"Transfira 50 CRIA Coin ao cofre, sem benefício adicional.",50,0,0,0,0,0,0,0,0,doar_cofre,sempre,{},complemento,03_visual/cartas/H28_O02.png
+H28_O03,H28,3,Recusar,Não contratar ou comprar. Sem efeitos.,0,0,0,0,0,0,0,0,0,recusar,sempre,{},aprovado,03_visual/cartas/H28_O03.png
+H29_O01,H29,1,Próxima evolução profissional,Consulte a próxima carta da sua profissão; pode comprar ou recusar. A oferta permanece até aquisição.,0,0,0,0,0,0,0,0,0,progressao,etapa_menor_que_4,{},aprovado,03_visual/cartas/H29_O01.png
+H29_O02,H29,2,Carreira completa,Você já concluiu as quatro evoluções.,0,0,0,0,0,0,0,0,0,neutro,etapa_igual_4,{},aprovado,03_visual/cartas/H29_O02.png
+H30_O01,H30,1,Renegociar integralmente,Renegociar integralmente,80,0,0,0,0,0,0,0,-2,normal,barra_dividas_maior_zero,{},aprovado,03_visual/cartas/H30_O01.png
+H30_O02,H30,2,Renegociar parcialmente,Renegociar parcialmente,40,0,0,0,0,0,0,0,-1,normal,barra_dividas_maior_zero,{},aprovado,03_visual/cartas/H30_O02.png
+H30_O03,H30,3,Não renegociar,Não renegociar,0,0,0,0,0,0,0,0,2,normal,barra_dividas_maior_zero,{},aprovado,03_visual/cartas/H30_O03.png
+H30_O04,H30,4,Sem dívidas atuais,Não pague nada e encerre sem efeito.,0,0,0,0,0,0,0,0,0,neutro,barra_dividas_zero,{},aprovado,03_visual/cartas/H30_O04.png
+H31_O01,H31,1,Viagem regional,Viagem regional,100,0,0,0,0,0,-1,-2,0,normal,sempre,{},aprovado,03_visual/cartas/H31_O01.png
+H31_O02,H31,2,Viagem nacional,Viagem nacional,150,0,0,1,0,0,-2,-3,0,normal,sempre,{},aprovado,03_visual/cartas/H31_O02.png
+H31_O03,H31,3,Viagem internacional,Viagem internacional,200,0,0,2,0,0,-3,-3,0,normal,sempre,{},aprovado,03_visual/cartas/H31_O03.png
+H31_O04,H31,4,Recusar,Não contratar ou comprar. Sem efeitos.,0,0,0,0,0,0,0,0,0,recusar,sempre,{},aprovado,03_visual/cartas/H31_O04.png
+H32_O01,H32,1,Pagar imposto,Pague o tributo devido ao cofre público.,0,0,0,0,0,0,0,0,0,pagar_imposto,sempre,"{""base_umr"":40,""multiplicar_por"":""1"",""destino"":""cofre""}",aprovado,03_visual/cartas/H32_O01.png
+H32_O02,H32,2,Tentar sonegar,Lance a moeda: feliz registra pendência; triste cobra o dobro e acrescenta Cortisol.,0,0,0,0,0,0,0,0,0,sonegar_imposto,sempre,"{""base_umr"":40,""multiplicar_por"":""1""}",aprovado,03_visual/cartas/H32_O02.png
+H32_O03,H32,3,Sem recursos,"Se não puder pagar o tributo, registre pendência e três pontos-base de Dívidas.",0,0,0,0,0,0,0,0,3,imposto_sem_recursos,tributo_devido_e_sem_recursos,"{""base_umr"":40,""multiplicar_por"":""1""}",aprovado,03_visual/cartas/H32_O03.png
+H33_O01,H33,1,Passeio especial,Passeio especial,80,0,0,0,0,0,0,-1,0,normal,sempre,{},aprovado,03_visual/cartas/H33_O01.png
+H33_O02,H33,2,Experiência premium,Experiência premium,150,0,0,0,0,0,0,-2,0,normal,sempre,{},aprovado,03_visual/cartas/H33_O02.png
+H33_O03,H33,3,Experiência de bem-estar,Experiência de bem-estar,200,0,0,0,0,0,-1,-2,0,normal,sempre,{},aprovado,03_visual/cartas/H33_O03.png
+H33_O04,H33,4,Recusar,Não contratar ou comprar. Sem efeitos.,0,0,0,0,0,0,0,0,0,recusar,sempre,{},aprovado,03_visual/cartas/H33_O04.png
+H34_O01,H34,1,Reserva de emergência,Escolha uma operação já definida na casa correspondente.,0,0,0,0,0,0,0,0,0,delegar,sempre,"{""casa_destino"":""H05"",""max_operacoes"":1}",aprovado,03_visual/cartas/H34_O01.png
+H34_O02,H34,2,Veículo,Escolha uma operação já definida na casa correspondente.,0,0,0,0,0,0,0,0,0,delegar,sempre,"{""casa_destino"":""H14"",""max_operacoes"":1}",aprovado,03_visual/cartas/H34_O02.png
+H34_O03,H34,3,Imóvel,Escolha uma operação já definida na casa correspondente.,0,0,0,0,0,0,0,0,0,delegar,sempre,"{""casa_destino"":""H20"",""max_operacoes"":1}",aprovado,03_visual/cartas/H34_O03.png
+H34_O04,H34,4,Recusar,Não contratar ou comprar. Sem efeitos.,0,0,0,0,0,0,0,0,0,recusar,sempre,{},aprovado,03_visual/cartas/H34_O04.png
+H35_O01,H35,1,Transporte e cuidado básicos,Transporte e cuidado básicos,30,0,0,0,0,0,0,1,0,normal,sempre,{},proposta_preteste,03_visual/cartas/H35_O01.png
+H35_O02,H35,2,Serviço regular,Serviço regular,60,0,0,0,0,0,0,0,0,normal,sempre,{},proposta_preteste,03_visual/cartas/H35_O02.png
+H35_O03,H35,3,Transporte e prevenção,Transporte e prevenção,100,0,0,0,0,0,-1,0,0,normal,sempre,{},proposta_preteste,03_visual/cartas/H35_O03.png
+H35_O04,H35,4,Não consegue pagar,Nenhuma alternativa é acessível. Registra dificuldade financeira.,0,0,0,0,0,0,0,0,3,inadimplencia,nenhuma_opcao_paga_acessivel,{},aprovado,03_visual/cartas/H35_O04.png
+H36_O01,H36,1,Auxílio estudantil,"Receba benefício financeiro imediato, com dedicação e esforço.",0,0,50,1,0,0,0,1,0,normal,sempre,{},aprovado,03_visual/cartas/H36_O01.png
+H36_O02,H36,2,Bolsa integral,"Receba benefício financeiro imediato, com dedicação e esforço.",0,0,100,2,0,0,0,2,0,normal,sempre,{},aprovado,03_visual/cartas/H36_O02.png
+H36_O03,H36,3,Edital de projeto,"Receba benefício financeiro imediato, com dedicação e esforço.",0,0,150,2,0,1,0,3,0,normal,sempre,{},aprovado,03_visual/cartas/H36_O03.png
+H36_O04,H36,4,Recusar,Não contratar ou comprar. Sem efeitos.,0,0,0,0,0,0,0,0,0,recusar,sempre,{},aprovado,03_visual/cartas/H36_O04.png

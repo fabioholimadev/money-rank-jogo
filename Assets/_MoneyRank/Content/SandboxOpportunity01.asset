@@ -18,7 +18,9 @@ MonoBehaviour:
     categoryId: opportunity
     title: Oportunidade de teste A
     educationalText: Evento temporario para exercitar uma tabela de oportunidade.
-    tags: []
+    tags:
+    - opportunity:general
+    - effect:pending-approval
     conditions: []
     options:
     - id: continue

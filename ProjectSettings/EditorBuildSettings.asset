@@ -6,6 +6,9 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/_MoneyRank/Scenes/MoneyRankV4.unity
+    guid: 59b56ae300e1e984f9bd02d1f2be5af4
+  - enabled: 1
     path: Assets/_MoneyRank/Scenes/DevSandbox.unity
     guid: d5f249bdced69fd4da324369cd1cd4e5
   m_configObjects:

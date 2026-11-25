@@ -35,6 +35,9 @@
 
 # Unity-generated packages and exports
 *.apk
+!/Releases/
+!/Releases/*.apk
+/Releases/*_BackUpThisFolder_ButDontShipItWithYourGame/
 *.aab
 *.app
 *.unitypackage
@@ -54,4 +57,12 @@
 .DS_Store
 Thumbs.db
 Desktop.ini
+
+# Local/recovered/generated files
+/.utmp/
+/New Unity Project/
+/Assets/_Recovery/
+/Assets/_Recovery.meta
+/Assets/Resources/PerformanceTestRunInfo.json*
+/Assets/Resources/PerformanceTestRunSettings.json*
 

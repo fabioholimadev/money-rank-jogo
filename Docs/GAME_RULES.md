@@ -42,6 +42,13 @@ Itens ainda sem definição suficiente permanecem em `OPEN_DECISIONS.md`.
   investimento, dívida e impostos.
 - A posição exata das 24 casas ainda precisa ser aprovada.
 
+### Moradia
+
+- Moradia é uma casa de Despesa Essencial.
+- Não há cobrança automática calculada pela quantidade de casas possuídas.
+- Qualquer efeito de Moradia ocorre somente quando uma carta correspondente é
+  sorteada; o efeito final da carta ainda precisa ser definido.
+
 ## Tabuleiro interno e atributos
 
 - O caminho interno possui oito casas até o centro.

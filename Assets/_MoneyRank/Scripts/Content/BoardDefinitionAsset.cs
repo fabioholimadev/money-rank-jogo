@@ -29,10 +29,12 @@ namespace MoneyRank.Content
 
         private static List<BoardSpaceData> CreateTemporarySpaces()
         {
-            var result = new List<BoardSpaceData>(20);
+            var result = new List<BoardSpaceData>(36);
             var categories = new[] { "expense", "investment", "citizenship", "opportunity" };
 
-            for (var index = 0; index < 20; index++)
+            // The sandbox perimeter has four corner spaces and eight spaces
+            // between each pair of corners, matching BoardLayoutView's 36 slots.
+            for (var index = 0; index < 36; index++)
             {
                 var typeId = index == 0 ? "start" : "event";
                 var categoryId = index == 0 ? null : categories[(index - 1) % categories.Length];
@@ -52,14 +54,22 @@ namespace MoneyRank.Content
         [SerializeField] private string typeId;
         [SerializeField] private string categoryId;
         [SerializeField] private string eventTableId;
+        [SerializeField] private string displayName;
 
-        public BoardSpaceData(string id, int index, string typeId, string categoryId, string eventTableId)
+        public BoardSpaceData(
+            string id,
+            int index,
+            string typeId,
+            string categoryId,
+            string eventTableId,
+            string displayName = null)
         {
             this.id = id;
             this.index = index;
             this.typeId = typeId;
             this.categoryId = categoryId;
             this.eventTableId = eventTableId;
+            this.displayName = string.IsNullOrWhiteSpace(displayName) ? id : displayName;
         }
 
         public string Id => id;
@@ -67,10 +77,11 @@ namespace MoneyRank.Content
         public string TypeId => typeId;
         public string CategoryId => categoryId;
         public string EventTableId => eventTableId;
+        public string DisplayName => string.IsNullOrWhiteSpace(displayName) ? id : displayName;
 
         public BoardSpaceDefinition ToDomain()
         {
-            return new BoardSpaceDefinition(id, index, typeId, categoryId, eventTableId);
+            return new BoardSpaceDefinition(id, index, typeId, categoryId, eventTableId, DisplayName);
         }
     }
 }

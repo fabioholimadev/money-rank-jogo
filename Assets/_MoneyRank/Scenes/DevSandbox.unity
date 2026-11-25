@@ -247,7 +247,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: MoneyRank.Presentation::MoneyRank.Presentation.Board.PlayerPieceView
   secondsPerSpace: 0.18
-  verticalOffset: 0.9
+  verticalOffset: 0.22
+  playerModelResourcePath: Models/Capybara/capybara
+  playerModelScale: 0.8
 --- !u!1 &1112101164
 GameObject:
   m_ObjectHideFlags: 0
@@ -668,12 +670,16 @@ MonoBehaviour:
   characterDefinitionAssets:
   - {fileID: 11400000, guid: e5f024d85e58431dba85cc8b40000001, type: 2}
   - {fileID: 11400000, guid: e5f024d85e58431dba85cc8b40000002, type: 2}
+  - {fileID: 11400000, guid: e5f024d85e58431dba85cc8b40000003, type: 2}
+  - {fileID: 11400000, guid: e5f024d85e58431dba85cc8b40000004, type: 2}
+  - {fileID: 11400000, guid: e5f024d85e58431dba85cc8b40000005, type: 2}
+  - {fileID: 11400000, guid: e5f024d85e58431dba85cc8b40000006, type: 2}
   boardView: {fileID: 1497986484}
   playerPiece: {fileID: 792690265}
   cameraController: {fileID: 1484463075}
   demonstrationSteps: 3
   usePersistentSave: 1
-  restoreExistingSave: 1
+  restoreExistingSave: 0
   saveFolderName: MoneyRank/Saves
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
@@ -684,3 +690,4 @@ SceneRoots:
   - {fileID: 1497986483}
   - {fileID: 792690264}
   - {fileID: 1112101168}
+

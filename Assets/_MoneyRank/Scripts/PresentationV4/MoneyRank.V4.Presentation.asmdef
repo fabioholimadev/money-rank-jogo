@@ -1,0 +1,19 @@
+{
+  "name": "MoneyRank.V4.Presentation",
+  "rootNamespace": "MoneyRank.V4.Presentation",
+  "references": [
+    "MoneyRank.Domain",
+    "MoneyRank.Infrastructure",
+    "Unity.InputSystem",
+    "UnityEngine.UI"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

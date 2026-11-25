@@ -1,0 +1,5 @@
+Modelo: capybara low-poly, 3DAssets.dev — pack Jungle and Rainforest Animals.
+Origem do GLB: https://cdn.3dassets.dev/assets/21668/v1/model.glb
+Página do asset e licença: https://3dassets.dev/packs/rainforest-and-jungle-fauna
+Licença declarada pelo autor: CC0 1.0 Universal.
+O arquivo GLB foi convertido para OBJ/MTL para importação nativa no Unity. A geometria foi mantida; a cena aplica as cores dos jogadores por material.

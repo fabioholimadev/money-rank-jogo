@@ -15,103 +15,219 @@ MonoBehaviour:
   id: vertical-slice-board
   startIndex: 0
   spaces:
-  - id: space-00
-    index: 0
-    typeId: start
-    categoryId: 
-    eventTableId: 
-  - id: space-01
-    index: 1
-    typeId: event
-    categoryId: expense
-    eventTableId: events-expense
-  - id: space-02
-    index: 2
-    typeId: event
-    categoryId: investment
-    eventTableId: events-investment
-  - id: space-03
-    index: 3
-    typeId: event
-    categoryId: citizenship
-    eventTableId: events-citizenship
-  - id: space-04
-    index: 4
-    typeId: event
-    categoryId: opportunity
-    eventTableId: events-opportunity
-  - id: space-05
-    index: 5
-    typeId: event
-    categoryId: expense
-    eventTableId: events-expense
-  - id: space-06
-    index: 6
-    typeId: event
-    categoryId: investment
-    eventTableId: events-investment
-  - id: space-07
-    index: 7
-    typeId: event
-    categoryId: citizenship
-    eventTableId: events-citizenship
-  - id: space-08
-    index: 8
-    typeId: event
-    categoryId: opportunity
-    eventTableId: events-opportunity
-  - id: space-09
-    index: 9
-    typeId: event
-    categoryId: expense
-    eventTableId: events-expense
-  - id: space-10
-    index: 10
-    typeId: event
-    categoryId: investment
-    eventTableId: events-investment
-  - id: space-11
-    index: 11
-    typeId: event
-    categoryId: citizenship
-    eventTableId: events-citizenship
-  - id: space-12
-    index: 12
-    typeId: event
-    categoryId: opportunity
-    eventTableId: events-opportunity
-  - id: space-13
-    index: 13
-    typeId: event
-    categoryId: expense
-    eventTableId: events-expense
-  - id: space-14
-    index: 14
-    typeId: event
-    categoryId: investment
-    eventTableId: events-investment
-  - id: space-15
-    index: 15
-    typeId: event
-    categoryId: citizenship
-    eventTableId: events-citizenship
-  - id: space-16
-    index: 16
-    typeId: event
-    categoryId: opportunity
-    eventTableId: events-opportunity
-  - id: space-17
-    index: 17
-    typeId: event
-    categoryId: expense
-    eventTableId: events-expense
-  - id: space-18
-    index: 18
-    typeId: event
-    categoryId: investment
-    eventTableId: events-investment
-  - id: space-19
-    index: 19
-    typeId: event
-    categoryId: citizenship
-    eventTableId: events-citizenship
+    - id: inicio-novo-ano
+      index: 0
+      typeId: start
+      categoryId: special-space
+      eventTableId: 
+      displayName: "Início / Novo Ano"
+    - id: compra-por-impulso
+      index: 1
+      typeId: event
+      categoryId: non-essential-expense
+      eventTableId: events-non-essential-expense
+      displayName: "Compra por Impulso"
+    - id: curso-gratuito
+      index: 2
+      typeId: event
+      categoryId: opportunity
+      eventTableId: events-opportunity
+      displayName: "Curso Gratuito"
+    - id: alimentacao
+      index: 3
+      typeId: event
+      categoryId: essential-expense
+      eventTableId: events-essential-expense
+      displayName: "Alimentação"
+    - id: reserva-de-emergencia
+      index: 4
+      typeId: event
+      categoryId: investment
+      eventTableId: events-investment
+      displayName: "Reserva de Emergência"
+    - id: descanso-em-casa
+      index: 5
+      typeId: event
+      categoryId: leisure
+      eventTableId: events-leisure
+      displayName: "Descanso em Casa"
+    - id: iptu
+      index: 6
+      typeId: event
+      categoryId: tax
+      eventTableId: events-tax
+      displayName: "IPTU"
+    - id: qualificacao
+      index: 7
+      typeId: event
+      categoryId: life-progress
+      eventTableId: events-life-progress
+      displayName: "Qualificação"
+    - id: cartao-de-credito
+      index: 8
+      typeId: event
+      categoryId: debt
+      eventTableId: events-debt
+      displayName: "Cartão de Crédito"
+    - id: hospital
+      index: 9
+      typeId: hospital
+      categoryId: special-space
+      eventTableId: 
+      displayName: "Hospital"
+    - id: ipva
+      index: 10
+      typeId: event
+      categoryId: tax
+      eventTableId: events-tax
+      displayName: "IPVA"
+    - id: atividade-fisica-e-parque
+      index: 11
+      typeId: event
+      categoryId: leisure
+      eventTableId: events-leisure
+      displayName: "Atividade Física e Parque"
+    - id: emprestimo-caro
+      index: 12
+      typeId: event
+      categoryId: debt
+      eventTableId: events-debt
+      displayName: "Empréstimo Caro"
+    - id: carro
+      index: 13
+      typeId: event
+      categoryId: investment
+      eventTableId: events-investment
+      displayName: "Carro"
+    - id: moradia
+      index: 14
+      typeId: event
+      categoryId: essential-expense
+      eventTableId: events-essential-expense
+      displayName: "Moradia"
+    - id: marco-de-carreira
+      index: 15
+      typeId: event
+      categoryId: life-progress
+      eventTableId: events-life-progress
+      displayName: "Marco de Carreira"
+    - id: assinaturas-e-aplicativos
+      index: 16
+      typeId: event
+      categoryId: non-essential-expense
+      eventTableId: events-non-essential-expense
+      displayName: "Assinaturas e Aplicativos"
+    - id: trabalho-extra
+      index: 17
+      typeId: event
+      categoryId: opportunity
+      eventTableId: events-opportunity
+      displayName: "Trabalho Extra"
+    - id: banco-e-credito
+      index: 18
+      typeId: bank-credit
+      categoryId: special-space
+      eventTableId: 
+      displayName: "Banco e Crédito"
+    - id: casa
+      index: 19
+      typeId: event
+      categoryId: investment
+      eventTableId: events-investment
+      displayName: "Casa"
+    - id: energia-e-agua
+      index: 20
+      typeId: event
+      categoryId: essential-expense
+      eventTableId: events-essential-expense
+      displayName: "Energia e Água"
+    - id: parceria-novo-cliente
+      index: 21
+      typeId: event
+      categoryId: opportunity
+      eventTableId: events-opportunity
+      displayName: "Parceria / Novo Cliente"
+    - id: tecnologia-e-upgrade
+      index: 22
+      typeId: event
+      categoryId: non-essential-expense
+      eventTableId: events-non-essential-expense
+      displayName: "Tecnologia e Upgrade"
+    - id: projeto-pessoal
+      index: 23
+      typeId: event
+      categoryId: life-progress
+      eventTableId: events-life-progress
+      displayName: "Projeto Pessoal"
+    - id: iof
+      index: 24
+      typeId: event
+      categoryId: tax
+      eventTableId: events-tax
+      displayName: "IOF"
+    - id: cultura-e-passeio
+      index: 25
+      typeId: event
+      categoryId: leisure
+      eventTableId: events-leisure
+      displayName: "Cultura e Passeio"
+    - id: conta-atrasada
+      index: 26
+      typeId: event
+      categoryId: debt
+      eventTableId: events-debt
+      displayName: "Conta Atrasada"
+    - id: assembleia-cofre-publico
+      index: 27
+      typeId: public-treasury
+      categoryId: special-space
+      eventTableId: 
+      displayName: "Assembleia / Cofre Público"
+    - id: contribuicao-comunitaria
+      index: 28
+      typeId: event
+      categoryId: life-progress
+      eventTableId: events-life-progress
+      displayName: "Contribuição Comunitária"
+    - id: renegociacao
+      index: 29
+      typeId: event
+      categoryId: debt
+      eventTableId: events-debt
+      displayName: "Renegociação"
+    - id: ferias-planejadas
+      index: 30
+      typeId: event
+      categoryId: leisure
+      eventTableId: events-leisure
+      displayName: "Férias Planejadas"
+    - id: imposto-de-renda-fiscalizacao
+      index: 31
+      typeId: event
+      categoryId: tax
+      eventTableId: events-tax
+      displayName: "Imposto de Renda / Fiscalização"
+    - id: lazer-premium
+      index: 32
+      typeId: event
+      categoryId: non-essential-expense
+      eventTableId: events-non-essential-expense
+      displayName: "Lazer Premium"
+    - id: aplicacao-financeira
+      index: 33
+      typeId: event
+      categoryId: investment
+      eventTableId: events-investment
+      displayName: "Aplicação Financeira"
+    - id: transporte-e-saude-basica
+      index: 34
+      typeId: event
+      categoryId: essential-expense
+      eventTableId: events-essential-expense
+      displayName: "Transporte e Saúde Básica"
+    - id: bolsa-programa-publico
+      index: 35
+      typeId: event
+      categoryId: opportunity
+      eventTableId: events-opportunity
+      displayName: "Bolsa / Programa Público"

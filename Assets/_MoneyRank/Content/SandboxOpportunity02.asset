@@ -18,7 +18,9 @@ MonoBehaviour:
     categoryId: opportunity
     title: Oportunidade de teste B
     educationalText: Segundo evento temporario da categoria oportunidade.
-    tags: []
+    tags:
+    - opportunity:general
+    - effect:pending-approval
     conditions: []
     options:
     - id: continue
