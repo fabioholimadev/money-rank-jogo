@@ -191,5 +191,8 @@ namespace MoneyRank.Domain.V4
         public int NextLedgerNumber = 1;
         public bool LiquidityBlocked;
         public string LiquidityNote;
+        /// <summary>Pending pawn concessions of the action being resolved ("R" retreat, "A:k" advance by attribute k).</summary>
+        public List<string> CycleQueue = new List<string>();
+        public string LastDieValue;
     }
 }
