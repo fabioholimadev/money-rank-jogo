@@ -11,7 +11,7 @@ namespace MoneyRank.Tests.EditMode
     {
         private static V4ContentSet _cached;
 
-        public static string DataDir => Path.Combine(UnityEngine.Application.dataPath, "_MoneyRank", "Content", "V4", "Data");
+        public static string DataDir => Path.Combine(UnityEngine.Application.dataPath, "_MoneyRank", "Resources", "V4", "Data");
         public static string PackageRoot => Path.GetFullPath(Path.Combine(UnityEngine.Application.dataPath, "..", "Docs", "V4"));
 
         public static V4ContentLoader.RawSources ReadSources() => new V4ContentLoader.RawSources
