@@ -90,3 +90,18 @@ de virar regra rígida sem aprovação.
   pendente de decisão editorial. As cartas X/Y/Z são somente protótipos sem efeitos.
 - O sandbox ainda usa três atributos genéricos, dois personagens genéricos e
   caminho interno de seis posições; esses dados continuam temporários.
+
+## V4 — decisões pendentes registradas pela integração (`DECISION_REQUIRED`)
+
+- **DECISION_REQUIRED — ritmo do Ludo / duração da partida.** Nas simulações (`Docs/V4/05_validacao/resultado_simulacao_bots_gananciosos.csv`),
+  após 71–86 rodadas (≈24–29 anos de jogo) o líder de bots gananciosos concluiu 1–2 dos 4 peões (progresso 64–130 de 228 posições).
+  Por extrapolação linear a partida levaria 150–250 rodadas, o que é inviável no kit físico. Bots não são jogadores humanos e as regras
+  V4 são parâmetros de pré-teste, por isso **nenhum número foi alterado**. Candidatos configuráveis para a bateria 2: limiar da barra (3),
+  `max_steps_per_positive_cycle`, custo/benefício dos ganhos-base, número de peões. Decidir após as partidas físicas da bateria 1.
+- **Fiscalização e moeda TRISTE na sonegação.** Implementado: +1 Cortisol só quando a multa é efetivamente paga; se não há recursos
+  (autuado) aplica-se apenas +3 Dívidas. Na fiscalização com moeda TRISTE o +1 Cortisol é aplicado sempre (uma vez por fiscalização).
+- **Atleta (Fôlego Extra):** a escolha é oferecida a cada ciclo positivo enquanto a habilidade do ano não foi usada; "recusar" não consome.
+- **Empreendedora (Visão de Negócios):** troca explícita da opção selecionada (comando próprio), só em casas não essenciais, de dívida ou
+  oportunidade, nunca em tributos; considera "desfavorável" opção com custo ou ganho de Toxina/Cortisol/Dívidas.
+- **Prazo do veículo:** `rodadasCompletas + 9 + 1` na compra e `+3` na manutenção (ver INV05/INV06).
+- **Undo local:** pilha em memória (não sobrevive a recarregar o aplicativo); proibido no modo online.
