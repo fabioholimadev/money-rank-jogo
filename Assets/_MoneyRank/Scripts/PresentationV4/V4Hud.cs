@@ -81,7 +81,7 @@ namespace MoneyRank.V4.Presentation
         {
             V4Ui.Clear(_setupRoot);
             var content = V4Assets.Content;
-            V4Ui.Box(_setupRoot, "Bg", new Color(0.04f, 0.08f, 0.12f, 0.97f), UiAnchor.Stretch, 0, 0, 0, 0);
+            V4Ui.Box(_setupRoot, "Bg", new Color(0.02f, 0.02f, 0.025f, 0.97f), UiAnchor.Stretch, 0, 0, 0, 0);
             V4Ui.Label(_setupRoot, "MONEY RANK", 88, V4Ui.Gold, TextAnchor.MiddleCenter, UiAnchor.TC, 0, 28, 1200, 110, FontStyle.Bold);
             V4Ui.Label(_setupRoot, "Painel do mestre · V4 (pré-teste) · educação financeira, fiscal e cidadania", 26, V4Ui.TextMuted, TextAnchor.MiddleCenter, UiAnchor.TC, 0, 134, 1400, 40);
 
@@ -205,8 +205,11 @@ namespace MoneyRank.V4.Presentation
             V4Ui.Btn(_matchRoot, "Salvar", 20, V4Ui.PanelLight, V4Ui.TextMain, UiAnchor.TR, 616, 14, 100, 44, () => { _session.Persist(); Toast(_session.LastSaveError == null ? "Partida salva." : "Falha ao salvar: " + _session.LastSaveError); });
             _cardsRoot = V4Ui.Rect(_matchRoot, "Cards", UiAnchor.TL, 12, 84, 392, 980);
             _sideRoot = V4Ui.Rect(_matchRoot, "Side", UiAnchor.TR, 12, 84, 392, 980);
-            _controlRoot = V4Ui.Rect(_matchRoot, "Control", UiAnchor.BC, 0, 14, 980, 190);
-            _toast = V4Ui.Label(_matchRoot, string.Empty, 22, V4Ui.Gold, TextAnchor.MiddleCenter, UiAnchor.BC, 0, 212, 1100, 44, FontStyle.Bold);
+            _controlRoot = V4Ui.Rect(_matchRoot, "Control", UiAnchor.BC, 0, 8, 980, 172);
+            _toast = V4Ui.Label(_matchRoot, string.Empty, 22, V4Ui.Gold, TextAnchor.MiddleCenter, UiAnchor.BC, 0, 184, 1100, 40, FontStyle.Bold);
+            _banner = V4Ui.Label(_matchRoot, string.Empty, 54, Color.white, TextAnchor.MiddleCenter, UiAnchor.TC, 0, 96, 1300, 150, FontStyle.Bold);
+            _banner.gameObject.AddComponent<Shadow>().effectDistance = new Vector2(3f, -3f);
+            _banner.gameObject.SetActive(false);
         }
 
         private void Toast(string text) { if (_toast != null) _toast.text = text; }
@@ -272,7 +275,7 @@ namespace MoneyRank.V4.Presentation
                 var y = i * (h + 6f);
                 var isTurn = cur != null && p.Id == cur.Id;
                 var card = V4Ui.Rect(_cardsRoot, "Card " + p.Name, UiAnchor.TL, 0, y, 392, h);
-                V4Ui.Box(card, "Bg", isTurn ? new Color(0.16f, 0.27f, 0.36f, 0.97f) : V4Ui.Panel, UiAnchor.Stretch, 0, 0, 0, 0);
+                V4Ui.Box(card, "Bg", isTurn ? new Color(0.20f, 0.16f, 0.07f, 0.97f) : V4Ui.Panel, UiAnchor.Stretch, 0, 0, 0, 0);
                 V4Ui.Box(card, "Stripe", V4Assets.PawnColor(p.Color), UiAnchor.TL, 0, 0, 10, h);
                 if (isTurn) V4Ui.Box(card, "Turn", V4Ui.Gold, UiAnchor.TL, 10, 0, 382, 3);
                 var prof = _session.Content.Profession(p.ProfessionId);
@@ -289,7 +292,7 @@ namespace MoneyRank.V4.Presentation
                     var bar = p.Attributes[a];
                     var positive = a <= 2;
                     V4Ui.Label(card, AttrNames[a], 13, V4Ui.TextMuted, TextAnchor.MiddleLeft, UiAnchor.TL, bx, by, 90, rowH);
-                    V4Ui.Box(card, "BarBg", new Color(0.04f, 0.08f, 0.12f, 1f), UiAnchor.TL, bx + 92, by + 5, 62, rowH - 10);
+                    V4Ui.Box(card, "BarBg", new Color(0.02f, 0.02f, 0.025f, 1f), UiAnchor.TL, bx + 92, by + 5, 62, rowH - 10);
                     V4Ui.Box(card, "BarFill", positive ? V4Ui.Good : V4Ui.Bad, UiAnchor.TL, bx + 92, by + 5, 62f * Mathf.Clamp01((float)bar.Progress / 3f), rowH - 10);
                     V4Ui.Label(card, V4Ui.Dec(bar.Progress) + (bar.LifetimeCycles > 0 ? " ×" + bar.LifetimeCycles : string.Empty), 12, V4Ui.TextMain, TextAnchor.MiddleLeft, UiAnchor.TL, bx + 156, by, 40, rowH);
                 }
@@ -297,7 +300,7 @@ namespace MoneyRank.V4.Presentation
                 for (var k = 0; k < p.Pawns.Length; k++)
                 {
                     var pw = p.Pawns[k];
-                    var fill = pw.Completed ? V4Ui.Gold : (pw.RouteIndex >= 0 ? V4Assets.PawnColor(p.Color) : new Color(0.04f, 0.08f, 0.12f, 1f));
+                    var fill = pw.Completed ? V4Ui.Gold : (pw.RouteIndex >= 0 ? V4Assets.PawnColor(p.Color) : new Color(0.02f, 0.02f, 0.025f, 1f));
                     V4Ui.Box(card, "Pawn" + k, fill, UiAnchor.TL, 20 + k * 28, fy + 2, 22, 22);
                     if (k == p.ActivePawn && !pw.Completed) V4Ui.Box(card, "Active", V4Ui.TextMain, UiAnchor.TL, 20 + k * 28, fy + 24, 22, 3);
                 }
@@ -385,6 +388,81 @@ namespace MoneyRank.V4.Presentation
 
         private void OnDestroy() { _serial?.Dispose(); }
 
+        // ------------------------------------------------------------------ dice, coin and result banner
+
+        /// <summary>Source of virtual dice (tests inject fixed values; default is random).</summary>
+        public Func<(int, int)> DiceSource = () => (UnityEngine.Random.Range(1, 7), UnityEngine.Random.Range(1, 7));
+        public Func<bool> CoinSource = () => UnityEngine.Random.value < 0.5f;
+        public Action<int, int, Action> AnimateDice;
+        public Action<bool, Action> AnimateCoin;
+
+        private bool _busy;
+        private int _physA, _physB;
+        private Text _banner;
+        private float _bannerUntil;
+
+        public bool Busy => _busy;
+
+        private void ShowBanner(string text, float seconds = 2.6f)
+        {
+            if (_banner == null) return;
+            _banner.text = text;
+            _bannerUntil = Time.unscaledTime + seconds;
+            _banner.gameObject.SetActive(true);
+        }
+
+        private void Update()
+        {
+            if (_banner != null && _banner.gameObject.activeSelf && Time.unscaledTime > _bannerUntil) _banner.gameObject.SetActive(false);
+        }
+
+        /// <summary>Virtual roll: the dice are thrown on the board and the result is applied when they settle.</summary>
+        public void RollVirtual()
+        {
+            if (_busy || _session == null || _session.S.Phase != V4Phase.AwaitRoll) return;
+            var dice = DiceSource();
+            var cur = Current;
+            _busy = true;
+            Toast("Lançando os dados…");
+            Refresh();
+            var a = dice.Item1; var b = dice.Item2;
+            Action apply = () => { _busy = false; ExecRoll(cur.Id, a, b); };
+            if (AnimateDice != null) AnimateDice(a, b, apply); else apply();
+        }
+
+        private void ExecRoll(string playerId, int a, int b)
+        {
+            var r = _session.Exec(e => e.RegisterRoll(V4Session.NewCommandId(), playerId, a, b));
+            if (!r.Ok) { Toast(r.Error); return; }
+            var extra = _session.S.RollAgain;
+            ShowBanner(a + " + " + b + " = " + (a + b) + (a == b ? "   DADOS IGUAIS!" : string.Empty) + (extra ? "\nJoga de novo depois desta casa (extra " + _session.S.ExtraRollsUsed + "/" + _session.Engine.Rules.DoublesExtraRollsMax + ")" : (a == b ? "\nLimite de jogadas extras atingido: a vez passa." : string.Empty)));
+        }
+
+        private void RollPhysical()
+        {
+            if (_busy || _physA < 1 || _physB < 1) return;
+            var cur = Current;
+            var a = _physA; var b = _physB;
+            _physA = 0; _physB = 0;
+            ExecRoll(cur.Id, a, b);
+        }
+
+        /// <summary>Virtual coin: flips on the board, then registers FELIZ/TRISTE for the pending fiscal decision.</summary>
+        private void FlipVirtualCoin(PendingDecision d)
+        {
+            if (_busy) return;
+            var happy = CoinSource();
+            _busy = true;
+            Refresh();   // hides the modal so the coin is visible
+            Action apply = () =>
+            {
+                _busy = false;
+                ShowBanner(happy ? "MOEDA: FELIZ" : "MOEDA: TRISTE", 2.2f);
+                Run(e => e.RegisterCoin(V4Session.NewCommandId(), d.Id, d.PlayerId, happy));
+            };
+            if (AnimateCoin != null) AnimateCoin(happy, apply); else apply();
+        }
+
         // ------------------------------------------------------------------ control bar
 
         private void BuildControl()
@@ -397,28 +475,37 @@ namespace MoneyRank.V4.Presentation
             var prof = _session.Content.Profession(cur.ProfessionId);
             if (s.Phase == V4Phase.AwaitRoll)
             {
-                V4Ui.Label(_controlRoot, cur.Name + ", registre o dado físico (1–6):", 24, V4Ui.TextMain, TextAnchor.MiddleLeft, UiAnchor.TL, 20, 8, 700, 36, FontStyle.Bold);
+                var extra = s.ExtraRollsUsed > 0 ? "  ·  jogada extra " + s.ExtraRollsUsed + "/" + _session.Engine.Rules.DoublesExtraRollsMax + " (dados iguais)" : string.Empty;
+                V4Ui.Label(_controlRoot, cur.Name + ", sua vez de lançar os dois dados" + extra, 22, extra.Length > 0 ? V4Ui.Gold : V4Ui.TextMain, TextAnchor.MiddleLeft, UiAnchor.TL, 20, 6, 940, 34, FontStyle.Bold);
+                var roll = V4Ui.Btn(_controlRoot, _busy ? "Lançando…" : "LANÇAR DADOS", 30, V4Ui.Gold, V4Ui.Ink, UiAnchor.TL, 20, 48, 300, 74, RollVirtual);
+                roll.interactable = !_busy;
+
+                V4Ui.Label(_controlRoot, "Ou registre os dados físicos:", 15, V4Ui.TextMuted, TextAnchor.MiddleLeft, UiAnchor.TL, 346, 42, 260, 22);
                 for (var d = 1; d <= 6; d++)
                 {
-                    var die = d;
-                    V4Ui.Btn(_controlRoot, d.ToString(), 36, V4Ui.Gold, V4Ui.Ink, UiAnchor.TL, 20 + (d - 1) * 74, 50, 66, 66, () => Roll(die));
+                    var face = d;
+                    V4Ui.Btn(_controlRoot, d.ToString(), 18, _physA == d ? V4Ui.Gold : V4Ui.PanelLight, _physA == d ? V4Ui.Ink : V4Ui.TextMain, UiAnchor.TL, 346 + (d - 1) * 40, 66, 36, 30, () => { _physA = face; BuildControl(); });
+                    V4Ui.Btn(_controlRoot, d.ToString(), 18, _physB == d ? V4Ui.Gold : V4Ui.PanelLight, _physB == d ? V4Ui.Ink : V4Ui.TextMain, UiAnchor.TL, 346 + (d - 1) * 40, 100, 36, 30, () => { _physB = face; BuildControl(); });
                 }
-                var x = 500f;
+                var reg = V4Ui.Btn(_controlRoot, "Registrar", 18, V4Ui.Teal, V4Ui.TextMain, UiAnchor.TL, 596, 66, 110, 64, RollPhysical);
+                reg.interactable = !_busy && _physA > 0 && _physB > 0;
+
+                var y = 40f;
                 if (prof.Id == V4Engine.AbilityMotorista && !cur.AbilityUsedThisYear)
                 {
-                    V4Ui.Btn(_controlRoot, "Pausa: −2 Cortisol", 18, V4Ui.Teal, V4Ui.TextMain, UiAnchor.TL, x, 50, 220, 30, () => Run(e => e.UseDriverFlex(V4Session.NewCommandId(), cur.Id, AttributeId.Cortisol)));
-                    V4Ui.Btn(_controlRoot, "Pausa: −2 Toxina", 18, V4Ui.Teal, V4Ui.TextMain, UiAnchor.TL, x, 86, 220, 30, () => Run(e => e.UseDriverFlex(V4Session.NewCommandId(), cur.Id, AttributeId.Toxina)));
-                    x += 232;
+                    V4Ui.Btn(_controlRoot, "Pausa: −2 Cortisol", 15, V4Ui.Teal, V4Ui.TextMain, UiAnchor.TL, 730, y, 230, 28, () => Run(e => e.UseDriverFlex(V4Session.NewCommandId(), cur.Id, AttributeId.Cortisol))).interactable = !_busy;
+                    y += 32f;
+                    V4Ui.Btn(_controlRoot, "Pausa: −2 Toxina", 15, V4Ui.Teal, V4Ui.TextMain, UiAnchor.TL, 730, y, 230, 28, () => Run(e => e.UseDriverFlex(V4Session.NewCommandId(), cur.Id, AttributeId.Toxina))).interactable = !_busy;
+                    y += 32f;
                 }
                 if (cur.ReserveBalance > 0)
                 {
-                    V4Ui.Btn(_controlRoot, "Resgatar 50", 18, V4Ui.PanelLight, V4Ui.TextMain, UiAnchor.TL, x, 50, 130, 30, () => Redeem(cur, 50));
-                    V4Ui.Btn(_controlRoot, "Resgatar tudo", 18, V4Ui.PanelLight, V4Ui.TextMain, UiAnchor.TL, x, 86, 130, 30, () => Redeem(cur, cur.ReserveBalance));
-                    x += 142;
+                    V4Ui.Btn(_controlRoot, "Resgatar reserva (" + V4Ui.Money(cur.ReserveBalance) + ")", 15, V4Ui.PanelLight, V4Ui.TextMain, UiAnchor.TL, 730, y, 230, 28, () => Redeem(cur, cur.ReserveBalance));
+                    y += 32f;
                 }
                 if (cur.CheckpointRights > 0)
-                    V4Ui.Btn(_controlRoot, "Instalar checkpoint (" + cur.CheckpointRights + ")", 18, V4Ui.PanelLight, V4Ui.TextMain, UiAnchor.TL, x, 50, 240, 30, () => Run(e => e.InstallCheckpoint(V4Session.NewCommandId(), cur.Id)));
-                V4Ui.Label(_controlRoot, prof.Ability + ": " + prof.AbilityText, 15, V4Ui.TextMuted, TextAnchor.UpperLeft, UiAnchor.TL, 20, 128, 940, 54);
+                    V4Ui.Btn(_controlRoot, "Instalar checkpoint (" + cur.CheckpointRights + ")", 15, V4Ui.PanelLight, V4Ui.TextMain, UiAnchor.TL, 730, y, 230, 28, () => Run(e => e.InstallCheckpoint(V4Session.NewCommandId(), cur.Id)));
+                V4Ui.Label(_controlRoot, prof.Ability + ": " + prof.AbilityText, 14, V4Ui.TextMuted, TextAnchor.UpperLeft, UiAnchor.TL, 20, 132, 700, 36);
             }
             else if (s.Phase == V4Phase.AwaitDecision)
             {
@@ -429,13 +516,6 @@ namespace MoneyRank.V4.Presentation
             {
                 V4Ui.Label(_controlRoot, "Fechamento do ano em andamento…", 24, V4Ui.TextMain, TextAnchor.MiddleLeft, UiAnchor.TL, 20, 20, 700, 40, FontStyle.Bold);
             }
-        }
-
-        private void Roll(int die)
-        {
-            var cur = Current;
-            var r = _session.Exec(e => e.RegisterRoll(V4Session.NewCommandId(), cur.Id, die));
-            Toast(r.Ok ? string.Empty : r.Error);
         }
 
         private void Redeem(PlayerState p, int amount)

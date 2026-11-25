@@ -409,3 +409,11 @@ Os fatores incidem nos ganhos-base e são combinados com a dificuldade.
 | 2 | Serviço de conforto | 300 | 560 | 1 | 2 | 0 |
 | 3 | Serviço premium | 400 | 640 | 0 | 3 | 1 |
 | 4 | Transporte executivo | 500 | 720 | 0 | 3 | 2 |
+
+## 17. Alterações pós-V4 aprovadas pelo usuário (25/11/2026)
+Estas regras foram pedidas pelo responsável do produto depois da V4 e **prevalecem sobre o texto anterior** onde houver conflito (seção 3: "lançar um dado de seis faces").
+- **Dois dados para a movimentação.** O jogador lança dois dados de seis faces (físicos registrados pelo mestre, ou virtuais com animação no painel); o avanço no percurso externo é a **soma**. Continua valendo: passar por uma casa não dispara efeitos, apenas a de chegada.
+- **Dados iguais jogam de novo.** Se os dois dados mostram o mesmo número, o jogador resolve a casa de chegada normalmente (inclusive decisões e efeitos) e **lança novamente**. Limite: **no máximo 3 jogadas extras** por turno (até 4 lançamentos); se vier novo par depois disso, a vez passa.
+- A jogada extra **não ocorre** se o turno terminar com internação hospitalar, eliminação ou fim de partida.
+- Parâmetros em `02_dados/parametros.json`: `dice_count` = 2, `doubles_extra_rolls_max` = 3 (configuráveis). Versão de regras: `4.1-pretest`.
+- Interpretação registrada em `Docs/OPEN_DECISIONS.md`: "limitar a 3 vezes essa dinâmica" foi lido como **3 jogadas extras** (4 lançamentos no máximo); basta mudar `doubles_extra_rolls_max` se a intenção for outra.

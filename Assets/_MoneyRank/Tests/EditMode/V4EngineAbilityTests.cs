@@ -45,14 +45,14 @@ namespace MoneyRank.Tests.EditMode
         public void NET02_ReconnectRestoresStateWithoutRerollingOrDuplicatingEffects()
         {
             var g = V4Game.New(new[] { V4Game.Professora, V4Game.Medica });
-            var r = g.Engine.RegisterRoll("roll-1", "p1", 3);
+            var r = g.Engine.RegisterRoll("roll-1", "p1", 1, 2);
             Assert.That(r.Ok, Is.True);
             var json = StateJson.Write(g.S);
             var restored = new V4Engine(V4TestContent.Content, StateJson.Read<V4State>(json));
-            var again = restored.RegisterRoll("roll-1", "p1", 5);
+            var again = restored.RegisterRoll("roll-1", "p1", 3, 2);
             Assert.That(again.Ok && again.Duplicate, Is.True, "the same command is a no-op after reconnect");
             Assert.That(StateJson.Write(restored.State), Is.EqualTo(json));
-            Assert.That(restored.State.LastDieValue, Is.EqualTo("3"));
+            Assert.That(restored.State.LastDieValue, Is.EqualTo("1+2"));
         }
 
         [Test]

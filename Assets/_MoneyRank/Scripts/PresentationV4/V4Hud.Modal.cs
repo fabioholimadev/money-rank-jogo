@@ -39,14 +39,14 @@ namespace MoneyRank.V4.Presentation
             V4Ui.Clear(_modalRoot);
             var s = _session.S;
             var d = s.Pending;
-            if (d == null || _modalDismissed || s.Phase == V4Phase.GameEnd) return;
+            if (d == null || _modalDismissed || _busy || s.Phase == V4Phase.GameEnd) return;
             var player = s.Players.First(p => p.Id == d.PlayerId);
             var isIr = d.HouseId == "SYS_IR";
             var house = isIr ? null : _session.Content.House(d.HouseId);
 
             V4Ui.Box(_modalRoot, "Dim", V4Ui.Dim, UiAnchor.Stretch, 0, 0, 0, 0).raycastTarget = true;
             var win = V4Ui.Rect(_modalRoot, "Window", UiAnchor.C, 0, -10, 1560, 900);
-            V4Ui.Box(win, "Bg", new Color(0.07f, 0.13f, 0.19f, 0.99f), UiAnchor.Stretch, 0, 0, 0, 0);
+            V4Ui.Box(win, "Bg", new Color(0.05f, 0.05f, 0.055f, 0.99f), UiAnchor.Stretch, 0, 0, 0, 0);
             var band = isIr ? V4Ui.Teal : V4Assets.HouseColor(house.Id);
             V4Ui.Box(win, "Band", band, UiAnchor.TL, 0, 0, 1560, 104);
             if (house != null)
@@ -97,6 +97,8 @@ namespace MoneyRank.V4.Presentation
                 V4Ui.Box(card, "Bg", c.Blocked ? new Color(0.16f, 0.19f, 0.23f, 1f) : V4Ui.Paper, UiAnchor.Stretch, 0, 0, 0, 0);
                 V4Ui.Box(card, "Top", c.Blocked ? new Color(0.3f, 0.32f, 0.36f) : V4Ui.Teal, UiAnchor.TL, 0, 0, w, 40);
                 V4Ui.Label(card, "Opção " + (i + 1) + (c.Blocked ? " · indisponível" : string.Empty), 17, Color.white, TextAnchor.MiddleLeft, UiAnchor.TL, 12, 0, w - 24, 40, FontStyle.Bold);
+                var iconSprite = d.HouseId != null && d.HouseId != "SYS_IR" ? V4Assets.IconSprite(d.HouseId) : null;
+                if (iconSprite != null) { var icon = V4Ui.Box(card, "Icon", c.Blocked ? new Color(1f, 1f, 1f, 0.45f) : Color.white, UiAnchor.TR, 6, 4, 32, 32); icon.sprite = iconSprite; icon.preserveAspect = true; }
                 var ink = c.Blocked ? V4Ui.TextMuted : new Color(0.07f, 0.11f, 0.15f);
                 V4Ui.Label(card, c.Title, 25, ink, TextAnchor.UpperLeft, UiAnchor.TL, 14, 50, w - 28, 66, FontStyle.Bold);
                 V4Ui.Label(card, c.Text, 16, c.Blocked ? V4Ui.TextMuted : new Color(0.25f, 0.31f, 0.38f), TextAnchor.UpperLeft, UiAnchor.TL, 14, 118, w - 28, 120);
@@ -232,9 +234,11 @@ namespace MoneyRank.V4.Presentation
                 ? "Há pendências fiscais anteriores. Lance a moeda de duas faces.\nFELIZ: as pendências são mantidas.\nTRISTE: paga o dobro dos principais ainda não autuados (ou o valor já autuado), +1 Cortisol base, e regulariza os registros pagos."
                 : "Tributo de " + V4Ui.Money(d.Amount) + " (" + d.Tag + ").\nFELIZ: não paga agora e registra a pendência fiscal.\nTRISTE: paga o dobro (" + V4Ui.Money(d.Amount * 2) + ") e recebe +1 Cortisol base.";
             V4Ui.Label(win, text, 28, V4Ui.TextMain, TextAnchor.UpperCenter, UiAnchor.TL, 160, 250, 1240, 220);
-            V4Ui.Label(win, "Registre o lado que caiu na moeda física:", 26, V4Ui.TextMuted, TextAnchor.MiddleCenter, UiAnchor.TL, 0, 520, 1560, 40);
-            V4Ui.Btn(win, "FELIZ", 48, V4Ui.Good, V4Ui.Ink, UiAnchor.TL, 360, 590, 360, 140, () => Run(e => e.RegisterCoin(V4Session.NewCommandId(), d.Id, d.PlayerId, true)));
-            V4Ui.Btn(win, "TRISTE", 48, V4Ui.Bad, V4Ui.Ink, UiAnchor.TL, 840, 590, 360, 140, () => Run(e => e.RegisterCoin(V4Session.NewCommandId(), d.Id, d.PlayerId, false)));
+            V4Ui.Label(win, "Lance a moeda animada ou registre o resultado da moeda física:", 24, V4Ui.TextMuted, TextAnchor.MiddleCenter, UiAnchor.TL, 0, 480, 1560, 36);
+            V4Ui.Btn(win, "LANÇAR MOEDA", 40, V4Ui.Gold, V4Ui.Ink, UiAnchor.TL, 480, 520, 600, 90, () => FlipVirtualCoin(d));
+            V4Ui.Label(win, "ou registre a moeda física:", 20, V4Ui.TextMuted, TextAnchor.MiddleCenter, UiAnchor.TL, 0, 626, 1560, 30);
+            V4Ui.Btn(win, "FELIZ", 48, V4Ui.Good, V4Ui.Ink, UiAnchor.TL, 360, 660, 360, 110, () => Run(e => e.RegisterCoin(V4Session.NewCommandId(), d.Id, d.PlayerId, true)));
+            V4Ui.Btn(win, "TRISTE", 48, V4Ui.Bad, V4Ui.Ink, UiAnchor.TL, 840, 660, 360, 110, () => Run(e => e.RegisterCoin(V4Session.NewCommandId(), d.Id, d.PlayerId, false)));
         }
 
         private void BuildHospitalBody(RectTransform win, PendingDecision d, PlayerState player)
@@ -286,7 +290,7 @@ namespace MoneyRank.V4.Presentation
             if (_panel == SidePanel.None || _session.S.Pending != null && !_modalDismissed) return;
             var s = _session.S;
             var win = V4Ui.Rect(_panelRoot, "Win", UiAnchor.C, 0, 10, 1000, 820);
-            V4Ui.Box(win, "Bg", new Color(0.07f, 0.13f, 0.19f, 0.99f), UiAnchor.Stretch, 0, 0, 0, 0);
+            V4Ui.Box(win, "Bg", new Color(0.05f, 0.05f, 0.055f, 0.99f), UiAnchor.Stretch, 0, 0, 0, 0);
             V4Ui.Box(win, "Band", V4Ui.Teal, UiAnchor.TL, 0, 0, 1000, 60);
             V4Ui.Label(win, _panel == SidePanel.Fiscal ? "Painel fiscal (pendências)" : "Histórico de eventos", 30, Color.white, TextAnchor.MiddleLeft, UiAnchor.TL, 20, 0, 700, 60, FontStyle.Bold);
             V4Ui.Btn(win, "Fechar", 20, new Color(0f, 0f, 0f, 0.35f), V4Ui.TextMain, UiAnchor.TR, 14, 8, 120, 44, () => { _panel = SidePanel.None; Refresh(); });
@@ -333,7 +337,7 @@ namespace MoneyRank.V4.Presentation
             if (s.Phase != V4Phase.GameEnd) return;
             V4Ui.Box(_endRoot, "Dim", V4Ui.Dim, UiAnchor.Stretch, 0, 0, 0, 0);
             var win = V4Ui.Rect(_endRoot, "Win", UiAnchor.C, 0, 0, 1100, 700);
-            V4Ui.Box(win, "Bg", new Color(0.07f, 0.13f, 0.19f, 0.99f), UiAnchor.Stretch, 0, 0, 0, 0);
+            V4Ui.Box(win, "Bg", new Color(0.05f, 0.05f, 0.055f, 0.99f), UiAnchor.Stretch, 0, 0, 0, 0);
             V4Ui.Box(win, "Band", V4Ui.Gold, UiAnchor.TL, 0, 0, 1100, 110);
             var winner = s.WinnerId == null ? null : s.Players.First(p => p.Id == s.WinnerId);
             V4Ui.Label(win, winner == null ? "Partida encerrada sem vencedor" : "Vitória de " + winner.Name + "!", 56, V4Ui.Ink, TextAnchor.MiddleCenter, UiAnchor.TL, 0, 0, 1100, 110, FontStyle.Bold);

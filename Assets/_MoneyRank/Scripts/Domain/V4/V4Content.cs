@@ -122,6 +122,10 @@ namespace MoneyRank.Domain.V4
         public int PlayersMax => Int("players_max", 4);
         public int RoundsPerYear => Int("rounds_per_year", 3);
         public int DieFaces => Int("die_faces", 6);
+        /// <summary>Dice rolled for movement (2 since the user-approved dice rule); movement is their sum.</summary>
+        public int DiceCount => Int("dice_count", 1);
+        /// <summary>Extra rolls granted by doubles in one turn (user rule: at most 3, then the turn passes).</summary>
+        public int DoublesExtraRollsMax => Int("doubles_extra_rolls_max", 0);
         public int AttributeThreshold => Int("attribute_threshold", 3);
         public int HealthCyclesToHospital => Int("health_cycles_to_hospital", 3);
         public bool MultiplyReductions => Bool("multiply_reductions", false);

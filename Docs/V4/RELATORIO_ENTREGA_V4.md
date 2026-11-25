@@ -71,3 +71,28 @@ Os 61 cenários agora têm status e evidência na própria planilha:
 - Editor: abrir o projeto no Unity 6000.6.3f1, cena `Assets/_MoneyRank/Scenes/MoneyRankV4.unity`, Play. (Recriar a cena: menu `MoneyRank/V4/Create Scene`.)
 - Build: `Builds/Windows/MoneyRank.exe`. Saves e exportações em `%USERPROFILE%\AppData\LocalLow\DefaultCompany\Money Rank Jogo\MoneyRankV4\{Saves,Exports}`.
 - Roteiro humano de pré-testes: `Docs/V4/05_validacao/roteiro_pretestes.md` (bateria 1 e 2). Nada disso substitui as partidas físicas.
+
+---
+
+## 7. Atualização — dois dados, dados iguais, animações e visual dourado e preto
+
+Pedidos do responsável do produto (25/11/2026), implementados sobre a integração anterior:
+
+**Regras (motor, testadas)**
+- **Dois dados** para a movimentação (soma). Valores inválidos (0, 7 ou ausente) são rejeitados sem alterar o estado.
+- **Dados iguais jogam de novo:** o jogador resolve a casa de chegada (inclusive decisões) e lança outra vez, com **limite de 3 jogadas extras** por turno (no máximo 4 lançamentos); depois disso a vez passa. Sem jogada extra quando o turno termina em internação, eliminação ou fim de partida. O estado (`RollAgain`, `ExtraRollsUsed`) é salvo, restaurado e desfeito corretamente.
+- Parâmetros em `parametros.json` (`dice_count`=2, `doubles_extra_rolls_max`=3), versão de regras `4.1-pretest`. A interpretação de "3 vezes" está registrada em `Docs/OPEN_DECISIONS.md` (basta mudar o parâmetro).
+- Testes novos: `V4DiceTests` (DICE01–DICE07) e PlayMode (dados animados; moeda animada).
+
+**Animações (3D, só visualizam o resultado já decidido)**
+- Dois dados 3D que rolam e quicam sobre o tabuleiro e assentam mostrando exatamente o valor sorteado; o efeito só é aplicado quando os dados param. Botão **LANÇAR DADOS** (virtual) ou registro dos dados físicos.
+- Moeda fiscal 3D (face FELIZ/TRISTE) que gira e cai com a face sorteada, para sonegação e fiscalização; botões para registrar a moeda física continuam disponíveis.
+- Banner de resultado ("3 + 4 = 7", "DADOS IGUAIS! Jogada extra 1/3"), ícone da casa nos cartões de decisão.
+
+**Visual (somente o desenho; as regras são as nossas)**
+- Extremidades **maiores** (2,4× a casa) com elementos 3D: bandeira quadriculada (Início), prédio do hospital, ambulância + seta (Direto ao hospital) e cofre com display (Cofre público), cada um com plaqueta.
+- Tabuleiro em **dourado e preto** (moldura preta com filetes dourados, bordas douradas nas casas), mesa de madeira escura com moldura dourada e **cenário organizado ao fundo** como no vídeo de referência: notebook, caderno, livros, planta, calculadora, caneca, moedas, cédulas e notas adesivas, tudo em geometria própria (sem ativos de terceiros).
+- HUD com a paleta dourado/preto.
+- Capturas de referência: `Docs/V4/capturas/`.
+
+**Limitações desta atualização:** o vídeo foi usado só como referência visual (não há quiz, cronômetro ou pontuação — fora das nossas regras); os modelos 3D são primitivos; a aparência em 1024×768 continua pendente.

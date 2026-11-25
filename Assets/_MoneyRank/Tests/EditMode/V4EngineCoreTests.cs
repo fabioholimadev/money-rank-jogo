@@ -75,10 +75,10 @@ namespace MoneyRank.Tests.EditMode
         public void MOV01_H36PlusOneLandsOnStartWithoutSalary()
         {
             var g = V4Game.New(new[] { "P01", "P02" });
-            g.Cur.Position = 35;
+            g.Cur.Position = 33;
             var wallet = g.Cur.Wallet;
             var year = g.S.YearIndex;
-            Assert.That(g.Roll(1).Ok, Is.True);
+            Assert.That(g.Roll(1, 2).Ok, Is.True);
             Assert.That(g.P(0).Position, Is.EqualTo(0));
             Assert.That(g.P(0).Wallet, Is.EqualTo(wallet));
             Assert.That(g.S.YearIndex, Is.EqualTo(year));
@@ -89,8 +89,10 @@ namespace MoneyRank.Tests.EditMode
         {
             var g = V4Game.New(new[] { "P01", "P02" });
             var before = StateJson.Write(g.S);
-            Assert.That(g.Roll(0).Ok, Is.False);
-            Assert.That(g.Roll(7).Ok, Is.False);
+            Assert.That(g.Roll(0, 3).Ok, Is.False);
+            Assert.That(g.Roll(3, 0).Ok, Is.False);
+            Assert.That(g.Roll(7, 1).Ok, Is.False);
+            Assert.That(g.Roll(1, 7).Ok, Is.False);
             Assert.That(StateJson.Write(g.S), Is.EqualTo(before));
         }
 
@@ -98,8 +100,8 @@ namespace MoneyRank.Tests.EditMode
         public void MOV03_PassingTheHospitalDoesNotInternAndOnlyDestinationTriggers()
         {
             var g = V4Game.New(new[] { "P01", "P02" });
-            g.Cur.Position = 8; // H09 -> roll 2 passes H10 and lands on H11 (IPVA, exempt)
-            Assert.That(g.Roll(2).Ok, Is.True);
+            g.Cur.Position = 7; // H08 -> 1+2 passes H10 and lands on H11 (IPVA, exempt)
+            Assert.That(g.Roll(1, 2).Ok, Is.True);
             Assert.That(g.P(0).HospitalTurnsRemaining, Is.EqualTo(0));
             Assert.That(g.P(0).HospitalPending, Is.False);
             Assert.That(g.P(0).Position, Is.EqualTo(10));

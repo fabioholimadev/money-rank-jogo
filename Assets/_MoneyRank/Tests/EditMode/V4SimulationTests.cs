@@ -38,7 +38,7 @@ namespace MoneyRank.Tests.EditMode
                 else if (s.Phase == V4Phase.AwaitRoll)
                 {
                     var cur = engine.CurrentPlayer;
-                    r = engine.RegisterRoll("c" + step, cur.Id, rng.Next(1, 7));
+                    r = engine.RegisterRoll("c" + step, cur.Id, rng.Next(1, 7), rng.Next(1, 7));
                 }
                 else
                 {

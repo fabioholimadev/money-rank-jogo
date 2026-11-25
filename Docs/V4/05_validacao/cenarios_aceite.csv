@@ -60,3 +60,11 @@ UI01,1024x768 e tablet,"Cards legíveis, sem sobreposição; não exigir cálcul
 NET01,Dois clientes e ação fora da vez,"Rejeitar; estado autoritativo converge, sem mestre humano.",automatizado_passou_motor,V4EngineEconomyTests.NET01 (motor; sem rede real)
 NET02,Desconectar e reconectar,"Retomar estado, não relançar dado nem duplicar efeitos.",automatizado_passou_motor,V4EngineAbilityTests.NET02 (motor; sem rede real)
 DATA01,Exportar duas partidas,"IDs e arquivos distintos, opções/ledger/bateria registradas.",automatizado_passou_motor,V4PersistenceTests.DATA01
+DICE01,Dois dados: movimento pela soma; valores inválidos,"Soma aplicada; 0, 7 ou valor ausente rejeitados sem alterar estado.",automatizado_passou_motor,V4DiceTests.DICE01
+DICE02,Dados iguais,Mesmo jogador joga de novo depois de resolver a casa; contador de extras = 1.,automatizado_passou_motor,V4DiceTests.DICE02
+DICE03,Quatro pares seguidos,Somente 3 jogadas extras; o quarto par passa a vez.,automatizado_passou_motor,V4DiceTests.DICE03
+DICE04,Par que cai em casa com decisão,Jogada extra só depois de confirmar a escolha.,automatizado_passou_motor,V4DiceTests.DICE04
+DICE05,Par que termina em internação,Sem jogada extra; a vez passa.,automatizado_passou_motor,V4DiceTests.DICE05
+DICE06,Salvar/restaurar com jogada extra pendente,Flags RollAgain/ExtraRollsUsed preservadas.,automatizado_passou_motor,V4DiceTests.DICE06
+DICE07,Desfazer após par,Restaura contador e fase.,automatizado_passou_motor,V4DiceTests.DICE07
+ANIM01,Animação dos dados e da moeda,Resultado só é aplicado depois que dados/moeda assentam; moeda registra FELIZ/TRISTE.,automatizado_passou_motor,PlayMode V4SceneUiTests (dados animados e moeda animada)

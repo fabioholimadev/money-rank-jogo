@@ -467,7 +467,7 @@ namespace MoneyRank.Tests.EditMode
         {
             var g = V4Game.New(new[] { V4Game.Professora, V4Game.Medica });
             var before = StateJson.Write(g.S);
-            Assert.That(g.Engine.RegisterRoll("x1", "p2", 3).Ok, Is.False);
+            Assert.That(g.Engine.RegisterRoll("x1", "p2", 1, 2).Ok, Is.False);
             Assert.That(StateJson.Write(g.S), Is.EqualTo(before));
             Assert.That(g.Land("H02").Ok, Is.True);
             Assert.That(g.Engine.ChooseOption("x2", g.S.Pending.Id, "p2", "H02_O01").Ok, Is.False);

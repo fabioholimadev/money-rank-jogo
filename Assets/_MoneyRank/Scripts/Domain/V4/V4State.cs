@@ -197,5 +197,11 @@ namespace MoneyRank.Domain.V4
         /// <summary>Pending pawn concessions of the action being resolved ("R" retreat, "A:k" advance by attribute k).</summary>
         public List<string> CycleQueue = new List<string>();
         public string LastDieValue;
+        public int LastDie1;
+        public int LastDie2;
+        /// <summary>Doubles were rolled: the same player rolls again once the current house is resolved.</summary>
+        public bool RollAgain;
+        /// <summary>Extra rolls already granted in the current turn (limit: doubles_extra_rolls_max).</summary>
+        public int ExtraRollsUsed;
     }
 }

@@ -11,8 +11,9 @@ namespace MoneyRank.V4.Presentation
         private V4BoardView _board;
         private V4Session _session;
         public V4Session Session => _session;
-        private float _yaw, _pitch = 54f, _dist = 17.4f;
-        private Vector3 _target = new Vector3(0f, 0f, -1.9f);
+        public V4Hud Hud => _hud;
+        private float _yaw, _pitch = 49f, _dist = 27f;
+        private Vector3 _target = new Vector3(0f, 0f, -0.9f);
 
         private void Awake()
         {
@@ -23,6 +24,8 @@ namespace MoneyRank.V4.Presentation
             _hud.Init();
             _hud.SessionStarted = StartSession;
             _hud.BackToSetup = ReturnToSetup;
+            _hud.AnimateDice = (a, b, done) => { if (_board != null) _board.RollDice(a, b, done); else done?.Invoke(); };
+            _hud.AnimateCoin = (happy, done) => { if (_board != null) _board.FlipCoin(happy, done); else done?.Invoke(); };
             ShowcaseBoard();
             _hud.ShowSetup();
         }
@@ -48,6 +51,14 @@ namespace MoneyRank.V4.Presentation
             RebuildBoard(session.S);
             _session.Changed += OnChanged;
             _hud.Bind(session);
+        }
+
+        /// <summary>Camera pose used by tests/cinematics; the user can still orbit (right mouse) and zoom (wheel).</summary>
+        public void ResetView() { SetView(0f, 49f, 27f, new Vector3(0f, 0f, -0.9f)); }
+
+        public void SetView(float yaw, float pitch, float dist, Vector3 target)
+        {
+            _yaw = yaw; _pitch = pitch; _dist = dist; _target = target;
         }
 
         private void OnChanged()
@@ -79,7 +90,7 @@ namespace MoneyRank.V4.Presentation
                     _pitch = Mathf.Clamp(_pitch - d.y * 0.2f, 25f, 82f);
                 }
                 var scroll = mouse.scroll.ReadValue().y;
-                if (Mathf.Abs(scroll) > 0.01f) _dist = Mathf.Clamp(_dist - scroll * 0.012f, 9f, 26f);
+                if (Mathf.Abs(scroll) > 0.01f) _dist = Mathf.Clamp(_dist - scroll * 0.012f, 10f, 32f);
             }
             var cam = Camera.main;
             if (cam == null) return;

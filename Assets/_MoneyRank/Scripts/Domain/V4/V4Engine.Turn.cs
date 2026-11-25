@@ -9,21 +9,41 @@ namespace MoneyRank.Domain.V4
     {
         // ------------------------------------------------------------------ turn
 
-        /// <summary>Master registers the physical die (1..6). Only the destination house triggers.</summary>
-        public V4Result RegisterRoll(string commandId, string playerId, int die)
+        /// <summary>
+        /// Registers the two dice (physical or virtual; each 1..6). Movement is the sum; only the destination house triggers.
+        /// Doubles grant another roll to the same player, at most <c>doubles_extra_rolls_max</c> (3) extra rolls per turn,
+        /// and never when the turn ends in hospital or elimination.
+        /// </summary>
+        public V4Result RegisterRoll(string commandId, string playerId, int die1, int die2)
         {
             return Run(commandId, () =>
             {
-                if (State.Phase != V4Phase.AwaitRoll) return V4Result.Fail("Não é o momento de lançar o dado.");
+                if (State.Phase != V4Phase.AwaitRoll) return V4Result.Fail("Não é o momento de lançar os dados.");
                 var p = CurrentPlayer;
                 if (p.Id != playerId) return V4Result.Fail("Não é a vez deste jogador.");
-                if (die < 1 || die > Rules.DieFaces) return V4Result.Fail("Valor de dado inválido: " + die + ".");
-                State.Rng.Add(new RngRecord { DecisionId = "T" + State.History.Count, Kind = "die", Value = die.ToString(CultureInfo.InvariantCulture) });
-                State.LastDieValue = die.ToString(CultureInfo.InvariantCulture);
+                var two = Rules.DiceCount >= 2;
+                if (die1 < 1 || die1 > Rules.DieFaces) return V4Result.Fail("Valor de dado inválido: " + die1 + ".");
+                if (two ? (die2 < 1 || die2 > Rules.DieFaces) : die2 != 0) return V4Result.Fail("Valor de dado inválido: " + die2 + ".");
+                var total = die1 + die2;
+                State.Rng.Add(new RngRecord { DecisionId = "T" + State.History.Count, Kind = "dice", Value = die1.ToString(CultureInfo.InvariantCulture) + "+" + die2.ToString(CultureInfo.InvariantCulture) });
+                State.LastDie1 = die1; State.LastDie2 = die2;
+                State.LastDieValue = die1.ToString(CultureInfo.InvariantCulture) + "+" + die2.ToString(CultureInfo.InvariantCulture);
+                var isDouble = two && die1 == die2;
+                State.RollAgain = false;
+                if (isDouble)
+                {
+                    if (State.ExtraRollsUsed < Rules.DoublesExtraRollsMax)
+                    {
+                        State.RollAgain = true;
+                        State.ExtraRollsUsed += 1;
+                        Note("Dados iguais! " + p.Name + " joga novamente após resolver a casa (extra " + State.ExtraRollsUsed + "/" + Rules.DoublesExtraRollsMax + ").");
+                    }
+                    else Note("Dados iguais, mas o limite de " + Rules.DoublesExtraRollsMax + " jogadas extras foi atingido: a vez passa.");
+                }
                 var from = p.Position;
-                p.Position = (from + die) % Content.Houses.Count;
+                p.Position = (from + total) % Content.Houses.Count;
                 var house = Content.HouseAt(p.Position);
-                Log(p, "move", house.Id, null, p.Name + " tirou " + die + " e chegou a " + house.Id + " — " + house.Title + ".");
+                Log(p, "move", house.Id, null, p.Name + " tirou " + (two ? die1 + " + " + die2 + " = " + total : total.ToString(CultureInfo.InvariantCulture)) + (isDouble ? " (iguais)" : string.Empty) + " e chegou a " + house.Id + " — " + house.Title + ".");
                 ResolveHouse(p, house);
                 return V4Result.Success();
             });
@@ -113,6 +133,19 @@ namespace MoneyRank.Domain.V4
         private void EndTurn()
         {
             if (State.Phase == V4Phase.GameEnd) return;
+            if (State.RollAgain)
+            {
+                State.RollAgain = false;
+                var again = CurrentPlayer;
+                if (!again.Eliminated && again.HospitalTurnsRemaining == 0 && !again.HospitalPending && ActiveCount() > 0)
+                {
+                    State.Pending = null;
+                    State.Phase = V4Phase.AwaitRoll;
+                    Log(again, "roll_again", null, null, again.Name + " tirou dados iguais e joga novamente (extra " + State.ExtraRollsUsed + "/" + Rules.DoublesExtraRollsMax + ").");
+                    return;
+                }
+            }
+            State.ExtraRollsUsed = 0;
             var n = State.TurnOrder.Count;
             if (ActiveCount() == 0) { End(null, "all_eliminated"); return; }
             var wrapped = false;

@@ -29,14 +29,14 @@ namespace MoneyRank.Tests.EditMode
 
         public string Cmd() => "c" + (++_cmd);
 
-        public V4Result Roll(int die) => Engine.RegisterRoll(Cmd(), Cur.Id, die);
+        public V4Result Roll(int die1, int die2) => Engine.RegisterRoll(Cmd(), Cur.Id, die1, die2);
 
-        /// <summary>Puts the current player one step before the house and rolls a 1 to land exactly there.</summary>
+        /// <summary>Puts the current player three steps before the house and rolls 1+2 (not doubles) to land exactly there.</summary>
         public V4Result Land(string houseId)
         {
             var idx = V4TestContent.Content.House(houseId).UnityIndex;
-            Cur.Position = (idx + 35) % 36;
-            return Roll(1);
+            Cur.Position = (idx + 33) % 36;
+            return Roll(1, 2);
         }
 
         public V4Result Choose(string optionId) => Engine.ChooseOption(Cmd(), S.Pending.Id, S.Pending.PlayerId, optionId);

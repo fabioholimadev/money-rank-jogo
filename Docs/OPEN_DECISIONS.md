@@ -105,3 +105,5 @@ de virar regra rígida sem aprovação.
   oportunidade, nunca em tributos; considera "desfavorável" opção com custo ou ganho de Toxina/Cortisol/Dívidas.
 - **Prazo do veículo:** `rodadasCompletas + 9 + 1` na compra e `+3` na manutenção (ver INV05/INV06).
 - **Undo local:** pilha em memória (não sobrevive a recarregar o aplicativo); proibido no modo online.
+
+- **DECISION_REQUIRED — contagem das jogadas extras por dados iguais.** Implementado: dados iguais dão até **3 jogadas extras** por turno (no máximo 4 lançamentos); depois, mesmo com novo par, a vez passa. Se a intenção for "3 lançamentos no total", alterar `doubles_extra_rolls_max` para 2 em `parametros.json`. Sem jogada extra após internação/eliminação.

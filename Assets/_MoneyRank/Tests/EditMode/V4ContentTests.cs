@@ -58,7 +58,7 @@ namespace MoneyRank.Tests.EditMode
             Assert.That(c.SystemEvents.Count, Is.EqualTo(9));
             Assert.That(c.Routes.Count, Is.EqualTo(228));
             Assert.That(c.Professions.Select(p => p.Salary), Is.EquivalentTo(new[] { 250, 700, 500, 300, 350, 400 }));
-            Assert.That(c.Rules.RulesVersion, Is.EqualTo("4.0-pretest"));
+            Assert.That(c.Rules.RulesVersion, Is.EqualTo("4.1-pretest"));
         }
 
         [Test]

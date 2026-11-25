@@ -1,5 +1,5 @@
 {
-  "rules_version": "4.0-pretest",
+  "rules_version": "4.1-pretest",
   "currency": "UMR",
   "starting_wallet": 500,
   "starting_public_fund": 0,
@@ -9,6 +9,8 @@
   "solo_demo": true,
   "rounds_per_year": 3,
   "die_faces": 6,
+  "dice_count": 2,
+  "doubles_extra_rolls_max": 3,
   "attribute_threshold": 3,
   "health_cycles_to_hospital": 3,
   "minimum_attribute": 0,

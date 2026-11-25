@@ -9,14 +9,14 @@ namespace MoneyRank.V4.Presentation
     /// <summary>Tiny code-built uGUI toolkit (flat design, brand palette). Reference resolution 1920x1080.</summary>
     public static class V4Ui
     {
-        public static readonly Color Ink = new Color(0.055f, 0.10f, 0.15f, 1f);
-        public static readonly Color Panel = new Color(0.09f, 0.16f, 0.22f, 0.94f);
-        public static readonly Color PanelLight = new Color(0.14f, 0.23f, 0.31f, 0.96f);
+        public static readonly Color Ink = new Color(0.03f, 0.03f, 0.035f, 1f);
+        public static readonly Color Panel = new Color(0.07f, 0.065f, 0.06f, 0.90f);
+        public static readonly Color PanelLight = new Color(0.17f, 0.145f, 0.10f, 0.96f);
         public static readonly Color Gold = new Color(0.91f, 0.73f, 0.24f, 1f);
-        public static readonly Color Teal = new Color(0.07f, 0.42f, 0.47f, 1f);
+        public static readonly Color Teal = new Color(0.46f, 0.34f, 0.09f, 1f);   // deep gold (brand), name kept for existing call sites
         public static readonly Color Paper = new Color(0.97f, 0.96f, 0.91f, 1f);
         public static readonly Color TextMain = new Color(0.95f, 0.96f, 0.98f, 1f);
-        public static readonly Color TextMuted = new Color(0.62f, 0.70f, 0.78f, 1f);
+        public static readonly Color TextMuted = new Color(0.72f, 0.68f, 0.58f, 1f);
         public static readonly Color Good = new Color(0.30f, 0.80f, 0.48f, 1f);
         public static readonly Color Bad = new Color(1f, 0.38f, 0.38f, 1f);
         public static readonly Color Dim = new Color(0f, 0f, 0f, 0.62f);

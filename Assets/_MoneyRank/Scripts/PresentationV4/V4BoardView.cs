@@ -47,10 +47,10 @@ namespace MoneyRank.V4.Presentation
     /// Builds the 3D board from the V4 content: 36 houses with their official tiles, the 15x15 Ludo plate driven by the route data,
     /// capybaras (external track), chess-style pawns (internal track), hospital and coffer props and a stylised environment.
     /// </summary>
-    public sealed class V4BoardView : MonoBehaviour
+    public sealed partial class V4BoardView : MonoBehaviour
     {
         public const float Tile = 1f;
-        public const float PlateSize = 7.8f;
+        public const float PlateSize = 8.4f;
         private const float Cell = PlateSize / 15f;
 
         private V4ContentSet _c;
@@ -62,19 +62,30 @@ namespace MoneyRank.V4.Presentation
         private GameObject _highlight;
         private Renderer _highlightRenderer;
         private TextMesh _cofferText;
+        private float _highlightBase = 1.08f;
         private Font _font;
 
         public Vector3 RingPosition(int index) => _ring[index];
         public Vector3 HouseWorld(int unityIndex) => _ring[unityIndex];
 
+        public const float CornerSize = 2.4f;
+        public const float Half = 6.4f;
+        private const float CornerCenter = Half - CornerSize / 2f;   // 5.2
+
+        public static bool IsCorner(int i) => i % 9 == 0;
+
+        /// <summary>Corners are big squares (CornerSize); the 8 houses of each side sit on the corner centre line.</summary>
         public static Vector3 RingCell(int i)
         {
-            int col, row;
-            if (i <= 9) { row = 0; col = i; }
-            else if (i <= 18) { col = 9; row = i - 9; }
-            else if (i <= 27) { row = 9; col = 9 - (i - 18); }
-            else { col = 0; row = 9 - (i - 27); }
-            return new Vector3(col - 4.5f, 0f, 4.5f - row);
+            const float c = CornerCenter;
+            if (i == 0) return new Vector3(-c, 0f, c);
+            if (i == 9) return new Vector3(c, 0f, c);
+            if (i == 18) return new Vector3(c, 0f, -c);
+            if (i == 27) return new Vector3(-c, 0f, -c);
+            if (i < 9) return new Vector3(-3.5f + (i - 1), 0f, c);
+            if (i < 18) return new Vector3(c, 0f, 3.5f - (i - 10));
+            if (i < 27) return new Vector3(3.5f - (i - 19), 0f, -c);
+            return new Vector3(-c, 0f, -3.5f + (i - 28));
         }
 
         private static Vector3 LudoWorld(float row, float col, float y)
@@ -142,60 +153,6 @@ namespace MoneyRank.V4.Presentation
             return q;
         }
 
-        private void BuildEnvironment()
-        {
-            Camera.main.backgroundColor = new Color(0.05f, 0.09f, 0.15f);
-            Camera.main.clearFlags = CameraClearFlags.SolidColor;
-            RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Flat;
-            RenderSettings.ambientLight = new Color(0.42f, 0.46f, 0.58f);
-            RenderSettings.fog = true;
-            RenderSettings.fogColor = new Color(0.06f, 0.11f, 0.18f);
-            RenderSettings.fogMode = FogMode.Linear;
-            RenderSettings.fogStartDistance = 26f;
-            RenderSettings.fogEndDistance = 60f;
-
-            var light = FindAnyObjectByType<Light>();
-            if (light != null)
-            {
-                light.type = LightType.Directional;
-                light.transform.rotation = Quaternion.Euler(52f, -32f, 0f);
-                light.color = new Color(1f, 0.95f, 0.84f);
-                light.intensity = 1.15f;
-                light.shadows = LightShadows.Soft;
-            }
-
-            var env = new GameObject("Environment").transform;
-            env.SetParent(transform, false);
-
-            // radial gradient floor
-            var tex = new Texture2D(256, 256, TextureFormat.RGBA32, false) { wrapMode = TextureWrapMode.Clamp };
-            var px = new Color32[256 * 256];
-            for (var y = 0; y < 256; y++)
-                for (var x = 0; x < 256; x++)
-                {
-                    var d = Mathf.Clamp01(Vector2.Distance(new Vector2(x, y), new Vector2(128, 128)) / 128f);
-                    var c = Color.Lerp(new Color(0.16f, 0.30f, 0.38f), new Color(0.05f, 0.09f, 0.15f), Mathf.SmoothStep(0f, 1f, d));
-                    px[y * 256 + x] = c;
-                }
-            tex.SetPixels32(px); tex.Apply();
-            FlatQuad("Floor", env, new Vector3(0f, -0.36f, 0f), 90f, Tex(tex));
-
-            // low-poly city silhouette ring (original placeholder, no third-party assets)
-            var rng = new System.Random(4242);
-            for (var i = 0; i < 46; i++)
-            {
-                var ang = Mathf.Deg2Rad * (-15f + i / 46f * 210f) + (float)rng.NextDouble() * 0.05f;
-                var radius = 17f + (float)rng.NextDouble() * 9f;
-                var h = 2f + (float)rng.NextDouble() * 8f;
-                var w = 1.4f + (float)rng.NextDouble() * 2.4f;
-                var shade = 0.10f + (float)rng.NextDouble() * 0.10f;
-                var b = Prim(PrimitiveType.Cube, "Building" + i, env, new Vector3(Mathf.Cos(ang) * radius, h / 2f - 0.36f, Mathf.Sin(ang) * radius), new Vector3(w, h, w), Lit(new Color(shade * 0.7f, shade * 1.0f, shade * 1.5f), 0.1f));
-                b.transform.rotation = Quaternion.Euler(0f, -ang * Mathf.Rad2Deg, 0f);
-                if (rng.NextDouble() > 0.55)
-                    Prim(PrimitiveType.Cube, "Window" + i, b.transform, new Vector3(0f, 0.28f, -0.505f), new Vector3(0.7f, 0.1f, 0.01f), Tex(WhiteTex()) );
-            }
-        }
-
         private static Texture2D _white;
         private static Texture2D WhiteTex()
         {
@@ -207,23 +164,33 @@ namespace MoneyRank.V4.Presentation
         {
             var frame = new GameObject("BoardFrame").transform;
             frame.SetParent(transform, false);
-            Prim(PrimitiveType.Cube, "Base", frame, new Vector3(0f, -0.2f, 0f), new Vector3(10.7f, 0.32f, 10.7f), Lit(new Color(0.20f, 0.14f, 0.07f), 0.5f));
-            Prim(PrimitiveType.Cube, "Trim", frame, new Vector3(0f, -0.03f, 0f), new Vector3(10.35f, 0.04f, 10.35f), Lit(new Color(0.78f, 0.58f, 0.18f), 0.8f));
-            Prim(PrimitiveType.Cube, "Felt", frame, new Vector3(0f, -0.005f, 0f), new Vector3(10.1f, 0.02f, 10.1f), Lit(new Color(0.07f, 0.13f, 0.17f), 0.1f));
+            var black = Lit(new Color(0.03f, 0.03f, 0.035f), 0.7f);
+            var gold = Lit(new Color(0.86f, 0.66f, 0.2f), 0.9f);
+            const float size = Half * 2f;
+            Prim(PrimitiveType.Cube, "Base", frame, new Vector3(0f, -0.2f, 0f), new Vector3(size + 0.6f, 0.32f, size + 0.6f), black);
+            Prim(PrimitiveType.Cube, "GoldEdge", frame, new Vector3(0f, -0.055f, 0f), new Vector3(size + 0.36f, 0.05f, size + 0.36f), gold);
+            Prim(PrimitiveType.Cube, "Felt", frame, new Vector3(0f, -0.005f, 0f), new Vector3(size, 0.02f, size), Lit(new Color(0.04f, 0.045f, 0.055f), 0.15f));
+            foreach (var sx in new[] { -1f, 1f })
+                foreach (var sz in new[] { -1f, 1f })
+                    Prim(PrimitiveType.Cylinder, "Stud", frame, new Vector3(sx * (Half + 0.22f), 0.03f, sz * (Half + 0.22f)), new Vector3(0.4f, 0.07f, 0.4f), gold);
         }
 
         private void BuildTiles()
         {
             var root = new GameObject("Houses").transform;
             root.SetParent(transform, false);
+            var goldMat = Lit(new Color(0.86f, 0.66f, 0.2f), 0.9f);
             for (var i = 0; i < 36; i++)
             {
                 var house = _c.HouseAt(i);
+                var corner = IsCorner(i);
+                FlatQuad("Border " + house.Id, root, _ring[i] + new Vector3(0f, 0.008f, 0f), corner ? CornerSize : 1.0f, goldMat);
                 var tex = V4Assets.Icon(house.Id);
                 var mat = tex != null ? Tex(tex) : Lit(V4Assets.HouseColor(house.Id));
-                var q = FlatQuad(house.Id, root, _ring[i] + new Vector3(0f, 0.02f, 0f), 0.94f, mat);
+                var q = FlatQuad(house.Id, root, _ring[i] + new Vector3(0f, 0.02f, 0f), corner ? CornerSize - 0.1f : 0.94f, mat);
                 q.name = house.Id + " " + house.Title;
-                AddLabel(q.transform.parent, (i + 1).ToString("00"), _ring[i] + new Vector3(-0.31f, 0.045f, 0.33f), 0.045f, Color.white, TextAnchor.UpperLeft, 90f);
+                var labelPos = corner ? new Vector3(-1.02f, 0.045f, Mathf.Sign(_ring[i].z) * 1.0f) : new Vector3(-0.31f, 0.045f, 0.33f);
+                AddLabel(q.transform.parent, (i + 1).ToString("00"), _ring[i] + labelPos, corner ? 0.055f : 0.045f, Color.white, corner && _ring[i].z < 0f ? TextAnchor.LowerLeft : TextAnchor.UpperLeft, 90f);
             }
         }
 
@@ -340,35 +307,6 @@ namespace MoneyRank.V4.Presentation
 
         // ------------------------------------------------------------------ props
 
-        private void BuildProps()
-        {
-            var props = new GameObject("Props").transform;
-            props.SetParent(transform, false);
-
-            // hospital near H10 (top-right corner)
-            var hospital = new GameObject("Hospital").transform;
-            hospital.SetParent(props, false);
-            hospital.localPosition = new Vector3(6.4f, 0f, 6.2f);
-            hospital.localRotation = Quaternion.Euler(0f, -135f, 0f);
-            Prim(PrimitiveType.Cube, "Body", hospital, new Vector3(0f, 0.55f, 0f), new Vector3(1.7f, 1.1f, 1.3f), Lit(new Color(0.92f, 0.94f, 0.96f), 0.3f));
-            Prim(PrimitiveType.Cube, "Wing", hospital, new Vector3(0.95f, 0.38f, 0f), new Vector3(0.6f, 0.76f, 1.0f), Lit(new Color(0.85f, 0.88f, 0.92f), 0.3f));
-            Prim(PrimitiveType.Cube, "CrossV", hospital, new Vector3(0f, 0.72f, 0.66f), new Vector3(0.16f, 0.5f, 0.02f), Lit(new Color(0.9f, 0.1f, 0.12f)));
-            Prim(PrimitiveType.Cube, "CrossH", hospital, new Vector3(0f, 0.72f, 0.66f), new Vector3(0.5f, 0.16f, 0.02f), Lit(new Color(0.9f, 0.1f, 0.12f)));
-            Prim(PrimitiveType.Cube, "Door", hospital, new Vector3(0f, 0.2f, 0.66f), new Vector3(0.34f, 0.4f, 0.02f), Lit(new Color(0.3f, 0.5f, 0.6f)));
-
-            // coffer near H28 (bottom-left corner) with a live display like the Arduino unit
-            var coffer = new GameObject("Cofre").transform;
-            coffer.SetParent(props, false);
-            coffer.localPosition = new Vector3(-6.3f, 0f, -6.2f);
-            coffer.localRotation = Quaternion.Euler(0f, 150f, 0f);
-            Prim(PrimitiveType.Cube, "Body", coffer, new Vector3(0f, 0.55f, 0f), new Vector3(1.3f, 1.1f, 1.1f), Lit(new Color(0.20f, 0.23f, 0.28f), 0.7f));
-            Prim(PrimitiveType.Cube, "Door", coffer, new Vector3(0f, 0.55f, 0.56f), new Vector3(1.1f, 0.9f, 0.04f), Lit(new Color(0.33f, 0.36f, 0.42f), 0.8f));
-            var dial = Prim(PrimitiveType.Cylinder, "Dial", coffer, new Vector3(0.25f, 0.4f, 0.6f), new Vector3(0.28f, 0.03f, 0.28f), Lit(new Color(0.85f, 0.65f, 0.2f), 0.9f));
-            dial.transform.localRotation = Quaternion.Euler(90f, 0f, 0f);
-            Prim(PrimitiveType.Cube, "Screen", coffer, new Vector3(-0.15f, 0.8f, 0.585f), new Vector3(0.62f, 0.22f, 0.02f), Lit(new Color(0.02f, 0.12f, 0.08f), 0.2f));
-            _cofferText = AddLabel(coffer, "COFRE 0 UMR", new Vector3(-0.15f, 0.8f, 0.60f), 0.018f, new Color(0.35f, 1f, 0.55f), TextAnchor.MiddleCenter, 0f);
-        }
-
         // ------------------------------------------------------------------ tokens
 
         private static Color ProfessionAccent(string professionId)
@@ -461,6 +399,9 @@ namespace MoneyRank.V4.Presentation
 
         // ------------------------------------------------------------------ refresh
 
+        private Vector3 TokenSpot(int pos, int slot, int count)
+            => _ring[pos] + new Vector3(0f, 0.04f, 0f) + SlotOffset(slot, count) * (IsCorner(pos) ? 2.6f : 1f);
+
         private static Vector3 SlotOffset(int slot, int count)
         {
             if (count <= 1) return Vector3.zero;
@@ -478,7 +419,7 @@ namespace MoneyRank.V4.Presentation
                 var p = s.Players[i];
                 var token = _capys[p.Id];
                 token.gameObject.SetActive(!p.Eliminated);
-                var target = _ring[p.Position] + new Vector3(0f, 0.04f, 0f) + SlotOffset(i, s.Players.Count);
+                var target = TokenSpot(p.Position, i, s.Players.Count);
                 int last;
                 if (!_lastPos.TryGetValue(p.Id, out last)) last = p.Position;
                 if (snap) token.Snap(target);
@@ -488,7 +429,7 @@ namespace MoneyRank.V4.Presentation
                     if (forward > 0 && forward <= 6)
                     {
                         var pts = new List<Vector3>();
-                        for (var step = 1; step <= forward; step++) pts.Add(_ring[(last + step) % 36] + new Vector3(0f, 0.04f, 0f) + SlotOffset(i, s.Players.Count));
+                        for (var step = 1; step <= forward; step++) pts.Add(TokenSpot((last + step) % 36, i, s.Players.Count));
                         token.MoveAlong(pts);
                     }
                     else token.MoveAlong(new[] { target });
@@ -525,6 +466,7 @@ namespace MoneyRank.V4.Presentation
             if (current != null)
             {
                 _highlight.transform.position = _ring[current.Position] + new Vector3(0f, 0.012f, 0f);
+                _highlightBase = IsCorner(current.Position) ? CornerSize + 0.14f : 1.08f;
                 _highlightRenderer.material.color = V4Assets.PawnColor(current.Color);
             }
             if (_cofferText != null) _cofferText.text = CofferProtocol.DisplayText(s.FundCash);
@@ -532,11 +474,13 @@ namespace MoneyRank.V4.Presentation
 
         private void Update()
         {
+            SceneryUpdate();
             if (_highlightRenderer != null)
             {
                 var pulse = 0.55f + 0.45f * Mathf.Sin(Time.time * 4f);
                 var c = _highlightRenderer.material.color; c.a = 1f;
-                _highlight.transform.localScale = new Vector3(1.04f + pulse * 0.06f, 1.04f + pulse * 0.06f, 1f);
+                var hs = _highlightBase + pulse * 0.06f;
+                _highlight.transform.localScale = new Vector3(hs, hs, 1f);
             }
         }
     }
