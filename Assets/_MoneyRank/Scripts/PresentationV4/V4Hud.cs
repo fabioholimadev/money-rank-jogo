@@ -434,6 +434,7 @@ namespace MoneyRank.V4.Presentation
         {
             var r = _session.Exec(e => e.RegisterRoll(V4Session.NewCommandId(), playerId, a, b));
             if (!r.Ok) { Toast(r.Error); return; }
+            Toast(string.Empty);                       // drops the "rolling the dice" notice once the result is in
             var extra = _session.S.RollAgain;
             ShowBanner(a + " + " + b + " = " + (a + b) + (a == b ? "   DADOS IGUAIS!" : string.Empty) + (extra ? "\nJoga de novo depois desta casa (extra " + _session.S.ExtraRollsUsed + "/" + _session.Engine.Rules.DoublesExtraRollsMax + ")" : (a == b ? "\nLimite de jogadas extras atingido: a vez passa." : string.Empty)));
         }

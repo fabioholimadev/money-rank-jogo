@@ -64,6 +64,7 @@ namespace MoneyRank.Tests.PlayMode.V4
                 Assert.That(boot.Session.S.Phase, Is.EqualTo(V4Phase.AwaitDecision));
                 Assert.That(boot.Session.S.Pending.HouseId, Is.EqualTo("H04"));
                 Assert.That(boot.Session.S.Pending.Mandatory, Is.True);
+                Assert.That(Object.FindObjectsByType<Text>(FindObjectsSortMode.None).Any(t => t.text.Contains("Lançando os dados")), Is.False, "the rolling notice is cleared");
 
                 // select the 2nd card (preview only), then confirm
                 Assert.That(Click("Selecionar", 2), Is.True);

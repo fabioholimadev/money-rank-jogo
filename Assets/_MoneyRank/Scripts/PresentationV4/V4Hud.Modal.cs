@@ -42,22 +42,24 @@ namespace MoneyRank.V4.Presentation
             if (d == null || _modalDismissed || _busy || s.Phase == V4Phase.GameEnd) return;
             var player = s.Players.First(p => p.Id == d.PlayerId);
             var isIr = d.HouseId == "SYS_IR";
-            var house = isIr ? null : _session.Content.House(d.HouseId);
+            // The athlete's ability decision is not tied to any house (HouseId is empty).
+            var house = isIr || string.IsNullOrEmpty(d.HouseId) ? null : _session.Content.House(d.HouseId);
 
             V4Ui.Box(_modalRoot, "Dim", V4Ui.Dim, UiAnchor.Stretch, 0, 0, 0, 0).raycastTarget = true;
             var win = V4Ui.Rect(_modalRoot, "Window", UiAnchor.C, 0, -10, 1560, 900);
             V4Ui.Box(win, "Bg", new Color(0.05f, 0.05f, 0.055f, 0.99f), UiAnchor.Stretch, 0, 0, 0, 0);
-            var band = isIr ? V4Ui.Teal : V4Assets.HouseColor(house.Id);
+            var band = house == null ? V4Ui.Teal : V4Assets.HouseColor(house.Id);
             V4Ui.Box(win, "Band", band, UiAnchor.TL, 0, 0, 1560, 104);
             if (house != null)
             {
                 var sprite = V4Assets.IconSprite(house.Id);
                 if (sprite != null) { var img = V4Ui.Box(win, "Icon", Color.white, UiAnchor.TL, 16, 12, 80, 80); img.sprite = sprite; img.preserveAspect = true; }
             }
-            var title = isIr ? "Imposto de renda anual" : house.Id + " — " + house.Title;
+            var title = isIr ? "Imposto de renda anual" : (house == null ? "Habilidade profissional" : house.Id + " — " + house.Title);
             var dark = new Color(0.05f, 0.08f, 0.12f);
             V4Ui.Label(win, title, 40, dark, TextAnchor.MiddleLeft, UiAnchor.TL, 112, 8, 1100, 52, FontStyle.Bold);
-            V4Ui.Label(win, (isIr ? "Ano " + s.YearIndex + " · alíquota " + _session.Engine.Difficulty.IncomeTaxPct + "% do salário" : CategoryLabel(house.Category)) + "  ·  decide: " + player.Name + " (" + _session.Content.Profession(player.ProfessionId).Name + ")",
+            var subtitle = isIr ? "Ano " + s.YearIndex + " · alíquota " + _session.Engine.Difficulty.IncomeTaxPct + "% do salário" : (house == null ? "Uso opcional, uma vez por ano" : CategoryLabel(house.Category));
+            V4Ui.Label(win, subtitle + "  ·  decide: " + player.Name + " (" + _session.Content.Profession(player.ProfessionId).Name + ")",
                 22, dark, TextAnchor.MiddleLeft, UiAnchor.TL, 112, 58, 1250, 36, FontStyle.Bold);
             V4Ui.Btn(win, "Voltar ao tabuleiro", 18, new Color(0f, 0f, 0f, 0.35f), V4Ui.TextMain, UiAnchor.TR, 16, 30, 230, 44, () => { _modalDismissed = true; Refresh(); });
 
