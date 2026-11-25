@@ -1,62 +1,62 @@
-﻿id,cenario,resultado_esperado,status
-SET01,Início 4 jogadores,Carteiras 500; banco 26260; cofre 0; 16 peões em base; seis atributos zerados.,nao_executado
-SET02,Profissão duplicada ou ordem inválida,Bloqueio no setup; setup válido persiste.,nao_executado
-MOV01,H36 + dado 1,H01 sem salário; uma volta informativa; sem ano novo.,nao_executado
-MOV02,Dado 0 ou 7,"Rejeitar, sem alteração de estado.",nao_executado
-MOV03,Passar hospital e parar próxima casa,Sem internação; evento só no destino.,nao_executado
-MOV04,H19,Teleporte H10; escolha tratamento; sem segundo evento.,nao_executado
-ANO01,Todos completam 3 rodadas,"Salário a todos, incluindo internado; IR; juros/parceria; renovar habilidades; exatamente uma vez.",nao_executado
-ANO02,Salvar no meio do IR anual e retomar,"Cursor correto; não duplica salários, tributos ou rendimentos.",nao_executado
-ATR01,"Médio, profissão sem modificador, +4 Investimento","1 ciclo positivo, resto 1; movimento de um ou dois com veículo.",nao_executado
-ATR02,"Fácil B1, Professora +1 Conhecimento",3 pontos efetivos; 1 ciclo; habilidade anual avança 2.,nao_executado
-ATR03,"Redução 3 com barra 0,75",Barra zero; ciclo anterior e posição preservados.,nao_executado
-ATR04,Duas barras Toxina e duas Cortisol,Não interna.,nao_executado
-ATR05,Terceira barra de Cortisol,Regressão por ciclo e internação; não duplica recuo.,nao_executado
-ATR06,Três barras Dívidas,Regride três vezes; nunca interna.,nao_executado
-LUD01,Primeiro ciclo positivo com base,Somente primeiro peão sai; outros três permanecem.,nao_executado
-LUD02,Carro ativo e uma casa para concluir,Conclui peão; excedente não vai ao próximo.,nao_executado
-LUD03,Quarto peão concluído,Vitória; encerra após resolução.,nao_executado
-LUD04,Captura antes do checkpoint,Volta base.,nao_executado
-LUD05,Captura após dois checkpoints,Retorna ao mais avançado já alcançado sem avanço artificial.,nao_executado
-LUD06,Célula protegida ou privada,Sem captura; validar célula global de cores diferentes.,nao_executado
-LUD07,Regressão normal após checkpoint,Pode recuar abaixo; não reabre peão concluído.,nao_executado
-INV01,"Reserva saldo 480, salário 500",Juros limitados a 20; saldo 500.,nao_executado
-INV02,"Reserva 101, salário 500","Juros ceil(10,1)=11; saldo 112.",nao_executado
-INV03,Depositar/resgatar/redepositar mesmo principal,Não concede pontos repetidos; caixa total conservado.,nao_executado
-INV04,Depósito ultrapassa salário,Bloquear sem consumir turno/opção.,nao_executado
-INV05,Comprar carro e voltar ativo,"400, +4 Invest., prazo 9 rodadas; manutenção 150/+1 e +3 rodadas; sem multiplicador extra.",nao_executado
-INV06,Carro expirado,Sem IPVA/benefício; recompra volta disponível.,nao_executado
-INV07,Comprar dois imóveis,"1000 pagos, dois direitos, IPTU 100; checkpoints independentes.",nao_executado
-INV08,H34 seleciona veículo,Executar exatamente uma operação de H14 sem novo deslocamento.,nao_executado
-FIS01,IPTU sem imóvel e IPVA sem carro,Isento; pendência antiga ainda pode ser fiscalizada.,nao_executado
-FIS02,IR Médio salário 350,70 UMR ao cofre se pago; pontos conforme config.,nao_executado
-FIS03,"Sonegar 40, feliz",0 pagamento; registro principal 40.,nao_executado
-FIS04,"Sonegar 40, triste","80 para cofre, +1 Cortisol base.",nao_executado
-FIS05,"Fiscalizar pendências 30 e 40, triste","140 ao cofre, +1 Cortisol, registros regularizados.",nao_executado
-FIS06,Sem recursos de multa ou imposto,+3 Dívidas; preservar principal/autuação; não duplicar multa.,nao_executado
-FIS07,Visibilidade,Local só mestre; online todos veem status.,nao_executado
-HOS01,Público com saldo 150,Cofre -150; banco +150; 2 turnos perdidos; alta zera saúde.,nao_executado
-HOS02,Particular com carteira 250,Banco +250; 1 turno perdido; recebe salário se ano fechar.,nao_executado
-HOS03,Médica desconto anual disponível,125 UMR; mínimo 1 turno; não repetir no mesmo ano.,nao_executado
-HOS04,Sem caixa/cofre nas 3 dificuldades,Fácil 3 turnos; médio 4 e +2 Dívidas; difícil eliminado.,nao_executado
-CAS01,Essencial sem recursos,"+3 Dívidas base; sem benefício, sem saldo negativo.",nao_executado
-CAS02,Não essencial recusar,Sem efeito; não cobra nem penaliza.,nao_executado
-CAS03,Renegociação com Dívidas zero,Neutro sem cobrança.,nao_executado
-CAS04,Parceria 100,"Banco +100 agora, atributos imediatos; 200 retorno próximo ano uma vez.",nao_executado
-CAS05,Trabalho extra 25% de 250,63 UMR (ceil); salário não muda.,nao_executado
-PRO01,Professora primeira progressão,125 custo; salário 300; +2 Conhecimento base.,nao_executado
-PRO02,Recusa e cai outra Progressão,Mesma carta pendente; sem avançar etapa.,nao_executado
-PRO03,Quarta etapa e nova visita,Salário final 180%; casa neutra depois da quarta.,nao_executado
-HAB01,Motorista pausa anual,"Reduz 2 saúde escolhida, sem rolagem, salário mantido.",nao_executado
-HAB02,Carro + habilidade avanço,"2 passos, não 4; verificar configuração.",nao_executado
-ECO01,Banco insuficiente ou troco indisponível,"Pausa/alerta e registro, nunca saldo negativo/moeda criada.",nao_executado
-ECO02,Todos fluxos de caixa,Banco+cofre+carteiras=28260 a cada confirmação.,nao_executado
-SAVE01,Save em escolha pendente e ordem customizada,Restaurar mesma escolha e sequência.,nao_executado
-SAVE02,Clique duplo e retry,Idempotência; apenas uma transação.,nao_executado
-SAVE03,Undo de imposto,Saldo e atributos restaurados; ledger preserva reversão; display atualizado.,nao_executado
-HW01,Display desconectado,Partida funciona; reconecta e envia saldo absoluto.,nao_executado
-HW02,Cofre altera e ACK perdido,Reenvio idempotente; display final correto.,nao_executado
-UI01,1024x768 e tablet,"Cards legíveis, sem sobreposição; não exigir cálculo manual.",nao_executado
-NET01,Dois clientes e ação fora da vez,"Rejeitar; estado autoritativo converge, sem mestre humano.",nao_executado
-NET02,Desconectar e reconectar,"Retomar estado, não relançar dado nem duplicar efeitos.",nao_executado
-DATA01,Exportar duas partidas,"IDs e arquivos distintos, opções/ledger/bateria registradas.",nao_executado
+﻿id,cenario,resultado_esperado,status,evidencia
+SET01,Início 4 jogadores,Carteiras 500; banco 26260; cofre 0; 16 peões em base; seis atributos zerados.,automatizado_passou_motor,V4EngineCoreTests.SET01
+SET02,Profissão duplicada ou ordem inválida,Bloqueio no setup; setup válido persiste.,automatizado_passou_motor,V4EngineCoreTests.SET02
+MOV01,H36 + dado 1,H01 sem salário; uma volta informativa; sem ano novo.,automatizado_passou_motor,V4EngineCoreTests.MOV01
+MOV02,Dado 0 ou 7,"Rejeitar, sem alteração de estado.",automatizado_passou_motor,V4EngineCoreTests.MOV02
+MOV03,Passar hospital e parar próxima casa,Sem internação; evento só no destino.,automatizado_passou_motor,V4EngineCoreTests.MOV03
+MOV04,H19,Teleporte H10; escolha tratamento; sem segundo evento.,automatizado_passou_motor,V4EngineCoreTests.MOV04
+ANO01,Todos completam 3 rodadas,"Salário a todos, incluindo internado; IR; juros/parceria; renovar habilidades; exatamente uma vez.",automatizado_passou_motor,V4EngineEconomyTests.ANO01
+ANO02,Salvar no meio do IR anual e retomar,"Cursor correto; não duplica salários, tributos ou rendimentos.",automatizado_passou_motor,V4EngineEconomyTests.ANO02
+ATR01,"Médio, profissão sem modificador, +4 Investimento","1 ciclo positivo, resto 1; movimento de um ou dois com veículo.",automatizado_passou_motor,V4EngineCoreTests.ATR01
+ATR02,"Fácil B1, Professora +1 Conhecimento",3 pontos efetivos; 1 ciclo; habilidade anual avança 2.,automatizado_passou_motor,V4EngineCoreTests.ATR02
+ATR03,"Redução 3 com barra 0,75",Barra zero; ciclo anterior e posição preservados.,automatizado_passou_motor,V4EngineCoreTests.ATR03
+ATR04,Duas barras Toxina e duas Cortisol,Não interna.,automatizado_passou_motor,V4EngineCoreTests.ATR04
+ATR05,Terceira barra de Cortisol,Regressão por ciclo e internação; não duplica recuo.,automatizado_passou_motor,V4EngineCoreTests.ATR05
+ATR06,Três barras Dívidas,Regride três vezes; nunca interna.,automatizado_passou_motor,V4EngineCoreTests.ATR06
+LUD01,Primeiro ciclo positivo com base,Somente primeiro peão sai; outros três permanecem.,automatizado_passou_motor,V4EngineCoreTests.LUD01
+LUD02,Carro ativo e uma casa para concluir,Conclui peão; excedente não vai ao próximo.,automatizado_passou_motor,V4EngineCoreTests.LUD02
+LUD03,Quarto peão concluído,Vitória; encerra após resolução.,automatizado_passou_motor,V4EngineCoreTests.LUD03
+LUD04,Captura antes do checkpoint,Volta base.,automatizado_passou_motor,V4EngineCoreTests.LUD04
+LUD05,Captura após dois checkpoints,Retorna ao mais avançado já alcançado sem avanço artificial.,automatizado_passou_motor,V4EngineCoreTests.LUD05
+LUD06,Célula protegida ou privada,Sem captura; validar célula global de cores diferentes.,automatizado_passou_motor,V4EngineCoreTests.LUD06
+LUD07,Regressão normal após checkpoint,Pode recuar abaixo; não reabre peão concluído.,automatizado_passou_motor,V4EngineCoreTests.LUD07
+INV01,"Reserva saldo 480, salário 500",Juros limitados a 20; saldo 500.,automatizado_passou_motor,V4EngineEconomyTests.INV01
+INV02,"Reserva 101, salário 500","Juros ceil(10,1)=11; saldo 112.",automatizado_passou_motor,V4EngineEconomyTests.INV02
+INV03,Depositar/resgatar/redepositar mesmo principal,Não concede pontos repetidos; caixa total conservado.,automatizado_passou_motor,V4EngineEconomyTests.INV03
+INV04,Depósito ultrapassa salário,Bloquear sem consumir turno/opção.,automatizado_passou_motor,V4EngineEconomyTests.INV04
+INV05,Comprar carro e voltar ativo,"400, +4 Invest., prazo 9 rodadas; manutenção 150/+1 e +3 rodadas; sem multiplicador extra.",automatizado_passou_motor,V4EngineEconomyTests.INV05
+INV06,Carro expirado,Sem IPVA/benefício; recompra volta disponível.,automatizado_passou_motor,V4EngineEconomyTests.INV06
+INV07,Comprar dois imóveis,"1000 pagos, dois direitos, IPTU 100; checkpoints independentes.",automatizado_passou_motor,V4EngineEconomyTests.INV07
+INV08,H34 seleciona veículo,Executar exatamente uma operação de H14 sem novo deslocamento.,automatizado_passou_motor,V4EngineEconomyTests.INV08
+FIS01,IPTU sem imóvel e IPVA sem carro,Isento; pendência antiga ainda pode ser fiscalizada.,automatizado_passou_motor,V4EngineEconomyTests.FIS01
+FIS02,IR Médio salário 350,70 UMR ao cofre se pago; pontos conforme config.,automatizado_passou_motor,V4EngineEconomyTests.FIS02
+FIS03,"Sonegar 40, feliz",0 pagamento; registro principal 40.,automatizado_passou_motor,V4EngineEconomyTests.FIS03
+FIS04,"Sonegar 40, triste","80 para cofre, +1 Cortisol base.",automatizado_passou_motor,V4EngineEconomyTests.FIS04
+FIS05,"Fiscalizar pendências 30 e 40, triste","140 ao cofre, +1 Cortisol, registros regularizados.",automatizado_passou_motor,V4EngineEconomyTests.FIS05
+FIS06,Sem recursos de multa ou imposto,+3 Dívidas; preservar principal/autuação; não duplicar multa.,automatizado_passou_motor,V4EngineEconomyTests.FIS06
+FIS07,Visibilidade,Local só mestre; online todos veem status.,automatizado_passou_motor,V4EngineEconomyTests.FIS07
+HOS01,Público com saldo 150,Cofre -150; banco +150; 2 turnos perdidos; alta zera saúde.,automatizado_passou_motor,V4EngineEconomyTests.HOS01
+HOS02,Particular com carteira 250,Banco +250; 1 turno perdido; recebe salário se ano fechar.,automatizado_passou_motor,"V4EngineCoreTests.MOV04 (particular 250, 1 turno) + ANO01 (salário)"
+HOS03,Médica desconto anual disponível,125 UMR; mínimo 1 turno; não repetir no mesmo ano.,automatizado_passou_motor,V4EngineEconomyTests.HOS03
+HOS04,Sem caixa/cofre nas 3 dificuldades,Fácil 3 turnos; médio 4 e +2 Dívidas; difícil eliminado.,automatizado_passou_motor,V4EngineEconomyTests.HOS04 (3 casos)
+CAS01,Essencial sem recursos,"+3 Dívidas base; sem benefício, sem saldo negativo.",automatizado_passou_motor,V4EngineEconomyTests.CAS01
+CAS02,Não essencial recusar,Sem efeito; não cobra nem penaliza.,automatizado_passou_motor,V4EngineEconomyTests.CAS02
+CAS03,Renegociação com Dívidas zero,Neutro sem cobrança.,automatizado_passou_motor,V4EngineEconomyTests.CAS03
+CAS04,Parceria 100,"Banco +100 agora, atributos imediatos; 200 retorno próximo ano uma vez.",automatizado_passou_motor,V4EngineEconomyTests.CAS04
+CAS05,Trabalho extra 25% de 250,63 UMR (ceil); salário não muda.,automatizado_passou_motor,V4EngineEconomyTests.CAS05
+PRO01,Professora primeira progressão,125 custo; salário 300; +2 Conhecimento base.,automatizado_passou_motor,V4EngineEconomyTests.PRO01
+PRO02,Recusa e cai outra Progressão,Mesma carta pendente; sem avançar etapa.,automatizado_passou_motor,V4EngineEconomyTests.PRO02 (oferta única e obrigatória; recusa explícita não existe nas casas de progressão do CSV)
+PRO03,Quarta etapa e nova visita,Salário final 180%; casa neutra depois da quarta.,automatizado_passou_motor,V4EngineEconomyTests.PRO03
+HAB01,Motorista pausa anual,"Reduz 2 saúde escolhida, sem rolagem, salário mantido.",automatizado_passou_motor,V4EngineEconomyTests.HAB01
+HAB02,Carro + habilidade avanço,"2 passos, não 4; verificar configuração.",automatizado_passou_motor,V4EngineEconomyTests.HAB02
+ECO01,Banco insuficiente ou troco indisponível,"Pausa/alerta e registro, nunca saldo negativo/moeda criada.",automatizado_passou_motor,V4EngineEconomyTests.ECO01
+ECO02,Todos fluxos de caixa,Banco+cofre+carteiras=28260 a cada confirmação.,automatizado_passou_motor,V4EngineAbilityTests.CashIdentity... + V4SimulationTests (36 jogos)
+SAVE01,Save em escolha pendente e ordem customizada,Restaurar mesma escolha e sequência.,automatizado_passou_motor,V4EngineEconomyTests.SAVE01
+SAVE02,Clique duplo e retry,Idempotência; apenas uma transação.,automatizado_passou_motor,V4EngineEconomyTests.SAVE02
+SAVE03,Undo de imposto,Saldo e atributos restaurados; ledger preserva reversão; display atualizado.,automatizado_passou_motor,V4EngineAbilityTests.SAVE03
+HW01,Display desconectado,Partida funciona; reconecta e envia saldo absoluto.,automatizado_passou_motor,V4PersistenceTests.HW01 (transporte simulado)
+HW02,Cofre altera e ACK perdido,Reenvio idempotente; display final correto.,automatizado_passou_motor,V4PersistenceTests.HW02 (transporte simulado)
+UI01,1024x768 e tablet,"Cards legíveis, sem sobreposição; não exigir cálculo manual.",parcial_visual,"validado só em 1280x720 por captura do Play mode; 1024x768, tablet e 1920x1080 pendentes"
+NET01,Dois clientes e ação fora da vez,"Rejeitar; estado autoritativo converge, sem mestre humano.",automatizado_passou_motor,V4EngineEconomyTests.NET01 (motor; sem rede real)
+NET02,Desconectar e reconectar,"Retomar estado, não relançar dado nem duplicar efeitos.",automatizado_passou_motor,V4EngineAbilityTests.NET02 (motor; sem rede real)
+DATA01,Exportar duas partidas,"IDs e arquivos distintos, opções/ledger/bateria registradas.",automatizado_passou_motor,V4PersistenceTests.DATA01

@@ -1,0 +1,6 @@
+﻿config,professions,seed,steps,rounds,ended,winner,hospital_events,eliminated,min_bank,leader_pawns_done,leader_progress_of_228
+B1_facil,P03+P05,501,7001,71,limit,,4,0,400,1,69
+B1_facil,P03+P05,502,7001,80,limit,,10,0,91,1,88
+B1_facil,P03+P05,503,7001,80,limit,,10,0,1071,2,130
+B1_facil,P03+P05,504,7001,86,limit,,6,0,605,2,114
+B1_medio,P01+P03+P06,601,7001,71,limit,,8,0,536,1,64

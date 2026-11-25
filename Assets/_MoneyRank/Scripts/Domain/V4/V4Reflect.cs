@@ -7,9 +7,36 @@ using System.Text;
 
 namespace MoneyRank.Domain.V4
 {
+    /// <summary>Marks an append-only record that is never mutated after creation by commands, so clones may share it.</summary>
+    [AttributeUsage(AttributeTargets.Class)]
+    public sealed class SharedOnCloneAttribute : Attribute { }
+
     /// <summary>Reflective deep clone for plain state graphs (used for atomic all-or-nothing commands).</summary>
     public static class StateClone
     {
+        private static readonly Dictionary<Type, FieldInfo[]> FieldCache = new Dictionary<Type, FieldInfo[]>();
+        private static readonly Dictionary<Type, bool> SharedCache = new Dictionary<Type, bool>();
+
+        private static FieldInfo[] FieldsOf(Type type)
+        {
+            FieldInfo[] f;
+            lock (FieldCache)
+            {
+                if (!FieldCache.TryGetValue(type, out f)) { f = type.GetFields(BindingFlags.Public | BindingFlags.Instance); FieldCache[type] = f; }
+            }
+            return f;
+        }
+
+        private static bool IsShared(Type type)
+        {
+            bool shared;
+            lock (SharedCache)
+            {
+                if (!SharedCache.TryGetValue(type, out shared)) { shared = type.GetCustomAttributes(typeof(SharedOnCloneAttribute), false).Length > 0; SharedCache[type] = shared; }
+            }
+            return shared;
+        }
+
         public static T Clone<T>(T source) where T : class => (T)CloneObject(source, typeof(T));
 
         private static object CloneObject(object source, Type type)
@@ -31,8 +58,9 @@ namespace MoneyRank.Domain.V4
                 foreach (var item in (IEnumerable)source) list.Add(CloneObject(item, elem));
                 return list;
             }
+            if (IsShared(type)) return source;
             var copy = Activator.CreateInstance(type);
-            foreach (var f in type.GetFields(BindingFlags.Public | BindingFlags.Instance))
+            foreach (var f in FieldsOf(type))
                 f.SetValue(copy, CloneObject(f.GetValue(source), f.FieldType));
             return copy;
         }

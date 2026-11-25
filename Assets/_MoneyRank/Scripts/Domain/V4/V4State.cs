@@ -106,6 +106,7 @@ namespace MoneyRank.Domain.V4
         public string Nick;
     }
 
+    [SharedOnClone]
     public sealed class LedgerEntry
     {
         public int Seq;
@@ -140,6 +141,7 @@ namespace MoneyRank.Domain.V4
         public string Tag;
     }
 
+    [SharedOnClone]
     public sealed class RngRecord
     {
         public string DecisionId;
@@ -147,6 +149,7 @@ namespace MoneyRank.Domain.V4
         public string Value;
     }
 
+    [SharedOnClone]
     public sealed class HistoryEntry
     {
         public int Seq;
