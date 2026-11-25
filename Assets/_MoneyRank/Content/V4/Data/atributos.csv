@@ -1,0 +1,7 @@
+﻿id,tipo,limiar,barra_min,efeito_ciclo,internar_apos_ciclos,reset_alta
+conhecimento,positivo,3,0,avanco_1,,False
+investimento,positivo,3,0,avanco_1,,False
+cidadania,positivo,3,0,avanco_1,,False
+toxina,negativo,3,0,recuo_1,3,True
+cortisol,negativo,3,0,recuo_1,3,True
+dividas,negativo,3,0,recuo_1,,False
