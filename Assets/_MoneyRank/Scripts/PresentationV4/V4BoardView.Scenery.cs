@@ -295,7 +295,7 @@ namespace MoneyRank.V4.Presentation
 
             // H19 direct to hospital: ambulance + arrow pointing to H10
             var c18 = RingCell(18);
-            var amb = new GameObject("Ambulance").transform; amb.SetParent(props, false); amb.localPosition = c18 + new Vector3(0.35f, 0.02f, -0.5f); amb.localRotation = Quaternion.Euler(0f, -12f, 0f); amb.localScale = Vector3.one * 0.78f;
+            var amb = new GameObject("Ambulance").transform; amb.SetParent(props, false); amb.localPosition = c18 + new Vector3(0.35f, 0.02f, -0.6f); amb.localRotation = Quaternion.Euler(0f, -12f, 0f); amb.localScale = Vector3.one * 0.62f;   // small and low enough not to hide the caption
             Prim(PrimitiveType.Cube, "Box", amb, new Vector3(0f, 0.62f, -0.2f), new Vector3(0.95f, 0.85f, 1.5f), Lit(new Color(0.96f, 0.96f, 0.97f), 0.5f));
             Prim(PrimitiveType.Cube, "Cabin", amb, new Vector3(0f, 0.45f, 0.78f), new Vector3(0.95f, 0.55f, 0.6f), Lit(new Color(0.96f, 0.96f, 0.97f), 0.5f));
             Prim(PrimitiveType.Cube, "Glass", amb, new Vector3(0f, 0.55f, 1.09f), new Vector3(0.8f, 0.3f, 0.02f), Lit(new Color(0.15f, 0.25f, 0.3f), 0.9f));
@@ -339,6 +339,10 @@ namespace MoneyRank.V4.Presentation
             plaque.transform.position += new Vector3(0f, 0.004f, 0f);
             var tm = AddLabel(parent, text, pos + new Vector3(0f, 0.025f, 0f), lines > 1 ? 0.052f : 0.058f, new Color(1f, 0.88f, 0.5f), TextAnchor.MiddleCenter, 90f);
             tm.fontStyle = FontStyle.Bold;
+            // shrink long captions so they never spill over the plaque
+            var maxWidth = CornerSize - 0.45f;
+            var width = tm.GetComponent<MeshRenderer>().bounds.size.x;
+            if (width > maxWidth) tm.characterSize *= maxWidth / width;
         }
     }
 }

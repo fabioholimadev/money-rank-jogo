@@ -32,16 +32,17 @@ namespace MoneyRank.Tests.PlayMode.V4
         }
 
         /// <summary>Renders the main camera (with the UI canvas switched to camera space) into a PNG; works headless in batch mode.</summary>
-        private static IEnumerator Shot(string name)
+        private static IEnumerator Shot(string name, int width = 1600, int height = 900)
         {
             yield return null;
             var cam = Camera.main;
             var canvases = Object.FindObjectsByType<Canvas>(FindObjectsSortMode.None).Where(c => c.isRootCanvas).ToList();
             var modes = canvases.Select(c => c.renderMode).ToList();
-            var rt = new RenderTexture(1600, 900, 24, RenderTextureFormat.ARGB32);
-            foreach (var c in canvases) { c.renderMode = RenderMode.ScreenSpaceCamera; c.worldCamera = cam; c.planeDistance = 1f; }
+            var rt = new RenderTexture(width, height, 24, RenderTextureFormat.ARGB32);
             var previous = cam.targetTexture;
             cam.targetTexture = rt;
+            foreach (var c in canvases) { c.renderMode = RenderMode.ScreenSpaceCamera; c.worldCamera = cam; c.planeDistance = 1f; }
+            yield return null; yield return null;       // lets the CanvasScaler and the camera adapt to the target aspect
             cam.Render();
             cam.targetTexture = previous;
             for (var i = 0; i < canvases.Count; i++) canvases[i].renderMode = modes[i];
@@ -96,6 +97,48 @@ namespace MoneyRank.Tests.PlayMode.V4
                 var spins = 0;
                 while (boot.Session.S.Phase == V4Phase.AwaitRoll && spins++ < 200) yield return null;
                 yield return Wait(0.5f); yield return Shot("cap_09_after_dice");
+            }
+            finally
+            {
+                if (sessionId != null)
+                {
+                    var store = new MoneyRank.Infrastructure.V4.V4SaveStore(Path.Combine(V4Session.RootDirectory, "Saves"));
+                    foreach (var f in new[] { store.PathFor(sessionId), store.PathFor(sessionId) + ".bak" }) if (File.Exists(f)) File.Delete(f);
+                }
+            }
+        }
+
+        /// <summary>Same screens at 4:3 (tablet), 16:9 (720p/1080p) with four players, to review layout by eye.</summary>
+        [UnityTest]
+        public IEnumerator CaptureLayoutsAcrossResolutions()
+        {
+            var sizes = new[] { (1024, 768), (1280, 720), (1920, 1080) };
+            string sessionId = null;
+            yield return SceneManager.LoadSceneAsync("MoneyRankV4");
+            yield return Wait(0.5f);
+            var boot = Object.FindAnyObjectByType<V4Bootstrap>();
+            try
+            {
+                Assert.That(Click("4"), Is.True);
+                yield return Wait(0.3f);
+                foreach (var (w, h) in sizes) yield return Shot("res_" + w + "x" + h + "_1_setup", w, h);
+
+                Assert.That(Click("INICIAR PARTIDA"), Is.True);
+                yield return Wait(0.7f);
+                sessionId = boot.Session.S.SessionId;
+                foreach (var (w, h) in sizes) yield return Shot("res_" + w + "x" + h + "_2_board", w, h);
+
+                boot.Session.Engine.CurrentPlayer.Position = 0;     // 0 + 3 -> H04
+                boot.Hud.DiceSource = () => (1, 2);
+                Click("LANÇAR DADOS");
+                var guard = 0; while (boot.Session.S.Phase != V4Phase.AwaitDecision && guard++ < 900) yield return null;
+                yield return Wait(0.3f);
+                Click("Selecionar", 2); yield return Wait(0.3f);
+                foreach (var (w, h) in sizes) yield return Shot("res_" + w + "x" + h + "_3_decision", w, h);
+
+                Click("Voltar ao tabuleiro"); yield return Wait(0.2f);
+                Click("Fiscal"); yield return Wait(0.3f);
+                foreach (var (w, h) in sizes) yield return Shot("res_" + w + "x" + h + "_4_fiscal", w, h);
             }
             finally
             {
