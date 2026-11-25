@@ -28,6 +28,7 @@ unity build --target StandaloneWindows64 --output-path Builds/Windows/MoneyRank.
 ```
 - **EditMode completo:** 268 testes — **263 passaram, 0 falharam, 5 ignorados** (os 5 são testes do fluxo legado do DevSandbox, desatualizados pelo
   commit `777e366` e deixados em quarentena com motivo explícito — pendência B10; 2 outros testes legados desatualizados foram corrigidos).
+- **PlayMode V4 (`unity test . --mode PlayMode --filter V4SceneUiTests`):** 2/2 passando.
 - **Testes V4:** 78 + 3 de simulação, todos passando (conteúdo, motor, economia, impostos, hospital, habilidades, save, export, protocolo do cofre).
 - **Simulações de partidas completas** (`V4SimulationTests`, resultados em `05_validacao/resultado_simulacao*.csv`): 36 partidas aleatórias
   cobrindo B1/B2 × Fácil/Médio/Difícil, 2–4 jogadores, mix de profissões + 5 partidas de bots gananciosos. Em **todos os passos** valeram:
@@ -45,7 +46,7 @@ unity build --target StandaloneWindows64 --output-path Builds/Windows/MoneyRank.
 ## 3. Matriz de aceite (`05_validacao/cenarios_aceite.csv`)
 Os 61 cenários agora têm status e evidência na própria planilha:
 - **60 cobertos por testes automatizados do motor/serviços e passando** (SET, MOV, ANO, ATR, LUD, INV, FIS, HOS, CAS, PRO, HAB, ECO, SAVE, HW, NET, DATA).
-- **UI01: parcial** — verificada apenas em 1280×720 por captura; 1024×768, tablet e 1920×1080 pendentes.
+- **UI01: parcial** — verificada apenas em 1280×720 por captura; 1024×768, tablet e 1920×1080 pendentes (o HUD agora usa escala `Expand`, que mantém toda a área 1920×1080 visível em qualquer proporção; em 4:3 os textos ficam pequenos — layout compacto pendente).
 - **Ressalvas importantes:** HW01/HW02 foram testados com transporte simulado, **não** com o Arduino/display físico; NET01/NET02 foram testados no motor
   (autoridade, rejeição fora da vez, idempotência), **não** com dois clientes em rede real; o modo online (P2) **não foi implementado**.
 
@@ -63,7 +64,7 @@ Os 61 cenários agora têm status e evidência na própria planilha:
 4. **Visual:** não foram baixados modelos 3D de terceiros (sem autorização para download); peões, hospital, cofre e prédios são geometria própria
    (placeholders, `THIRD_PARTY_ASSETS.md`). Falta polimento: ícone da casa nos cartões, animação do dado, painel de moedas, teste de resoluções/touch.
 5. Undo não sobrevive a recarregar o aplicativo (pilha em memória).
-6. Testes de PlayMode da cena V4 não foram escritos; a validação da UI foi manual com capturas.
+6. PlayMode: 2 testes passando operam a cena V4 pelos próprios botões (iniciar, dado, selecionar, confirmar, voltar sem recusar, salvar/retomar no meio da decisão). Cobertura de UI ainda estreita (modais fiscais/hospital/habilidades só testados no motor).
 7. 5 testes legados do DevSandbox em quarentena (B10 parcial).
 
 ## 6. Como executar

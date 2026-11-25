@@ -44,7 +44,7 @@ Reuso: asmdefs, padrão de save atômico, pacotes UGS/Netcode, exportação anal
 ## Pendências / próximos passos exatos (após o relatório de entrega)
 1. Testar o display físico real (confirmar módulo/endereço I2C, porta COM) e ajustar o sketch.
 2. Polimento visual e de UI: ícone da casa nos cartões, animação do dado, painel de moedas, verificar 1024x768, 1280x720, 1920x1080, tablet/touch; modelos 3D licenciados (precisa autorização do usuário para baixar) ou manter placeholders.
-3. Testes de PlayMode da cena V4 (clicar UI, salvar/recarregar no meio de decisão).
+3. Ampliar PlayMode da cena V4 (modais fiscal/hospital/habilidades, fim de partida, undo). Já existem 2 testes em `Tests/PlayMode/V4`.
 4. Online autoritativo (P2): lobby V4, cliente envia intenção, host aplica comando, RNG autoritativo persistido; reutilizar `V4Engine`.
 5. Reabrir os 5 testes legados em quarentena (DevSandbox) ou removê-los junto com o legado quando o usuário decidir aposentar o sandbox.
 6. Decidir o ritmo do Ludo (`DECISION_REQUIRED` em OPEN_DECISIONS.md) após a bateria 1 humana; só então ajustar parâmetros (CSV/`parametros.json`) com versão.

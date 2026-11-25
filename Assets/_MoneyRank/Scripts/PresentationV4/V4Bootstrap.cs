@@ -10,6 +10,7 @@ namespace MoneyRank.V4.Presentation
         private V4Hud _hud;
         private V4BoardView _board;
         private V4Session _session;
+        public V4Session Session => _session;
         private float _yaw, _pitch = 54f, _dist = 17.4f;
         private Vector3 _target = new Vector3(0f, 0f, -1.9f);
 

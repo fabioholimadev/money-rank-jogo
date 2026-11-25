@@ -38,8 +38,8 @@ namespace MoneyRank.V4.Presentation
             var scaler = cgo.AddComponent<CanvasScaler>();
             scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
             scaler.referenceResolution = new Vector2(1920f, 1080f);
-            scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
-            scaler.matchWidthOrHeight = 0.5f;
+            // Expand keeps the whole 1920x1080 design area visible on any aspect ratio (4:3 tablet, 16:10, ultrawide): no clipping/overlap.
+            scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.Expand;
             cgo.AddComponent<GraphicRaycaster>();
 
             if (FindAnyObjectByType<EventSystem>() == null)
