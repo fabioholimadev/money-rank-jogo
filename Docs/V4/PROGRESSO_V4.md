@@ -5,7 +5,7 @@
 > e atualizar este arquivo a cada etapa concluída.
 
 - Repositório de trabalho: `C:\Arquivos_Fabio\06_Projetos\01_Ativos\Money Rank Jogo` (NÃO o clone "… - Claude", que é o `main` antigo).
-- Branch de trabalho: `feature/v4-integration` (criada a partir de `feature/board-visual-event-close` @ 777e366).
+- Branch de trabalho atual: `feature/cofre-lcd-cria-coin` (PR #2 aberto, aguardando o usuário). Só commits locais; sem push/merge sem pedido.
 - Preservar arquivos locais não rastreados: `Assets/Resources/GDKEditionAutoGen*`, `Docs/Hardware/`, `MONEY_RANK_HANDOFF_AS_IS.md`.
 - Commits pequenos e focados. Nunca apagar trabalho. Regras/valores vêm só do pacote V4 (CSV é a fonte; JSON é espelho).
 - Testes (Editor fechado): `unity test . --mode EditMode --filter V4 --output Logs/v4-results.xml --timeout 1500` (≈3 min por rodada, compila tudo).
@@ -43,8 +43,8 @@ Reuso: asmdefs, padrão de save atômico, pacotes UGS/Netcode, exportação anal
 
 ## Pendências / próximos passos exatos (após o relatório de entrega)
 1. Testar o display físico real (confirmar módulo/endereço I2C, porta COM) e ajustar o sketch.
-2. Polimento visual e de UI: ícone da casa nos cartões, animação do dado, painel de moedas, verificar 1024x768, 1280x720, 1920x1080, tablet/touch; modelos 3D licenciados (precisa autorização do usuário para baixar) ou manter placeholders.
-3. Ampliar PlayMode da cena V4 (modais fiscal/hospital/habilidades, fim de partida, undo). Já existem 2 testes em `Tests/PlayMode/V4`.
+2. Polimento visual e de UI: layout conferido por captura em 1024x768, 1280x720 e 1920x1080 (4 jogadores: setup, tabuleiro, decisão, painel fiscal). Falta: tablet/touch real; modelos 3D licenciados (precisa autorização do usuário para baixar) ou manter placeholders.
+3. PlayMode da cena V4: modais de decisão/moeda/hospital/habilidade, painel fiscal, histórico, desfazer e fim de partida cobertos (`V4SceneUiTests`, `V4SceneFlowTests`). Ainda sem teste de UI: fechamento anual (IR), troca da Empreendedora, pausa do Motorista e pausa por liquidez.
 4. Online autoritativo (P2): lobby V4, cliente envia intenção, host aplica comando, RNG autoritativo persistido; reutilizar `V4Engine`.
 5. Reabrir os 5 testes legados em quarentena (DevSandbox) ou removê-los junto com o legado quando o usuário decidir aposentar o sandbox.
 6. Decidir o ritmo do Ludo (`DECISION_REQUIRED` em OPEN_DECISIONS.md) após a bateria 1 humana; só então ajustar parâmetros (CSV/`parametros.json`) com versão.
@@ -59,3 +59,10 @@ Reuso: asmdefs, padrão de save atômico, pacotes UGS/Netcode, exportação anal
 - 2026-11-25 (sessão agendada, ~12:4x): última suíte registrada em Logs/v4-results.xml = 88/88 (09:36). Nova execução `unity test --mode EditMode --filter V4` NÃO concluiu: Unity encerrou com código -1073741819 (crash) e o Editor.log mostra `Licensing::Client Error 404 ... 0 entitlements` (licença indisponível no momento). Problema de ambiente/licença, não de código; nenhuma alteração de código feita. Ação do usuário: reabrir Unity Hub e reativar a licença, depois rodar a suíte. Pendências restantes seguem dependendo do usuário/hardware/downloads.
 - 2026-11-25 (sessão agendada, 10:3x): licença do Unity voltou; `--filter V4` EditMode = **88/88 passando**. Pendências restantes seguem dependendo do usuário/hardware/downloads; nenhum código alterado. `ProjectSettings.asset` modificado localmente pelo Unity (não commitado).
 - 2026-11-25 (cofre/LCD + moeda): protocolo do cofre reescrito (centavos inteiros, CRC-8, ACK com eco do valor exibido, PRONTO ao ligar, LCD em R$0,00 até o 1º número); `cofre_protocol.h` em C++ puro testado no PC contra os mesmos vetores do C# (`Docs/Hardware/cofre_display/tests`); moeda renomeada de UMR para CRIA Coin (colunas de dados mantidas). EditMode 278 passam/0 falham/5 ignorados; PlayMode V4SceneUiTests 3/3. Hardware real NÃO testado.
+- 2026-11-25 (sessao agendada, 11:3x): heartbeat antigo (>25 min) assumido; EditMode completo = 278 passam/0 falham/5 ignorados (Logs/v4-results.xml). Pendencias restantes (display fisico, baterias humanas, ritmo do Ludo, modelos 3D licenciados, online P2) dependem do usuario/hardware/downloads; nenhum codigo alterado.
+- 2026-11-25 (sessao agendada, 13:4x): heartbeat antigo assumido; HEAD c35244d inalterado desde a ultima suite (EditMode 278 passam/0 falham/5 ignorados). Pendencias dependem do usuario/hardware/downloads; nenhum codigo alterado.
+- 2026-11-25 (sessao agendada, 14:3x): heartbeat antigo assumido; HEAD c35244d inalterado, ultima suite EditMode 278 passam/0 falham/5 ignorados. Pendencias dependem do usuario/hardware/downloads; nenhum codigo alterado.
+- 2026-11-25 (sessao agendada, 15:31): heartbeat ausente, trabalho assumido; HEAD c35244d, ultima suite EditMode 278 passam/0 falham/5 ignorados. Pendencias dependem do usuario/hardware/downloads; nenhum codigo alterado.
+- 2026-11-25 (sessao agendada, 16:31): heartbeat ausente, trabalho assumido; HEAD c35244d inalterado, ultima suite EditMode 278 passam/0 falham/5 ignorados. Pendencias dependem do usuario/hardware/downloads; nenhum codigo alterado.
+- 2026-11-25 (sessao agendada, 17:31): heartbeat ausente, trabalho assumido; HEAD c35244d inalterado, ultima suite EditMode 278 passam/0 falham/5 ignorados. Pendencias dependem do usuario/hardware/downloads; nenhum codigo alterado.
+- 2026-11-25 (sessao agendada, 19:55-20:45): testes de fluxo da cena V4 acharam um BUG: a decisao 'Folego Extra' do Atleta (sem casa) lancava excecao em `V4Hud.BuildModal` e a partida travava; corrigido. Tambem corrigidos: aviso 'Lancando os dados' que ficava na tela e legendas 'COFRE PUBLICO' / 'DIRETO AO HOSPITAL' vazando ou cobertas pela ambulancia. PlayMode V4 10/10 (`--filter MoneyRank.Tests.PlayMode.V4`, Logs/v4-play.xml); EditMode completo 278 passam/0 falham/5 ignorados. Commits locais, sem push. `ProjectSettings.asset` segue modificado pelo Unity (nao commitado).
