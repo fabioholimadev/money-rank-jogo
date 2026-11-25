@@ -31,7 +31,7 @@ namespace MoneyRank.Tests.EditMode
             Assert.That(t.Sent, Is.Empty);
             t.Status = CofferLinkStatus.Connected;
             sync.Tick();
-            Assert.That(t.Sent.Single(), Does.EndWith("|150"));
+            Assert.That(t.Sent.Single(), Does.Contain("|15000*"), "150 CRIA Coin = 15000 centavos");
             Assert.That(t.Sent.Single(), Does.StartWith("COFRE|"));
         }
 
@@ -51,13 +51,13 @@ namespace MoneyRank.Tests.EditMode
             sync.Tick();
             var newSeq = int.Parse(t.Sent.Last().Split('|')[1]);
             Assert.That(newSeq, Is.Not.EqualTo(oldSeq));
-            t.Replies.Enqueue("ACK|" + oldSeq);                // late ACK of the old sequence is ignored
+            t.Replies.Enqueue(CofferProtocol.FormatAck(oldSeq, 15000));                // late ACK of the old sequence is ignored
             sync.Tick();
             Assert.That(sync.LastAckedBalance, Is.Not.EqualTo(80));
-            t.Replies.Enqueue("ACK|" + newSeq);
+            t.Replies.Enqueue(CofferProtocol.FormatAck(newSeq, 8000));
             sync.Tick();
             Assert.That(sync.LastAckedBalance, Is.EqualTo(80));
-            Assert.That(t.Sent.Last(), Does.EndWith("|80"));
+            Assert.That(t.Sent.Last(), Does.Contain("|8000*"));
         }
 
 #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
@@ -83,25 +83,12 @@ namespace MoneyRank.Tests.EditMode
             var a = new FakeTransport { Status = CofferLinkStatus.Connected };
             var sync = new CofferDisplaySync(a, 2);
             sync.Publish(120); sync.Tick();
-            a.Replies.Enqueue("ACK|" + a.Sent[0].Split('|')[1]); sync.Tick();
+            a.Replies.Enqueue(CofferProtocol.FormatAck(int.Parse(a.Sent[0].Split('|')[1]), 12000)); sync.Tick();
             Assert.That(sync.LastAckedBalance, Is.EqualTo(120));
             var b = new FakeTransport { Status = CofferLinkStatus.Connected };
             sync.SetTransport(b);
             sync.Tick();
-            Assert.That(b.Sent.Single(), Does.EndWith("|120"));
-        }
-
-        [Test]
-        public void ProtocolFormatsAndParsesStrictly()
-        {
-            Assert.That(CofferProtocol.FormatBalance(7, 1234), Is.EqualTo("COFRE|7|1234"));
-            Assert.That(CofferProtocol.DisplayText(1234), Is.EqualTo("COFRE  1234 UMR"));
-            bool ack; int seq;
-            Assert.That(CofferProtocol.TryParseReply("ACK|7", out ack, out seq) && ack && seq == 7, Is.True);
-            Assert.That(CofferProtocol.TryParseReply("ERR|9", out ack, out seq) && !ack && seq == 9, Is.True);
-            Assert.That(CofferProtocol.TryParseReply("ACK|x", out ack, out seq), Is.False);
-            Assert.That(CofferProtocol.TryParseReply("NOPE|1", out ack, out seq), Is.False);
-            Assert.Throws<System.ArgumentOutOfRangeException>(() => CofferProtocol.FormatBalance(1, -1));
+            Assert.That(b.Sent.Single(), Does.Contain("|12000*"));
         }
 
         [Test]

@@ -83,7 +83,7 @@ namespace MoneyRank.Domain.V4
             }
             State.Pending = d;
             State.Phase = V4Phase.AwaitDecision;
-            Note(p.Name + " deve " + kind + ": " + due + " UMR.");
+            Note(p.Name + " deve " + kind + ": " + due + " CRIA Coin.");
         }
 
         private string TaxActionOf(string optionId)
@@ -105,7 +105,7 @@ namespace MoneyRank.Domain.V4
                     Pay(p, due, "fund", "imposto_" + kind, d.HouseId);
                     if (State.Config.VoluntaryTaxCitizenship && Rules.VoluntaryTaxCitizenshipBase > 0)
                         ApplyEffects(p, OneDelta(AttributeId.Cidadania, Rules.VoluntaryTaxCitizenshipBase));
-                    Log(p, "tax", d.HouseId, optionId, p.Name + " pagou " + due + " UMR de " + kind + " ao cofre.");
+                    Log(p, "tax", d.HouseId, optionId, p.Name + " pagou " + due + " CRIA Coin de " + kind + " ao cofre.");
                     break;
                 case "sonegar_imposto":
                 {
@@ -163,7 +163,7 @@ namespace MoneyRank.Domain.V4
             if (happy)
             {
                 AddFiscal(p, d.Tag, due, due, FiscalStatus.Sonegado);
-                Log(p, "tax", d.HouseId, null, p.Name + " sonegou " + due + " UMR de " + d.Tag + " (moeda FELIZ): pendência registrada.");
+                Log(p, "tax", d.HouseId, null, p.Name + " sonegou " + due + " CRIA Coin de " + d.Tag + " (moeda FELIZ): pendência registrada.");
             }
             else
             {
@@ -172,13 +172,13 @@ namespace MoneyRank.Domain.V4
                 {
                     Pay(p, penalty, "fund", "multa_" + d.Tag, d.HouseId);
                     ApplyEffects(p, OneDelta(AttributeId.Cortisol, 1m));
-                    Log(p, "tax", d.HouseId, null, p.Name + " pagou " + penalty + " UMR (dobro) de " + d.Tag + " (moeda TRISTE), +1 Cortisol.");
+                    Log(p, "tax", d.HouseId, null, p.Name + " pagou " + penalty + " CRIA Coin (dobro) de " + d.Tag + " (moeda TRISTE), +1 Cortisol.");
                 }
                 else
                 {
                     AddFiscal(p, d.Tag, due, penalty, FiscalStatus.Autuado);
                     ApplyEffects(p, OneDelta(AttributeId.Dividas, Rules.UnpaidTaxDebtBase));
-                    Log(p, "tax", d.HouseId, null, p.Name + " autuado(a) em " + penalty + " UMR sem recursos: +" + Rules.UnpaidTaxDebtBase + " Dívidas.");
+                    Log(p, "tax", d.HouseId, null, p.Name + " autuado(a) em " + penalty + " CRIA Coin sem recursos: +" + Rules.UnpaidTaxDebtBase + " Dívidas.");
                 }
             }
             Resolve(p);
@@ -200,13 +200,13 @@ namespace MoneyRank.Domain.V4
                 {
                     Pay(p, total, "fund", "fiscalizacao", d.HouseId);
                     foreach (var f in records) { f.Status = FiscalStatus.Regularizado; f.Outstanding = 0; }
-                    Log(p, "audit", d.HouseId, null, p.Name + " pagou " + total + " UMR na fiscalização (TRISTE), +1 Cortisol.");
+                    Log(p, "audit", d.HouseId, null, p.Name + " pagou " + total + " CRIA Coin na fiscalização (TRISTE), +1 Cortisol.");
                 }
                 else
                 {
                     foreach (var f in records) { f.Outstanding = values[f]; f.Status = FiscalStatus.Autuado; }
                     ApplyEffects(p, OneDelta(AttributeId.Dividas, Rules.UnpaidTaxDebtBase));
-                    Log(p, "audit", d.HouseId, null, p.Name + " autuado(a) em " + total + " UMR sem recursos (TRISTE): +1 Cortisol, +" + Rules.UnpaidTaxDebtBase + " Dívidas.");
+                    Log(p, "audit", d.HouseId, null, p.Name + " autuado(a) em " + total + " CRIA Coin sem recursos (TRISTE): +1 Cortisol, +" + Rules.UnpaidTaxDebtBase + " Dívidas.");
                 }
             }
             if (!string.IsNullOrEmpty(d.Tag) && d.Tag.StartsWith("after:", StringComparison.Ordinal))

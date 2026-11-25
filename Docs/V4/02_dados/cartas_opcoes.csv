@@ -12,9 +12,9 @@ H04_O01,H04,1,Alimentação econômica,Alimentação econômica,30,0,0,0,0,0,1,0
 H04_O02,H04,2,Refeição equilibrada,Refeição equilibrada,50,0,0,0,0,0,0,0,0,normal,sempre,{},proposta_preteste,03_visual/cartas/H04_O02.png
 H04_O03,H04,3,Alimentação saudável,Alimentação saudável,80,0,0,0,0,0,-1,0,0,normal,sempre,{},proposta_preteste,03_visual/cartas/H04_O03.png
 H04_O04,H04,4,Não consegue pagar,Nenhuma alternativa é acessível. Registra dificuldade financeira.,0,0,0,0,0,0,0,0,3,inadimplencia,nenhuma_opcao_paga_acessivel,{},aprovado,03_visual/cartas/H04_O04.png
-H05_O01,H05,1,Depositar 50 UMR,Entregue moedas ao banco e aumente a reserva. Ganho de Investimento depende do recorde de principal depositado.,50,0,0,0,1,0,0,0,0,depositar_reserva,saldo_e_teto,"{""teto"":""salario_atual"",""pontos_condicionais"":""recorde_principal""}",aprovado,03_visual/cartas/H05_O01.png
-H05_O02,H05,2,Depositar 100 UMR,Entregue moedas ao banco e aumente a reserva. Ganho de Investimento depende do recorde de principal depositado.,100,0,0,0,2,0,0,0,0,depositar_reserva,saldo_e_teto,"{""teto"":""salario_atual"",""pontos_condicionais"":""recorde_principal""}",aprovado,03_visual/cartas/H05_O02.png
-H05_O03,H05,3,Depositar 200 UMR,Entregue moedas ao banco e aumente a reserva. Ganho de Investimento depende do recorde de principal depositado.,200,0,0,0,3,0,0,0,0,depositar_reserva,saldo_e_teto,"{""teto"":""salario_atual"",""pontos_condicionais"":""recorde_principal""}",aprovado,03_visual/cartas/H05_O03.png
+H05_O01,H05,1,Depositar 50 CRIA Coin,Entregue moedas ao banco e aumente a reserva. Ganho de Investimento depende do recorde de principal depositado.,50,0,0,0,1,0,0,0,0,depositar_reserva,saldo_e_teto,"{""teto"":""salario_atual"",""pontos_condicionais"":""recorde_principal""}",aprovado,03_visual/cartas/H05_O01.png
+H05_O02,H05,2,Depositar 100 CRIA Coin,Entregue moedas ao banco e aumente a reserva. Ganho de Investimento depende do recorde de principal depositado.,100,0,0,0,2,0,0,0,0,depositar_reserva,saldo_e_teto,"{""teto"":""salario_atual"",""pontos_condicionais"":""recorde_principal""}",aprovado,03_visual/cartas/H05_O02.png
+H05_O03,H05,3,Depositar 200 CRIA Coin,Entregue moedas ao banco e aumente a reserva. Ganho de Investimento depende do recorde de principal depositado.,200,0,0,0,3,0,0,0,0,depositar_reserva,saldo_e_teto,"{""teto"":""salario_atual"",""pontos_condicionais"":""recorde_principal""}",aprovado,03_visual/cartas/H05_O03.png
 H05_O04,H05,4,Recusar,Não contratar ou comprar. Sem efeitos.,0,0,0,0,0,0,0,0,0,recusar,sempre,{},aprovado,03_visual/cartas/H05_O04.png
 H06_O01,H06,1,Descansar em casa,"Recupere um ponto de Toxina e Cortisol, até zero.",0,0,0,0,0,0,-1,-1,0,automatico,sempre,{},aprovado,03_visual/cartas/H06_O01.png
 H07_O01,H07,1,Pagar imposto,Pague o tributo devido ao cofre público.,0,0,0,0,0,0,0,0,0,pagar_imposto,imoveis_maior_que_zero,"{""base_umr"":50,""multiplicar_por"":""imoveis"",""destino"":""cofre""}",aprovado,03_visual/cartas/H07_O01.png
@@ -36,8 +36,8 @@ H12_O02,H12,2,Academia,Academia,60,0,0,0,0,0,-2,-2,0,normal,sempre,{},aprovado,0
 H12_O03,H12,3,Treinamento orientado,Treinamento orientado,100,0,0,0,0,0,-3,-3,0,normal,sempre,{},aprovado,03_visual/cartas/H12_O03.png
 H12_O04,H12,4,Recusar,Não contratar ou comprar. Sem efeitos.,0,0,0,0,0,0,0,0,0,recusar,sempre,{},aprovado,03_visual/cartas/H12_O04.png
 H13_O01,H13,1,Não contratar,Não recebe dinheiro nem altera os atributos.,0,0,0,0,0,0,0,0,0,recusar,sempre,{},aprovado,03_visual/cartas/H13_O01.png
-H13_O02,H13,2,Crédito simbólico pequeno,Receba 50 UMR; aumente Dívidas. Não há contrato ou parcelas.,0,50,0,0,0,0,0,0,2,normal,sempre,{},aprovado,03_visual/cartas/H13_O02.png
-H13_O03,H13,3,Crédito simbólico maior,Receba 100 UMR; aumente Dívidas. Não há contrato ou parcelas.,0,100,0,0,0,0,0,0,4,normal,sempre,{},aprovado,03_visual/cartas/H13_O03.png
+H13_O02,H13,2,Crédito simbólico pequeno,Receba 50 CRIA Coin; aumente Dívidas. Não há contrato ou parcelas.,0,50,0,0,0,0,0,0,2,normal,sempre,{},aprovado,03_visual/cartas/H13_O02.png
+H13_O03,H13,3,Crédito simbólico maior,Receba 100 CRIA Coin; aumente Dívidas. Não há contrato ou parcelas.,0,100,0,0,0,0,0,0,4,normal,sempre,{},aprovado,03_visual/cartas/H13_O03.png
 H14_O01,H14,1,Comprar veículo,Adquira um veículo por três anos. Avanços positivos internos dobram enquanto ativo.,400,0,0,0,4,0,0,0,0,comprar_veiculo,sem_veiculo_ativo,"{""duracao_anos"":3}",aprovado,03_visual/cartas/H14_O01.png
 H14_O02,H14,2,Manutenção preventiva,Prolongue em um ano a validade do veículo ativo.,150,0,0,0,1,0,0,0,0,manter_veiculo,veiculo_ativo,"{""extensao_anos"":1}",aprovado,03_visual/cartas/H14_O02.png
 H14_O03,H14,3,Recusar,Não contratar ou comprar. Sem efeitos.,0,0,0,0,0,0,0,0,0,recusar,sempre,{},aprovado,03_visual/cartas/H14_O03.png
@@ -83,7 +83,7 @@ H27_O01,H27,1,Quitar conta atrasada,Quitar conta atrasada,60,0,0,0,0,0,0,0,-1,no
 H27_O02,H27,2,Pagamento parcial,Pagamento parcial,30,0,0,0,0,0,0,0,0,normal,sempre,{},aprovado,03_visual/cartas/H27_O02.png
 H27_O03,H27,3,Não pagar,Não pagar,0,0,0,0,0,0,0,0,3,normal,sempre,{},aprovado,03_visual/cartas/H27_O03.png
 H28_O01,H28,1,Consultar cofre público,"Confira o saldo acumulado, destinado exclusivamente ao hospital.",0,0,0,0,0,0,0,0,0,consulta_cofre,sempre,{},aprovado,03_visual/cartas/H28_O01.png
-H28_O02,H28,2,Contribuir voluntariamente,"Transfira 50 UMR ao cofre, sem benefício adicional.",50,0,0,0,0,0,0,0,0,doar_cofre,sempre,{},complemento,03_visual/cartas/H28_O02.png
+H28_O02,H28,2,Contribuir voluntariamente,"Transfira 50 CRIA Coin ao cofre, sem benefício adicional.",50,0,0,0,0,0,0,0,0,doar_cofre,sempre,{},complemento,03_visual/cartas/H28_O02.png
 H28_O03,H28,3,Recusar,Não contratar ou comprar. Sem efeitos.,0,0,0,0,0,0,0,0,0,recusar,sempre,{},aprovado,03_visual/cartas/H28_O03.png
 H29_O01,H29,1,Próxima evolução profissional,Consulte a próxima carta da sua profissão; pode comprar ou recusar. A oferta permanece até aquisição.,0,0,0,0,0,0,0,0,0,progressao,etapa_menor_que_4,{},aprovado,03_visual/cartas/H29_O01.png
 H29_O02,H29,2,Carreira completa,Você já concluiu as quatro evoluções.,0,0,0,0,0,0,0,0,0,neutro,etapa_igual_4,{},aprovado,03_visual/cartas/H29_O02.png

@@ -201,8 +201,8 @@ namespace MoneyRank.Domain.V4
             var fromBefore = Balance(from);
             if (fromBefore < amount)
             {
-                if (from == "bank") throw new LiquidityException("Banco sem caixa/troco para pagar " + amount + " UMR (" + reason + ").");
-                throw new InvalidOperationException("Saldo insuficiente em " + from + " para " + amount + " UMR (" + reason + ").");
+                if (from == "bank") throw new LiquidityException("Banco sem caixa/troco para pagar " + amount + " CRIA Coin (" + reason + ").");
+                throw new InvalidOperationException("Saldo insuficiente em " + from + " para " + amount + " CRIA Coin (" + reason + ").");
             }
             var toBefore = Balance(to);
             SetBalance(from, fromBefore - amount);
@@ -252,7 +252,7 @@ namespace MoneyRank.Domain.V4
                 if (p.Eliminated) return V4Result.Fail("Jogador eliminado.");
                 if (amount <= 0 || amount > p.ReserveBalance) return V4Result.Fail("Valor de resgate inválido.");
                 Redeem(p, amount);
-                Log(p, "redeem", null, null, p.Name + " resgatou " + amount + " UMR da reserva.");
+                Log(p, "redeem", null, null, p.Name + " resgatou " + amount + " CRIA Coin da reserva.");
                 return V4Result.Success();
             });
         }

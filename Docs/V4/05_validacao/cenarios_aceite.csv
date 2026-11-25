@@ -29,7 +29,7 @@ INV06,Carro expirado,Sem IPVA/benefício; recompra volta disponível.,automatiza
 INV07,Comprar dois imóveis,"1000 pagos, dois direitos, IPTU 100; checkpoints independentes.",automatizado_passou_motor,V4EngineEconomyTests.INV07
 INV08,H34 seleciona veículo,Executar exatamente uma operação de H14 sem novo deslocamento.,automatizado_passou_motor,V4EngineEconomyTests.INV08
 FIS01,IPTU sem imóvel e IPVA sem carro,Isento; pendência antiga ainda pode ser fiscalizada.,automatizado_passou_motor,V4EngineEconomyTests.FIS01
-FIS02,IR Médio salário 350,70 UMR ao cofre se pago; pontos conforme config.,automatizado_passou_motor,V4EngineEconomyTests.FIS02
+FIS02,IR Médio salário 350,70 CRIA Coin ao cofre se pago; pontos conforme config.,automatizado_passou_motor,V4EngineEconomyTests.FIS02
 FIS03,"Sonegar 40, feliz",0 pagamento; registro principal 40.,automatizado_passou_motor,V4EngineEconomyTests.FIS03
 FIS04,"Sonegar 40, triste","80 para cofre, +1 Cortisol base.",automatizado_passou_motor,V4EngineEconomyTests.FIS04
 FIS05,"Fiscalizar pendências 30 e 40, triste","140 ao cofre, +1 Cortisol, registros regularizados.",automatizado_passou_motor,V4EngineEconomyTests.FIS05
@@ -37,13 +37,13 @@ FIS06,Sem recursos de multa ou imposto,+3 Dívidas; preservar principal/autuaç�
 FIS07,Visibilidade,Local só mestre; online todos veem status.,automatizado_passou_motor,V4EngineEconomyTests.FIS07
 HOS01,Público com saldo 150,Cofre -150; banco +150; 2 turnos perdidos; alta zera saúde.,automatizado_passou_motor,V4EngineEconomyTests.HOS01
 HOS02,Particular com carteira 250,Banco +250; 1 turno perdido; recebe salário se ano fechar.,automatizado_passou_motor,"V4EngineCoreTests.MOV04 (particular 250, 1 turno) + ANO01 (salário)"
-HOS03,Médica desconto anual disponível,125 UMR; mínimo 1 turno; não repetir no mesmo ano.,automatizado_passou_motor,V4EngineEconomyTests.HOS03
+HOS03,Médica desconto anual disponível,125 CRIA Coin; mínimo 1 turno; não repetir no mesmo ano.,automatizado_passou_motor,V4EngineEconomyTests.HOS03
 HOS04,Sem caixa/cofre nas 3 dificuldades,Fácil 3 turnos; médio 4 e +2 Dívidas; difícil eliminado.,automatizado_passou_motor,V4EngineEconomyTests.HOS04 (3 casos)
 CAS01,Essencial sem recursos,"+3 Dívidas base; sem benefício, sem saldo negativo.",automatizado_passou_motor,V4EngineEconomyTests.CAS01
 CAS02,Não essencial recusar,Sem efeito; não cobra nem penaliza.,automatizado_passou_motor,V4EngineEconomyTests.CAS02
 CAS03,Renegociação com Dívidas zero,Neutro sem cobrança.,automatizado_passou_motor,V4EngineEconomyTests.CAS03
 CAS04,Parceria 100,"Banco +100 agora, atributos imediatos; 200 retorno próximo ano uma vez.",automatizado_passou_motor,V4EngineEconomyTests.CAS04
-CAS05,Trabalho extra 25% de 250,63 UMR (ceil); salário não muda.,automatizado_passou_motor,V4EngineEconomyTests.CAS05
+CAS05,Trabalho extra 25% de 250,63 CRIA Coin (ceil); salário não muda.,automatizado_passou_motor,V4EngineEconomyTests.CAS05
 PRO01,Professora primeira progressão,125 custo; salário 300; +2 Conhecimento base.,automatizado_passou_motor,V4EngineEconomyTests.PRO01
 PRO02,Recusa e cai outra Progressão,Mesma carta pendente; sem avançar etapa.,automatizado_passou_motor,V4EngineEconomyTests.PRO02 (oferta única e obrigatória; recusa explícita não existe nas casas de progressão do CSV)
 PRO03,Quarta etapa e nova visita,Salário final 180%; casa neutra depois da quarta.,automatizado_passou_motor,V4EngineEconomyTests.PRO03

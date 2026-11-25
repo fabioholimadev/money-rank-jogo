@@ -1,6 +1,6 @@
 ﻿id,profissao,salario_inicial,mult_conhecimento,mult_investimento,mult_cidadania,mult_toxina,mult_cortisol,mult_dividas,habilidade,descricao_habilidade,frequencia,status
 P01,Professora,250,1.5,1,1.25,1,1,1.5,Domínio do Conhecimento,Primeira barra de Conhecimento concluída a cada ano: avanço de duas casas em vez de uma.,anual,recuperado_conversa
-P02,Médica,700,1.25,1,1,0.75,1.5,1,Atendimento Especializado,"Uma vez por ano, tratamento particular pela metade (125 UMR); reduz um turno, mínimo um.",anual,recuperado_conversa
+P02,Médica,700,1.25,1,1,0.75,1.5,1,Atendimento Especializado,"Uma vez por ano, tratamento particular pela metade (125 CRIA Coin); reduz um turno, mínimo um.",anual,recuperado_conversa
 P03,Economista,500,1,1.5,1,1,1.25,0.75,Planejamento Estratégico,Primeira barra de Investimento concluída a cada ano: avanço de duas casas em vez de uma.,anual,proposta_recuperada
 P04,Atleta,300,1,0.75,1,0.75,0.75,1.5,Fôlego Extra,"Uma vez por ano, ao completar barra positiva: avançar duas casas em vez de uma ou reduzir um ponto-base negativo.",anual,aprovado
 P05,Empreendedora,350,1,1.5,1.25,1,1.75,1,Visão de Negócios,"Uma vez por ano, recusar evento financeiro desfavorável elegível e receber outro da mesma categoria; não vale impostos ou penalidades já adquiridas. Ver adaptação para cartas fixas no handoff.",anual,aprovado_com_adaptacao

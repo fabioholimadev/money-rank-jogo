@@ -107,3 +107,14 @@ de virar regra rígida sem aprovação.
 - **Undo local:** pilha em memória (não sobrevive a recarregar o aplicativo); proibido no modo online.
 
 - **DECISION_REQUIRED — contagem das jogadas extras por dados iguais.** Implementado: dados iguais dão até **3 jogadas extras** por turno (no máximo 4 lançamentos); depois, mesmo com novo par, a vez passa. Se a intenção for "3 lançamentos no total", alterar `doubles_extra_rolls_max` para 2 em `parametros.json`. Sem jogada extra após internação/eliminação.
+
+- **DECISION_REQUIRED — símbolo mostrado no LCD do cofre ("R$" x "CRIA").** A moeda do jogo agora se chama **CRIA Coin** (tela, regras e documentos).
+  Pelo pedido do usuário, o LCD mostra o valor como `R$0,00` (e `R$28.260,00` etc.). Para trocar o prefixo do display (por exemplo `CRIA 28.260,00`),
+  basta mudar `CURRENCY_PREFIX` em `Docs/Hardware/cofre_display/cofre_protocol.h` e `CofferProtocol.DisplayPrefix` em `V4Coffer.cs` (os vetores
+  de teste `money` precisam ser regerados com `tests/make_vectors.py`). O valor enviado é sempre o mesmo número inteiro de CRIA Coin × 100.
+- **Nomes das colunas dos dados** (`custo_umr`, `base_umr`, `recompensa_imediata_umr`, `retorno_total_umr`, `salario_apos_umr`) foram mantidos: são identificadores
+  estáveis do conteúdo, não texto de tela. Só o texto visível trocou de "UMR" para "CRIA Coin". Salvamentos antigos não abrem mais
+  (o hash do conteúdo mudou porque os textos das cartas mudaram).
+- **DECISION_REQUIRED — hardware do cofre.** Confirmar o módulo real: LCD 1602 com adaptador I2C (endereço 0x27 ou 0x3F), biblioteca "LiquidCrystal I2C",
+  placa Arduino (Uno nas ilustrações) e porta COM. Nada disso foi testado em hardware real.
+

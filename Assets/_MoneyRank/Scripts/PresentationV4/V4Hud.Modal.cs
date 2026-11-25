@@ -222,7 +222,7 @@ namespace MoneyRank.V4.Presentation
             return lines;
         }
 
-        private static string Signed(int v) => (v > 0 ? "+" : "−") + Math.Abs(v).ToString("N0", System.Globalization.CultureInfo.GetCultureInfo("pt-BR")) + " UMR";
+        private static string Signed(int v) => (v > 0 ? "+" : "−") + Math.Abs(v).ToString("N0", System.Globalization.CultureInfo.GetCultureInfo("pt-BR")) + " CRIA Coin";
 
         // ------------------------------------------------------------------ other decision kinds
 

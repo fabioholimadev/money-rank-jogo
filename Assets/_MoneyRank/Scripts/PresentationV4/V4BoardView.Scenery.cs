@@ -323,7 +323,7 @@ namespace MoneyRank.V4.Presentation
             dial.transform.localRotation = Quaternion.Euler(90f, 0f, 0f);
             Prim(PrimitiveType.Cube, "Handle", coffer, new Vector3(-0.25f, 0.38f, 0.61f), new Vector3(0.32f, 0.07f, 0.05f), Lit(Gold, 0.95f));
             Prim(PrimitiveType.Cube, "Screen", coffer, new Vector3(-0.1f, 0.8f, 0.595f), new Vector3(0.7f, 0.22f, 0.02f), Lit(new Color(0.02f, 0.12f, 0.08f), 0.2f));
-            _cofferText = AddLabel(coffer, "COFRE 0 UMR", new Vector3(-0.1f, 0.8f, 0.61f), 0.018f, new Color(0.35f, 1f, 0.55f), TextAnchor.MiddleCenter, 0f);
+            _cofferText = AddLabel(coffer, MoneyRank.Domain.V4.CofferProtocol.IdleText, new Vector3(-0.1f, 0.8f, 0.61f), 0.018f, new Color(0.35f, 1f, 0.55f), TextAnchor.MiddleCenter, 0f);
             _cofferText.transform.localRotation = Quaternion.Euler(0f, 180f, 0f);
             Caption(props, "COFRE PÚBLICO", c27, 1);
         }

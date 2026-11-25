@@ -188,7 +188,7 @@ namespace MoneyRank.Domain.V4
                     var p = Player(State.TurnOrder[State.CloseCursor]);
                     if (p.Eliminated) continue;
                     Receive(p, p.Salary, "salario", "ano" + State.YearIndex);
-                    Note(p.Name + " recebeu salário de " + p.Salary + " UMR.");
+                    Note(p.Name + " recebeu salário de " + p.Salary + " CRIA Coin.");
                 }
                 State.CloseStep = "tax";
                 State.CloseCursor = 0;
@@ -227,7 +227,7 @@ namespace MoneyRank.Domain.V4
                 {
                     Receive(p, rc.TotalReturn, "retorno_parceria", rc.Id);
                     rc.Paid = true;
-                    Note(p.Name + " recebeu retorno de parceria de " + rc.TotalReturn + " UMR.");
+                    Note(p.Name + " recebeu retorno de parceria de " + rc.TotalReturn + " CRIA Coin.");
                 }
                 if (p.ReserveBalance > 0)
                 {
@@ -235,7 +235,7 @@ namespace MoneyRank.Domain.V4
                     var room = Math.Max(0, p.Salary - p.ReserveBalance);
                     var interest = Math.Min(raw, room);
                     p.ReserveBalance += interest;
-                    if (interest > 0) Note(p.Name + " recebeu " + interest + " UMR de rendimento na reserva (passivo do banco).");
+                    if (interest > 0) Note(p.Name + " recebeu " + interest + " CRIA Coin de rendimento na reserva (passivo do banco).");
                 }
             }
             foreach (var p in State.Players) p.AbilityUsedThisYear = false;

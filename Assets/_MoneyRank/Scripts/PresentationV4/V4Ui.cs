@@ -106,7 +106,7 @@ namespace MoneyRank.V4.Presentation
             for (var i = t.childCount - 1; i >= 0; i--) Object.Destroy(t.GetChild(i).gameObject);
         }
 
-        public static string Money(int v) => v.ToString("N0", System.Globalization.CultureInfo.GetCultureInfo("pt-BR")) + " UMR";
+        public static string Money(int v) => v.ToString("N0", System.Globalization.CultureInfo.GetCultureInfo("pt-BR")) + " CRIA Coin";
         public static string Dec(decimal v) => v.ToString("0.00", System.Globalization.CultureInfo.GetCultureInfo("pt-BR"));
     }
 }
