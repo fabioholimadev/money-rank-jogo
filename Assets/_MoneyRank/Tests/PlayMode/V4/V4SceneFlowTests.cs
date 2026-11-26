@@ -12,7 +12,7 @@ using UnityEngine.UI;
 namespace MoneyRank.Tests.PlayMode.V4
 {
     /// <summary>
-    /// Modal and panel flows of the real V4 scene (hospital, athlete ability, fiscal panel, undo, end screen).
+    /// Modal and panel flows of the real V4 scene (hospital, abilities, annual close, liquidity pause, fiscal panel, undo, end screen).
     /// The state is prepared directly; every decision is then taken through the scene's own buttons.
     /// </summary>
     public sealed class V4SceneFlowTests
@@ -169,6 +169,134 @@ namespace MoneyRank.Tests.PlayMode.V4
             Assert.That(Sees("Histórico de eventos"), Is.True);
             Assert.That(Sees("(desfeito)"), Is.True);
             Assert.That(_boot.Session.Engine.TotalCash(), Is.EqualTo(28260));
+        }
+
+        [UnityTest]
+        public IEnumerator AnnualClosePaysSalaryAsksEachPlayerForIncomeTaxAndOpensTheNextYear()
+        {
+            var s = _boot.Session.S;
+            s.CompletedRounds = _boot.Session.Engine.Rules.RoundsPerYear - 1;
+            s.CurrentIndex = 1;                                         // last player of the year's last round
+            var wallet = s.Players[0].Wallet;
+            var salary = s.Players[0].Salary;
+            yield return LandOn("H04");
+            yield return SelectAndConfirm("H04_O02");
+
+            Assert.That(s.Pending.HouseId, Is.EqualTo("SYS_IR"));
+            Assert.That(s.Pending.PlayerId, Is.EqualTo("p1"));
+            Assert.That(Sees("Imposto de renda anual"), Is.True);
+            Assert.That(Sees("Tributo devido:"), Is.True);
+            Assert.That(s.Players[0].Wallet, Is.EqualTo(wallet + salary), "salary is paid before the tax is asked");
+            var tax = s.Pending.Amount;
+            yield return SelectAndConfirm("IR:pay");
+            Assert.That(s.Players[0].Wallet, Is.EqualTo(wallet + salary - tax));
+            Assert.That(s.FundCash, Is.EqualTo(tax));
+
+            Assert.That(s.Pending.PlayerId, Is.EqualTo("p2"), "the second player decides next");
+            Assert.That(Buttons("CONFIRMAR").Single().interactable, Is.False, "the previous selection does not leak into this decision");
+            yield return SelectAndConfirm("IR:pay");
+
+            Assert.That(s.Pending, Is.Null);
+            Assert.That(s.YearIndex, Is.EqualTo(2));
+            Assert.That(s.Phase, Is.EqualTo(V4Phase.AwaitRoll));
+            Assert.That(Sees("Ano 2"), Is.True);
+            Assert.That(_boot.Session.Engine.TotalCash(), Is.EqualTo(28260));
+        }
+
+        [UnityTest]
+        public IEnumerator EntrepreneurSwapsAnUnfavourableSelectionOnceThroughTheModal()
+        {
+            var s = _boot.Session.S;
+            var me = s.Players[0];
+            me.ProfessionId = V4Engine.AbilityEmpreendedora;
+            yield return LandOn("H09");
+            var wallet = me.Wallet;
+            var options = s.Pending.OptionIds.ToList();
+
+            Assert.That(Click("Selecionar", options.IndexOf("H09_O03") + 1), Is.True);
+            yield return Frames();
+            Assert.That(Click("Visão de Negócios: trocar opção"), Is.True);
+            yield return Frames();
+            Assert.That(Buttons("CONFIRMAR").Single().interactable, Is.False, "confirm is locked while choosing the substitute");
+            Assert.That(Click("Cancelar troca"), Is.True);
+            yield return Frames();
+            Assert.That(me.AbilityUsedThisYear, Is.False);
+            Assert.That(Click("Visão de Negócios: trocar opção"), Is.True);
+            yield return Frames();
+
+            var substitutes = options.Where(o => o != "H09_O03").ToList();
+            Assert.That(Click("Trocar por esta", substitutes.IndexOf("H09_O02") + 1), Is.True);
+            yield return Frames();
+
+            Assert.That(s.Pending, Is.Null);
+            Assert.That(me.AbilityUsedThisYear, Is.True);
+            Assert.That(me.Wallet, Is.LessThan(wallet), "the substitute (partial payment) is what gets applied");
+            Assert.That(s.History.Any(h => h.Kind == "ability" && h.OptionId == "H09_O02"), Is.True);
+            Assert.That(Sees("PRÉVIA"), Is.False, "the modal is closed");
+            Assert.That(_boot.Session.Engine.TotalCash(), Is.EqualTo(28260));
+        }
+
+        [UnityTest]
+        public IEnumerator DriverPauseSkipsTheRollRelievesCortisolAndPassesTheTurn()
+        {
+            var s = _boot.Session.S;
+            var me = s.Players[0];
+            me.ProfessionId = V4Engine.AbilityMotorista;
+            me.Attributes[(int)AttributeId.Cortisol].Progress = 2.5m;
+            Assert.That(Click("Fiscal"), Is.True);                      // any click redraws the control bar for the new profession
+            yield return Frames();
+            Assert.That(Click("Fechar"), Is.True);
+            yield return Frames();
+            var wallet = me.Wallet;
+            var position = me.Position;
+
+            Assert.That(Click("Pausa: −2 Cortisol"), Is.True);
+            yield return Frames();
+
+            Assert.That(me.AbilityUsedThisYear, Is.True);
+            Assert.That(me.Attributes[(int)AttributeId.Cortisol].Progress, Is.LessThan(2.5m));
+            Assert.That(me.Position, Is.EqualTo(position), "no house is triggered");
+            Assert.That(me.Wallet, Is.EqualTo(wallet));
+            Assert.That(s.Pending, Is.Null);
+            Assert.That(s.CurrentIndex, Is.EqualTo(1), "the turn passes");
+            Assert.That(Buttons("Pausa: −2 Cortisol"), Is.Empty);
+        }
+
+        [UnityTest]
+        public IEnumerator LiquidityPauseAppliesNothingAndResumesAfterTheMasterFixesTheBank()
+        {
+            var session = _boot.Session;
+            var me = session.S.Players[0];
+            yield return LandOn("H13");
+            var bank = session.S.BankCash;
+            session.S.FundCash += bank;                                 // total cash is preserved, the bank just has no change
+            session.S.BankCash = 0;
+            var wallet = me.Wallet;
+            yield return SelectAndConfirm("H13_O02");                   // the bank has to hand out 50
+
+            var s = session.S;                                          // the engine rolls back to a copy of the state
+            Assert.That(s.LiquidityBlocked, Is.True);
+            Assert.That(s.Players[0].Wallet, Is.EqualTo(wallet), "nothing was applied");
+            Assert.That(s.Pending, Is.Not.Null, "the decision stays open");
+            Assert.That(Sees("Banco sem caixa/troco"), Is.True, "the reason is shown to the master");
+            Assert.That(Click("Voltar ao tabuleiro"), Is.True);
+            yield return Frames();
+
+            s.BankCash = bank;                                          // the master tops the bank up physically
+            s.FundCash -= bank;
+            Assert.That(Click("PAUSADO: falta de troco/caixa — ajustei fisicamente"), Is.True);
+            yield return Frames();
+            Assert.That(session.S.LiquidityBlocked, Is.False);
+            Assert.That(Sees("Pausa liberada."), Is.True);
+
+            Assert.That(Click("Abrir decisão"), Is.True);
+            yield return Frames();
+            Assert.That(Buttons("Selecionada").Length, Is.EqualTo(1), "the earlier selection is still there");
+            Assert.That(Click("CONFIRMAR"), Is.True);
+            yield return Frames();
+            Assert.That(session.S.Pending, Is.Null);
+            Assert.That(session.S.Players[0].Wallet, Is.EqualTo(wallet + 50));
+            Assert.That(session.Engine.TotalCash(), Is.EqualTo(28260));
         }
 
         [UnityTest]
