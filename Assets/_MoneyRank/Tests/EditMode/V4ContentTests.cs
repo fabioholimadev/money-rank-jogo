@@ -1,4 +1,4 @@
-using System.IO;
+﻿using System.IO;
 using System.Linq;
 using MoneyRank.Domain.V4;
 using NUnit.Framework;
@@ -58,18 +58,26 @@ namespace MoneyRank.Tests.EditMode
             Assert.That(c.SystemEvents.Count, Is.EqualTo(9));
             Assert.That(c.Routes.Count, Is.EqualTo(228));
             Assert.That(c.Professions.Select(p => p.Salary), Is.EquivalentTo(new[] { 250, 700, 500, 300, 350, 400 }));
-            Assert.That(c.Rules.RulesVersion, Is.EqualTo("4.1-pretest"));
+            Assert.That(c.Rules.RulesVersion, Is.EqualTo("4.2-pretest"));
         }
 
         [Test]
-        public void MultipliersAreReadWithExactDecimals()
+        public void MultipliersAreWholeNumbersAfterThePlaytest()
         {
+            // Playtest 27/11/2026: integer multipliers so attribute points are never fractional (0.75/1.25 -> 1, 1.5/1.75 -> 2).
             var economist = V4TestContent.Content.Professions.First(p => p.Name == "Economista");
-            Assert.That(economist.Multipliers[(int)AttributeId.Investimento], Is.EqualTo(1.5m));
-            Assert.That(economist.Multipliers[(int)AttributeId.Dividas], Is.EqualTo(0.75m));
+            Assert.That(economist.Multipliers[(int)AttributeId.Investimento], Is.EqualTo(2m));
+            Assert.That(economist.Multipliers[(int)AttributeId.Dividas], Is.EqualTo(1m));
             var hard = V4TestContent.Content.Difficulty("B1_dificil");
-            Assert.That(hard.PositiveMultiplier, Is.EqualTo(0.75m));
-            Assert.That(hard.NegativeMultiplier, Is.EqualTo(1.5m));
+            Assert.That(hard.PositiveMultiplier, Is.EqualTo(1m));
+            Assert.That(hard.NegativeMultiplier, Is.EqualTo(2m));
+            foreach (var p in V4TestContent.Content.Professions)
+                foreach (var m in p.Multipliers) Assert.That(m, Is.EqualTo(decimal.Truncate(m)), p.Name + " has a fractional multiplier");
+            foreach (var d in V4TestContent.Content.Difficulties)
+            {
+                Assert.That(d.PositiveMultiplier, Is.EqualTo(decimal.Truncate(d.PositiveMultiplier)), d.Id);
+                Assert.That(d.NegativeMultiplier, Is.EqualTo(decimal.Truncate(d.NegativeMultiplier)), d.Id);
+            }
             Assert.That(hard.EliminateWithoutResources, Is.True);
         }
 

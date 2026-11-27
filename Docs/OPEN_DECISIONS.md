@@ -106,6 +106,18 @@ de virar regra rígida sem aprovação.
 - **Prazo do veículo:** `rodadasCompletas + 9 + 1` na compra e `+3` na manutenção (ver INV05/INV06).
 - **Undo local:** pilha em memória (não sobrevive a recarregar o aplicativo); proibido no modo online.
 
+- **Playtest de 27/11/2026 (regras `4.2-pretest`, decisões do usuário; análise em `Docs/V4/05_validacao/playtest_2026-11-27.md`).**
+  Multiplicadores inteiros; 3 casas por barra positiva (máximo 6 com carro ou habilidade, sem acumular); hospital com opção
+  "ficar sem pagar" (recuperação emergencial, exceto no Difícil); Fôlego Extra da Atleta automático, sem acumular e sem
+  recusa; entrada de jogador só no início de um ano e saída com encerramento de conta; Cofre público na posição 19 e
+  Direto para o hospital na 28 (IDs H28/H19 mantidos).
+- **DECISION_REQUIRED — Fôlego Extra automático.** Ao torná-lo automático, a alternativa "reduzir 1 ponto-base negativo"
+  deixou de existir (fica só "avança o dobro"). Para voltar à escolha manual: `athlete_ability_automatic = false`.
+- **DECISION_REQUIRED — arredondamento dos multiplicadores.** Mapeamento aplicado: 0,75 e 1,25 → 1; 1,5 e 1,75 → 2;
+  0,5 e 0,25 → 1; 2,5 → 3. Com isso, Fácil negativo ficou igual ao Médio (1) e algumas profissões perderam a diferença
+  em atributos (ex.: Professora Cidadania 1,25 → 1). Confirmar após a próxima bateria.
+- **DECISION_REQUIRED — ritmo com 3 casas por barra.** Ainda não medido em partida física; repetir a contagem
+  (casas do peão por rodada) no próximo playtest.
 - **DECISION_REQUIRED — contagem das jogadas extras por dados iguais.** Implementado: dados iguais dão até **3 jogadas extras** por turno (no máximo 4 lançamentos); depois, mesmo com novo par, a vez passa. Se a intenção for "3 lançamentos no total", alterar `doubles_extra_rolls_max` para 2 em `parametros.json`. Sem jogada extra após internação/eliminação.
 
 - **DECISION_REQUIRED — símbolo mostrado no LCD do cofre ("R$" x "CRIA").** A moeda do jogo agora se chama **CRIA Coin** (tela, regras e documentos).

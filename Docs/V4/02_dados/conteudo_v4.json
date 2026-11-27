@@ -253,18 +253,18 @@
       "referencia_visual": "faixa original / foto física"
     },
     {
-      "id": "H19",
+      "id": "H28",
       "posicao": 19,
       "indice_unity": 18,
       "setor": "extremidade",
-      "titulo": "Direto para o hospital",
+      "titulo": "Cofre público",
       "categoria": "especial",
       "cor": "#126B79",
-      "handler": "internar",
-      "icone": "03_visual/icones/H19.png",
-      "texto": "Envia ao hospital imediatamente e abre escolha de tratamento.",
-      "status": "consolidado",
-      "referencia_visual": "faixa original; substituição visual"
+      "handler": "consulta_cofre",
+      "icone": "03_visual/icones/H28.png",
+      "texto": "Mostra saldo e finalidade exclusiva: tratamento público; contribuição voluntária proposta.",
+      "status": "complemento",
+      "referencia_visual": "faixa original / foto física"
     },
     {
       "id": "H20",
@@ -379,18 +379,18 @@
       "referencia_visual": "faixa original / foto física"
     },
     {
-      "id": "H28",
+      "id": "H19",
       "posicao": 28,
       "indice_unity": 27,
       "setor": "extremidade",
-      "titulo": "Cofre público",
+      "titulo": "Direto para o hospital",
       "categoria": "especial",
       "cor": "#126B79",
-      "handler": "consulta_cofre",
-      "icone": "03_visual/icones/H28.png",
-      "texto": "Mostra saldo e finalidade exclusiva: tratamento público; contribuição voluntária proposta.",
-      "status": "complemento",
-      "referencia_visual": "faixa original / foto física"
+      "handler": "internar",
+      "icone": "03_visual/icones/H19.png",
+      "texto": "Envia ao hospital imediatamente e abre escolha de tratamento.",
+      "status": "consolidado",
+      "referencia_visual": "faixa original; substituição visual"
     },
     {
       "id": "H29",
@@ -2927,14 +2927,14 @@
       "id": "P01",
       "profissao": "Professora",
       "salario_inicial": 250,
-      "mult_conhecimento": 1.5,
+      "mult_conhecimento": 2,
       "mult_investimento": 1,
-      "mult_cidadania": 1.25,
+      "mult_cidadania": 1,
       "mult_toxina": 1,
       "mult_cortisol": 1,
-      "mult_dividas": 1.5,
+      "mult_dividas": 2,
       "habilidade": "Domínio do Conhecimento",
-      "descricao_habilidade": "Primeira barra de Conhecimento concluída a cada ano: avanço de duas casas em vez de uma.",
+      "descricao_habilidade": "Primeira barra de Conhecimento concluída a cada ano: avança o dobro de casas (automático).",
       "frequencia": "anual",
       "status": "recuperado_conversa"
     },
@@ -2942,11 +2942,11 @@
       "id": "P02",
       "profissao": "Médica",
       "salario_inicial": 700,
-      "mult_conhecimento": 1.25,
+      "mult_conhecimento": 1,
       "mult_investimento": 1,
       "mult_cidadania": 1,
-      "mult_toxina": 0.75,
-      "mult_cortisol": 1.5,
+      "mult_toxina": 1,
+      "mult_cortisol": 2,
       "mult_dividas": 1,
       "habilidade": "Atendimento Especializado",
       "descricao_habilidade": "Uma vez por ano, tratamento particular pela metade (125 CRIA Coin); reduz um turno, mínimo um.",
@@ -2958,13 +2958,13 @@
       "profissao": "Economista",
       "salario_inicial": 500,
       "mult_conhecimento": 1,
-      "mult_investimento": 1.5,
+      "mult_investimento": 2,
       "mult_cidadania": 1,
       "mult_toxina": 1,
-      "mult_cortisol": 1.25,
-      "mult_dividas": 0.75,
+      "mult_cortisol": 1,
+      "mult_dividas": 1,
       "habilidade": "Planejamento Estratégico",
-      "descricao_habilidade": "Primeira barra de Investimento concluída a cada ano: avanço de duas casas em vez de uma.",
+      "descricao_habilidade": "Primeira barra de Investimento concluída a cada ano: avança o dobro de casas (automático).",
       "frequencia": "anual",
       "status": "proposta_recuperada"
     },
@@ -2973,13 +2973,13 @@
       "profissao": "Atleta",
       "salario_inicial": 300,
       "mult_conhecimento": 1,
-      "mult_investimento": 0.75,
+      "mult_investimento": 1,
       "mult_cidadania": 1,
-      "mult_toxina": 0.75,
-      "mult_cortisol": 0.75,
-      "mult_dividas": 1.5,
+      "mult_toxina": 1,
+      "mult_cortisol": 1,
+      "mult_dividas": 2,
       "habilidade": "Fôlego Extra",
-      "descricao_habilidade": "Uma vez por ano, ao completar barra positiva: avançar duas casas em vez de uma ou reduzir um ponto-base negativo.",
+      "descricao_habilidade": "Automático, uma vez por ano: na primeira barra positiva concluída no ano, avança o dobro de casas. Não acumula entre anos e não pode ser recusado; o sistema avisa quando é aplicado.",
       "frequencia": "anual",
       "status": "aprovado"
     },
@@ -2988,10 +2988,10 @@
       "profissao": "Empreendedora",
       "salario_inicial": 350,
       "mult_conhecimento": 1,
-      "mult_investimento": 1.5,
-      "mult_cidadania": 1.25,
+      "mult_investimento": 2,
+      "mult_cidadania": 1,
       "mult_toxina": 1,
-      "mult_cortisol": 1.75,
+      "mult_cortisol": 2,
       "mult_dividas": 1,
       "habilidade": "Visão de Negócios",
       "descricao_habilidade": "Uma vez por ano, recusar evento financeiro desfavorável elegível e receber outro da mesma categoria; não vale impostos ou penalidades já adquiridas. Ver adaptação para cartas fixas no handoff.",
@@ -3003,11 +3003,11 @@
       "profissao": "Motorista",
       "salario_inicial": 400,
       "mult_conhecimento": 1,
-      "mult_investimento": 1.25,
+      "mult_investimento": 1,
       "mult_cidadania": 1,
-      "mult_toxina": 1.5,
-      "mult_cortisol": 0.75,
-      "mult_dividas": 1.25,
+      "mult_toxina": 2,
+      "mult_cortisol": 1,
+      "mult_dividas": 1,
       "habilidade": "Flexibilidade de Jornada",
       "descricao_habilidade": "Uma vez por ano, substituir jogada normal por pausa: reduzir dois pontos-base de Cortisol ou Toxina; salário preservado.",
       "frequencia": "anual",
@@ -3430,7 +3430,7 @@
       "bateria": 1,
       "dificuldade": "facil",
       "mult_positivos": 2,
-      "mult_negativos": 0.5,
+      "mult_negativos": 1,
       "ir_pct": 10,
       "hospital_publico_custo": 150,
       "hospital_publico_turnos": 2,
@@ -3439,7 +3439,7 @@
       "emergencia_turnos": 3,
       "emergencia_dividas_base": 0,
       "eliminar_sem_recursos": false,
-      "status": "mult_e_ir_aprovados; hospital_numeros_preteste"
+      "status": "mult_e_ir_aprovados; hospital_numeros_preteste; multiplicadores_inteiros_playtest_2026-11-27"
     },
     {
       "id": "B1_medio",
@@ -3455,14 +3455,14 @@
       "emergencia_turnos": 4,
       "emergencia_dividas_base": 2,
       "eliminar_sem_recursos": false,
-      "status": "mult_e_ir_aprovados; hospital_numeros_preteste"
+      "status": "mult_e_ir_aprovados; hospital_numeros_preteste; multiplicadores_inteiros_playtest_2026-11-27"
     },
     {
       "id": "B1_dificil",
       "bateria": 1,
       "dificuldade": "dificil",
-      "mult_positivos": 0.75,
-      "mult_negativos": 1.5,
+      "mult_positivos": 1,
+      "mult_negativos": 2,
       "ir_pct": 25,
       "hospital_publico_custo": 150,
       "hospital_publico_turnos": 2,
@@ -3471,14 +3471,14 @@
       "emergencia_turnos": 0,
       "emergencia_dividas_base": 0,
       "eliminar_sem_recursos": true,
-      "status": "mult_e_ir_aprovados; hospital_numeros_preteste"
+      "status": "mult_e_ir_aprovados; hospital_numeros_preteste; multiplicadores_inteiros_playtest_2026-11-27"
     },
     {
       "id": "B2_facil",
       "bateria": 2,
       "dificuldade": "facil",
-      "mult_positivos": 2.5,
-      "mult_negativos": 0.25,
+      "mult_positivos": 3,
+      "mult_negativos": 1,
       "ir_pct": 10,
       "hospital_publico_custo": 150,
       "hospital_publico_turnos": 2,
@@ -3487,7 +3487,7 @@
       "emergencia_turnos": 3,
       "emergencia_dividas_base": 0,
       "eliminar_sem_recursos": false,
-      "status": "mult_e_ir_aprovados; hospital_numeros_preteste"
+      "status": "mult_e_ir_aprovados; hospital_numeros_preteste; multiplicadores_inteiros_playtest_2026-11-27"
     },
     {
       "id": "B2_medio",
@@ -3503,14 +3503,14 @@
       "emergencia_turnos": 4,
       "emergencia_dividas_base": 2,
       "eliminar_sem_recursos": false,
-      "status": "mult_e_ir_aprovados; hospital_numeros_preteste"
+      "status": "mult_e_ir_aprovados; hospital_numeros_preteste; multiplicadores_inteiros_playtest_2026-11-27"
     },
     {
       "id": "B2_dificil",
       "bateria": 2,
       "dificuldade": "dificil",
-      "mult_positivos": 0.75,
-      "mult_negativos": 1.5,
+      "mult_positivos": 1,
+      "mult_negativos": 2,
       "ir_pct": 25,
       "hospital_publico_custo": 150,
       "hospital_publico_turnos": 2,
@@ -3519,7 +3519,7 @@
       "emergencia_turnos": 0,
       "emergencia_dividas_base": 0,
       "eliminar_sem_recursos": true,
-      "status": "mult_e_ir_aprovados; hospital_numeros_preteste"
+      "status": "mult_e_ir_aprovados; hospital_numeros_preteste; multiplicadores_inteiros_playtest_2026-11-27"
     }
   ],
   "moedas": [
@@ -5967,7 +5967,7 @@
     }
   ],
   "parametros": {
-    "rules_version": "4.0-pretest",
+    "rules_version": "4.2-pretest",
     "currency": "CRIA Coin",
     "starting_wallet": 500,
     "starting_public_fund": 0,
@@ -5977,11 +5977,13 @@
     "solo_demo": true,
     "rounds_per_year": 3,
     "die_faces": 6,
+    "dice_count": 2,
+    "doubles_extra_rolls_max": 3,
     "attribute_threshold": 3,
     "health_cycles_to_hospital": 3,
     "minimum_attribute": 0,
     "multiply_reductions": false,
-    "positive_cycle_steps": 1,
+    "positive_cycle_steps": 3,
     "negative_cycle_steps": 1,
     "carry_gain_fraction": true,
     "carry_steps_to_next_pawn": false,
@@ -5990,7 +5992,7 @@
     "vehicle_maintenance_cost": 150,
     "vehicle_maintenance_extension_rounds": 3,
     "vehicle_advance_multiplier": 2,
-    "max_steps_per_positive_cycle": 2,
+    "max_steps_per_positive_cycle": 6,
     "property_cost": 500,
     "property_tax": 50,
     "vehicle_tax": 40,
@@ -6016,6 +6018,9 @@
     "fiscal_visibility_local": "master_only",
     "fiscal_visibility_online": "public",
     "note": "Defaults complementares configuráveis: ver seção 15 V4; valores de pré-teste, não validados.",
-    "pawn_count": 4
+    "pawn_count": 4,
+    "hospital_stay_without_paying_option": true,
+    "athlete_ability_automatic": true,
+    "join_only_at_year_start": true
   }
 }

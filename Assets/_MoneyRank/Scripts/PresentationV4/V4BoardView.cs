@@ -379,16 +379,19 @@ namespace MoneyRank.V4.Presentation
 
         private void BuildTokens(V4State state)
         {
-            for (var i = 0; i < state.Players.Count; i++)
-            {
-                var p = state.Players[i];
-                _capys[p.Id] = BuildCapybara(p, i).GetComponent<V4Token>();
-                var pawns = new V4Token[p.Pawns.Length];
-                for (var k = 0; k < pawns.Length; k++)
-                    pawns[k] = BuildChessPawn(p.Color, "Peao " + p.Name + " " + (k + 1)).GetComponent<V4Token>();
-                _pawns[p.Id] = pawns;
-                _lastPos[p.Id] = p.Position;
-            }
+            for (var i = 0; i < state.Players.Count; i++) EnsureTokens(state.Players[i], i);
+        }
+
+        /// <summary>Capybara and pawns of a player; also used for players who join mid-match.</summary>
+        private void EnsureTokens(PlayerState p, int index)
+        {
+            if (_capys.ContainsKey(p.Id)) return;
+            _capys[p.Id] = BuildCapybara(p, index).GetComponent<V4Token>();
+            var pawns = new V4Token[p.Pawns.Length];
+            for (var k = 0; k < pawns.Length; k++)
+                pawns[k] = BuildChessPawn(p.Color, "Peao " + p.Name + " " + (k + 1)).GetComponent<V4Token>();
+            _pawns[p.Id] = pawns;
+            _lastPos[p.Id] = p.Position;
         }
 
         private void BuildHighlight()
@@ -417,6 +420,7 @@ namespace MoneyRank.V4.Presentation
             for (var i = 0; i < s.Players.Count; i++)
             {
                 var p = s.Players[i];
+                EnsureTokens(p, i);
                 var token = _capys[p.Id];
                 token.gameObject.SetActive(!p.Eliminated);
                 var target = TokenSpot(p.Position, i, s.Players.Count);

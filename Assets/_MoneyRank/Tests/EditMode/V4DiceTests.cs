@@ -1,4 +1,4 @@
-using System.Linq;
+﻿using System.Linq;
 using MoneyRank.Domain.V4;
 using NUnit.Framework;
 
@@ -78,7 +78,7 @@ namespace MoneyRank.Tests.EditMode
         public void DICE05_NoExtraRollWhenTheTurnEndsInHospital()
         {
             var g = NewGame();
-            g.Cur.Position = 16;                       // 16 + 1 + 1 = 18 -> H19 direct to hospital
+            g.Cur.Position = 25;                       // 25 + 1 + 1 = 27 -> H19 direct to hospital (position 28 since the playtest)
             Assert.That(g.Roll(1, 1).Ok, Is.True);
             Assert.That(g.S.Pending.Kind, Is.EqualTo(DecisionKind.HospitalModality));
             Assert.That(g.Hospital("private").Ok, Is.True);

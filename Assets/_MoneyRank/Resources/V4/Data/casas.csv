@@ -17,7 +17,7 @@ H15,15,14,2,Moradia,essencial,#FFAA13,escolha,03_visual/icones/H15.png,Apresenta
 H16,16,15,2,Marco de carreira,progressao,#2CB1F3,progressao,03_visual/icones/H16.png,Exibe próxima carta exclusiva da profissão; 4 etapas; recusa preserva oferta.,consolidado,faixa original / foto física
 H17,17,16,2,Assinaturas e aplicativos,nao_essencial,#FF3038,escolha,03_visual/icones/H17.png,Apresenta alternativas fixas; aplica exatamente uma; recusa conforme categoria.,consolidado,faixa original / foto física
 H18,18,17,2,Trabalho extra,oportunidade,#9849FF,escolha,03_visual/icones/H18.png,Apresenta alternativas fixas; aplica exatamente uma; recusa conforme categoria.,consolidado,faixa original / foto física
-H19,19,18,extremidade,Direto para o hospital,especial,#126B79,internar,03_visual/icones/H19.png,Envia ao hospital imediatamente e abre escolha de tratamento.,consolidado,faixa original; substituição visual
+H28,19,18,extremidade,Cofre público,especial,#126B79,consulta_cofre,03_visual/icones/H28.png,Mostra saldo e finalidade exclusiva: tratamento público; contribuição voluntária proposta.,complemento,faixa original / foto física
 H20,20,19,3,Imóvel,investimento,#39934B,imovel,03_visual/icones/H20.png,Compra opcional repetível; cada imóvel concede checkpoint.,consolidado,faixa original / foto física
 H21,21,20,3,Energia e água,essencial,#FFAA13,escolha,03_visual/icones/H21.png,Apresenta alternativas fixas; aplica exatamente uma; recusa conforme categoria.,consolidado,faixa original / foto física
 H22,22,21,3,Parceria,oportunidade,#9849FF,escolha,03_visual/icones/H22.png,Apresenta alternativas fixas; aplica exatamente uma; recusa conforme categoria.,consolidado,faixa original / foto física
@@ -26,7 +26,7 @@ H24,24,23,3,Projeto pessoal,progressao,#2CB1F3,progressao,03_visual/icones/H24.p
 H25,25,24,3,ISS,imposto,#FFDD12,imposto,03_visual/icones/H25.png,"Calcula tributo devido, verifica pendências anteriores e oferece pagar/sonegar; sem tributo se isento.",consolidado,faixa original; substituição visual
 H26,26,25,3,Cultura,lazer,#28CD43,escolha,03_visual/icones/H26.png,Apresenta alternativas fixas; aplica exatamente uma; recusa conforme categoria.,consolidado,faixa original / foto física
 H27,27,26,3,Conta atrasada,divida,#CF294D,escolha,03_visual/icones/H27.png,Apresenta alternativas fixas; aplica exatamente uma; recusa conforme categoria.,consolidado,faixa original / foto física
-H28,28,27,extremidade,Cofre público,especial,#126B79,consulta_cofre,03_visual/icones/H28.png,Mostra saldo e finalidade exclusiva: tratamento público; contribuição voluntária proposta.,complemento,faixa original / foto física
+H19,28,27,extremidade,Direto para o hospital,especial,#126B79,internar,03_visual/icones/H19.png,Envia ao hospital imediatamente e abre escolha de tratamento.,consolidado,faixa original; substituição visual
 H29,29,28,4,Contribuição comunitária,progressao,#2CB1F3,progressao,03_visual/icones/H29.png,Exibe próxima carta exclusiva da profissão; 4 etapas; recusa preserva oferta.,consolidado,faixa original / foto física
 H30,30,29,4,Renegociação,divida,#CF294D,renegociacao,03_visual/icones/H30.png,"Se barra atual de Dívidas = 0, encerra sem efeito; caso contrário, oferece opções.",consolidado,faixa original / foto física
 H31,31,30,4,Férias,lazer,#28CD43,escolha,03_visual/icones/H31.png,Apresenta alternativas fixas; aplica exatamente uma; recusa conforme categoria.,consolidado,faixa original / foto física

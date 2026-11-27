@@ -1,5 +1,5 @@
 {
-  "rules_version": "4.1-pretest",
+  "rules_version": "4.2-pretest",
   "currency": "CRIA Coin",
   "starting_wallet": 500,
   "starting_public_fund": 0,
@@ -15,7 +15,7 @@
   "health_cycles_to_hospital": 3,
   "minimum_attribute": 0,
   "multiply_reductions": false,
-  "positive_cycle_steps": 1,
+  "positive_cycle_steps": 3,
   "negative_cycle_steps": 1,
   "carry_gain_fraction": true,
   "carry_steps_to_next_pawn": false,
@@ -24,7 +24,7 @@
   "vehicle_maintenance_cost": 150,
   "vehicle_maintenance_extension_rounds": 3,
   "vehicle_advance_multiplier": 2,
-  "max_steps_per_positive_cycle": 2,
+  "max_steps_per_positive_cycle": 6,
   "property_cost": 500,
   "property_tax": 50,
   "vehicle_tax": 40,
@@ -50,5 +50,8 @@
   "fiscal_visibility_local": "master_only",
   "fiscal_visibility_online": "public",
   "note": "Defaults complementares configuráveis: ver seção 15 V4; valores de pré-teste, não validados.",
-  "pawn_count": 4
+  "pawn_count": 4,
+  "hospital_stay_without_paying_option": true,
+  "athlete_ability_automatic": true,
+  "join_only_at_year_start": true
 }

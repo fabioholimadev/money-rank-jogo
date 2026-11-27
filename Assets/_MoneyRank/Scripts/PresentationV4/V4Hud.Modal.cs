@@ -84,7 +84,10 @@ namespace MoneyRank.V4.Presentation
             var total = n * w + (n - 1) * 16f;
             var x0 = (1560f - total) / 2f;
             var tax = !string.IsNullOrEmpty(d.Tag) && d.Tag.StartsWith("tax:", StringComparison.Ordinal);
-            if (tax) V4Ui.Label(win, "Tributo devido: " + V4Ui.Money(d.Amount) + (d.Tag == "tax:IR" ? " (sobre o salário bruto anual)" : string.Empty), 26, V4Ui.Gold, TextAnchor.MiddleLeft, UiAnchor.TL, 24, 114, 900, 40, FontStyle.Bold);
+            if (tax && d.Tag == "tax:IR")
+                V4Ui.Label(win, "Salário recebido agora: " + V4Ui.Money(player.Salary) + "   →   IR de " + _session.Engine.Difficulty.IncomeTaxPct + "% = " + V4Ui.Money(d.Amount) + "   ·   carteira atual " + V4Ui.Money(player.Wallet),
+                    24, V4Ui.Gold, TextAnchor.MiddleLeft, UiAnchor.TL, 24, 114, 1500, 40, FontStyle.Bold);
+            else if (tax) V4Ui.Label(win, "Tributo devido: " + V4Ui.Money(d.Amount), 26, V4Ui.Gold, TextAnchor.MiddleLeft, UiAnchor.TL, 24, 114, 900, 40, FontStyle.Bold);
             if (d.Mandatory && !tax) V4Ui.Label(win, "Despesa essencial: escolha uma das opções acessíveis.", 22, V4Ui.Gold, TextAnchor.MiddleLeft, UiAnchor.TL, 24, 114, 900, 40, FontStyle.Bold);
             if (d.Delegated) V4Ui.Label(win, "Investimento livre: apenas UMA operação por visita (ou recusar).", 22, V4Ui.Gold, TextAnchor.MiddleLeft, UiAnchor.TL, 24, 114, 900, 40, FontStyle.Bold);
             if (_swapMode) V4Ui.Label(win, "Visão de Negócios: escolha a opção substituta (seleção atual: " + _swapFrom + ").", 22, V4Ui.Good, TextAnchor.MiddleLeft, UiAnchor.TL, 24, 114, 1200, 40, FontStyle.Bold);
@@ -247,22 +250,29 @@ namespace MoneyRank.V4.Presentation
         {
             var diff = _session.Engine.Difficulty;
             V4Ui.Label(win, "Internação: escolha a modalidade de tratamento", 34, V4Ui.TextMain, TextAnchor.MiddleCenter, UiAnchor.TL, 0, 130, 1560, 56, FontStyle.Bold);
-            var opts = new[]
+            var opts = new System.Collections.Generic.List<(string, string, string)>
             {
-                ("public", "Tratamento público", "O cofre público paga " + V4Ui.Money(d.Amount) + " ao banco.\nO jogador perde " + diff.PublicHospitalTurns + " turnos.", true),
-                ("private", "Tratamento particular", "Paga " + V4Ui.Money(d.Amount2) + " (carteira; reserva pode ser resgatada).\nO jogador perde " + (player.ProfessionId == V4Engine.AbilityMedica && !player.AbilityUsedThisYear ? "1 turno (Atendimento Especializado: metade do custo, mínimo de 1 turno)" : diff.PrivateHospitalTurns + " turno") + ".", true)
+                ("public", "Tratamento público", "O cofre público paga " + V4Ui.Money(d.Amount) + " ao banco.\nO jogador perde " + diff.PublicHospitalTurns + " turnos."),
+                ("private", "Tratamento particular", "Paga " + V4Ui.Money(d.Amount2) + " (carteira; reserva pode ser resgatada).\nO jogador perde " + (player.ProfessionId == V4Engine.AbilityMedica && !player.AbilityUsedThisYear ? "1 turno (Atendimento Especializado: metade do custo, mínimo de 1 turno)" : diff.PrivateHospitalTurns + " turno") + ".")
             };
-            for (var i = 0; i < opts.Length; i++)
+            // "Não pagar e ficar no hospital" (playtest): the engine offers it unless staying without paying eliminates.
+            if (d.OptionIds.Contains("stay"))
+                opts.Add(("stay", "Ficar sem pagar", "Não paga nada e fica internado(a) por " + d.Amount3 + " turnos" + (diff.EmergencyDebtBase > 0 ? ".\nGanha +" + diff.EmergencyDebtBase + " pontos de Dívidas." : ".\nSem custo e sem Dívidas.")));
+            var n = opts.Count;
+            var cw = n == 3 ? 460f : 540f;
+            var gap = n == 3 ? 40f : 60f;
+            var x0 = (1560f - (n * cw + (n - 1) * gap)) / 2f;
+            for (var i = 0; i < n; i++)
             {
                 var id = opts[i].Item1;
                 var available = d.OptionIds.Contains(id);
-                var card = V4Ui.Rect(win, "Hosp " + id, UiAnchor.TL, 220 + i * 600, 220, 540, 480);
+                var card = V4Ui.Rect(win, "Hosp " + id, UiAnchor.TL, x0 + i * (cw + gap), 220, cw, 480);
                 V4Ui.Box(card, "Bg", available ? V4Ui.Paper : new Color(0.16f, 0.19f, 0.23f), UiAnchor.Stretch, 0, 0, 0, 0);
-                V4Ui.Box(card, "Top", available ? V4Ui.Teal : new Color(0.3f, 0.32f, 0.36f), UiAnchor.TL, 0, 0, 540, 56);
-                V4Ui.Label(card, opts[i].Item2, 28, Color.white, TextAnchor.MiddleLeft, UiAnchor.TL, 16, 0, 500, 56, FontStyle.Bold);
-                V4Ui.Label(card, opts[i].Item3, 22, available ? new Color(0.15f, 0.2f, 0.27f) : V4Ui.TextMuted, TextAnchor.UpperLeft, UiAnchor.TL, 16, 76, 508, 250);
-                if (!available) V4Ui.Label(card, "Indisponível agora (sem recursos suficientes).", 20, V4Ui.Bad, TextAnchor.MiddleLeft, UiAnchor.TL, 16, 330, 508, 60);
-                var btn = V4Ui.Btn(card, "Escolher", 30, V4Ui.Gold, V4Ui.Ink, UiAnchor.BL, 16, 16, 508, 70, () => Run(e => e.ChooseHospital(V4Session.NewCommandId(), d.Id, d.PlayerId, id)));
+                V4Ui.Box(card, "Top", available ? V4Ui.Teal : new Color(0.3f, 0.32f, 0.36f), UiAnchor.TL, 0, 0, cw, 56);
+                V4Ui.Label(card, opts[i].Item2, 28, Color.white, TextAnchor.MiddleLeft, UiAnchor.TL, 16, 0, cw - 40, 56, FontStyle.Bold);
+                V4Ui.Label(card, opts[i].Item3, 22, available ? new Color(0.15f, 0.2f, 0.27f) : V4Ui.TextMuted, TextAnchor.UpperLeft, UiAnchor.TL, 16, 76, cw - 32, 250);
+                if (!available) V4Ui.Label(card, "Indisponível agora (sem recursos suficientes).", 20, V4Ui.Bad, TextAnchor.MiddleLeft, UiAnchor.TL, 16, 330, cw - 32, 60);
+                var btn = V4Ui.Btn(card, "Escolher", 30, V4Ui.Gold, V4Ui.Ink, UiAnchor.BL, 16, 16, cw - 32, 70, () => Run(e => e.ChooseHospital(V4Session.NewCommandId(), d.Id, d.PlayerId, id)));
                 btn.interactable = available;
             }
         }
@@ -291,12 +301,15 @@ namespace MoneyRank.V4.Presentation
             V4Ui.Clear(_panelRoot);
             if (_panel == SidePanel.None || _session.S.Pending != null && !_modalDismissed) return;
             var s = _session.S;
-            var win = V4Ui.Rect(_panelRoot, "Win", UiAnchor.C, 0, 10, 1000, 820);
+            var wide = _panel == SidePanel.Rules || _panel == SidePanel.Players || _panel == SidePanel.YearSummary;
+            var winW = wide ? 1340f : 1000f;
+            var win = V4Ui.Rect(_panelRoot, "Win", UiAnchor.C, 0, 10, winW, 860);
             V4Ui.Box(win, "Bg", new Color(0.05f, 0.05f, 0.055f, 0.99f), UiAnchor.Stretch, 0, 0, 0, 0);
-            V4Ui.Box(win, "Band", V4Ui.Teal, UiAnchor.TL, 0, 0, 1000, 60);
-            V4Ui.Label(win, _panel == SidePanel.Fiscal ? "Painel fiscal (pendências)" : "Histórico de eventos", 30, Color.white, TextAnchor.MiddleLeft, UiAnchor.TL, 20, 0, 700, 60, FontStyle.Bold);
+            V4Ui.Box(win, "Band", V4Ui.Teal, UiAnchor.TL, 0, 0, winW, 60);
+            V4Ui.Label(win, PanelTitle(), 30, Color.white, TextAnchor.MiddleLeft, UiAnchor.TL, 20, 0, winW - 200, 60, FontStyle.Bold);
             V4Ui.Btn(win, "Fechar", 20, new Color(0f, 0f, 0f, 0.35f), V4Ui.TextMain, UiAnchor.TR, 14, 8, 120, 44, () => { _panel = SidePanel.None; Refresh(); });
             var y = 72f;
+            if (wide) { BuildExtraPanel(win, winW); return; }
             if (_panel == SidePanel.Fiscal)
             {
                 V4Ui.Label(win, _session.Engine.IsFiscalPublic ? "Online: situação fiscal visível a todos os jogadores." : "Local: visível apenas ao mestre — não exiba no painel coletivo.", 18, V4Ui.Gold, TextAnchor.MiddleLeft, UiAnchor.TL, 20, y, 960, 30, FontStyle.Bold);
@@ -347,7 +360,7 @@ namespace MoneyRank.V4.Presentation
             var y = 190f;
             foreach (var p in s.Players.OrderByDescending(x => x.Pawns.Count(k => k.Completed)).ThenByDescending(x => x.Wallet + x.ReserveBalance))
             {
-                V4Ui.Label(win, p.Name + " (" + _session.Content.Profession(p.ProfessionId).Name + ") — peões " + p.Pawns.Count(k => k.Completed) + "/4 · carteira " + V4Ui.Money(p.Wallet) + " · reserva " + V4Ui.Money(p.ReserveBalance) + " · imóveis " + p.Properties + (p.Eliminated ? " · ELIMINADO" : string.Empty), 22, V4Ui.TextMain, TextAnchor.MiddleLeft, UiAnchor.TL, 40, y, 1020, 36);
+                V4Ui.Label(win, p.Name + " (" + _session.Content.Profession(p.ProfessionId).Name + ") — peões " + p.Pawns.Count(k => k.Completed) + "/4 · carteira " + V4Ui.Money(p.Wallet) + " · reserva " + V4Ui.Money(p.ReserveBalance) + " · imóveis " + p.Properties + (p.Left ? " · SAIU DA PARTIDA" : p.Eliminated ? " · ELIMINADO" : string.Empty), 22, V4Ui.TextMain, TextAnchor.MiddleLeft, UiAnchor.TL, 40, y, 1020, 36);
                 y += 40f;
             }
             V4Ui.Label(win, "Rodadas completas: " + s.CompletedRounds + " · Ano " + s.YearIndex + " · Sessão " + s.SessionId, 18, V4Ui.TextMuted, TextAnchor.MiddleLeft, UiAnchor.TL, 40, y + 20, 1020, 30);

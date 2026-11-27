@@ -107,6 +107,7 @@ namespace MoneyRank.V4.Presentation
         }
 
         public static string Money(int v) => v.ToString("N0", System.Globalization.CultureInfo.GetCultureInfo("pt-BR")) + " CRIA Coin";
-        public static string Dec(decimal v) => v.ToString("0.00", System.Globalization.CultureInfo.GetCultureInfo("pt-BR"));
+        /// <summary>Whole numbers without decimals ("2"); fractions only when they exist ("2,5").</summary>
+        public static string Dec(decimal v) => v.ToString("0.##", System.Globalization.CultureInfo.GetCultureInfo("pt-BR"));
     }
 }

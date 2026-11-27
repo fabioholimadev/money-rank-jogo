@@ -12,7 +12,7 @@ namespace MoneyRank.V4.Presentation
     /// <summary>Master HUD (uGUI built in code): setup, match, decision modal, fiscal/history panels. Never calculates rules.</summary>
     public sealed partial class V4Hud : MonoBehaviour
     {
-        private enum SidePanel { None, Fiscal, History }
+        private enum SidePanel { None, Fiscal, History, Rules, Players, YearSummary }
 
         public Action<V4Session> SessionStarted;
         public Action BackToSetup;
@@ -188,6 +188,10 @@ namespace MoneyRank.V4.Presentation
             _setupRoot.gameObject.SetActive(false);
             _matchRoot.gameObject.SetActive(true);
             _panel = SidePanel.None; _modalDismissed = false; _lastDecisionId = null; _selectedOption = null; _swapMode = false;
+            _seenHistory = session.S.History.Count;
+            _summaryYearShown = session.S.YearIndex - 1;
+            // Initial reading (playtest): a new match opens on the rules, attributes and abilities of each player.
+            if (!session.S.History.Any(h => h.Kind == "move")) _panel = SidePanel.Rules;
             V4Ui.Clear(_matchRoot);
             BuildMatchFrame();
             Refresh();
@@ -203,6 +207,8 @@ namespace MoneyRank.V4.Presentation
             V4Ui.Btn(_matchRoot, "Exportar", 20, V4Ui.PanelLight, V4Ui.TextMain, UiAnchor.TR, 360, 14, 120, 44, DoExport);
             V4Ui.Btn(_matchRoot, "Desfazer", 20, V4Ui.PanelLight, V4Ui.TextMain, UiAnchor.TR, 488, 14, 120, 44, DoUndo);
             V4Ui.Btn(_matchRoot, "Salvar", 20, V4Ui.PanelLight, V4Ui.TextMain, UiAnchor.TR, 616, 14, 100, 44, () => { _session.Persist(); Toast(_session.LastSaveError == null ? "Partida salva." : "Falha ao salvar: " + _session.LastSaveError); });
+            V4Ui.Btn(_matchRoot, "Jogadores", 20, V4Ui.PanelLight, V4Ui.TextMain, UiAnchor.TR, 724, 14, 130, 44, () => TogglePanel(SidePanel.Players));
+            V4Ui.Btn(_matchRoot, "Regras", 20, V4Ui.Gold, V4Ui.Ink, UiAnchor.TR, 862, 14, 110, 44, () => TogglePanel(SidePanel.Rules));
             _cardsRoot = V4Ui.Rect(_matchRoot, "Cards", UiAnchor.TL, 12, 84, 392, 980);
             _sideRoot = V4Ui.Rect(_matchRoot, "Side", UiAnchor.TR, 12, 84, 392, 980);
             _controlRoot = V4Ui.Rect(_matchRoot, "Control", UiAnchor.BC, 0, 8, 980, 172);
@@ -232,6 +238,7 @@ namespace MoneyRank.V4.Presentation
         {
             if (_session == null || _cardsRoot == null) return;
             var s = _session.S;
+            AnnounceNewEvents();
             BuildTopBarInfo();
             BuildCards();
             BuildSide();
@@ -249,13 +256,13 @@ namespace MoneyRank.V4.Presentation
         {
             if (_topInfo != null) Destroy(_topInfo.gameObject);
             var s = _session.S;
-            var root = V4Ui.Rect(_matchRoot, "TopInfo", UiAnchor.TL, 360, 0, 880, 72);
+            var root = V4Ui.Rect(_matchRoot, "TopInfo", UiAnchor.TL, 300, 0, 640, 72);
             _topInfo = root;
             var diff = _session.Engine.Difficulty;
             var cur = Current;
             var turn = cur == null ? "—" : cur.Name + " · " + _session.Content.Profession(cur.ProfessionId).Name;
-            V4Ui.Label(root, "Rodada " + s.RoundIndex + " · Ano " + s.YearIndex + " (fecha em " + (_session.Engine.Rules.RoundsPerYear - (s.CompletedRounds % _session.Engine.Rules.RoundsPerYear)) + " rodada[s])", 22, V4Ui.TextMain, TextAnchor.MiddleLeft, UiAnchor.TL, 0, 6, 880, 30);
-            V4Ui.Label(root, "VEZ: " + turn + "   ·   " + diff.Difficulty.ToUpperInvariant() + " (bateria " + diff.Battery + ")", 22, V4Ui.Gold, TextAnchor.MiddleLeft, UiAnchor.TL, 0, 36, 880, 30, FontStyle.Bold);
+            V4Ui.Label(root, "Rodada " + s.RoundIndex + " · Ano " + s.YearIndex + " (fecha em " + (_session.Engine.Rules.RoundsPerYear - (s.CompletedRounds % _session.Engine.Rules.RoundsPerYear)) + " rodada[s])", 20, V4Ui.TextMain, TextAnchor.MiddleLeft, UiAnchor.TL, 0, 6, 640, 30);
+            V4Ui.Label(root, "VEZ: " + turn + "  ·  " + diff.Difficulty.ToUpperInvariant() + " (B" + diff.Battery + ")", 20, V4Ui.Gold, TextAnchor.MiddleLeft, UiAnchor.TL, 0, 36, 640, 30, FontStyle.Bold);
         }
 
         // ------------------------------------------------------------------ player cards
@@ -291,10 +298,17 @@ namespace MoneyRank.V4.Presentation
                     var bx = 20 + col * 184; var by = barTop + row * rowH;
                     var bar = p.Attributes[a];
                     var positive = a <= 2;
-                    V4Ui.Label(card, AttrNames[a], 13, V4Ui.TextMuted, TextAnchor.MiddleLeft, UiAnchor.TL, bx, by, 90, rowH);
-                    V4Ui.Box(card, "BarBg", new Color(0.02f, 0.02f, 0.025f, 1f), UiAnchor.TL, bx + 92, by + 5, 62, rowH - 10);
-                    V4Ui.Box(card, "BarFill", positive ? V4Ui.Good : V4Ui.Bad, UiAnchor.TL, bx + 92, by + 5, 62f * Mathf.Clamp01((float)bar.Progress / 3f), rowH - 10);
-                    V4Ui.Label(card, V4Ui.Dec(bar.Progress) + (bar.LifetimeCycles > 0 ? " ×" + bar.LifetimeCycles : string.Empty), 12, V4Ui.TextMain, TextAnchor.MiddleLeft, UiAnchor.TL, bx + 156, by, 40, rowH);
+                    // One segment per point of the bar (threshold 3): full bar = pawn moves (positive) or retreats (negative).
+                    var threshold = _session.Engine.Rules.AttributeThreshold;
+                    V4Ui.Label(card, AttrNames[a], 13, positive ? new Color(0.62f, 0.86f, 0.70f) : new Color(1f, 0.66f, 0.66f), TextAnchor.MiddleLeft, UiAnchor.TL, bx, by, 92, rowH, FontStyle.Bold);
+                    for (var seg = 0; seg < threshold; seg++)
+                    {
+                        var filled = bar.Progress >= seg + 1;
+                        var partial = !filled && bar.Progress > seg;
+                        V4Ui.Box(card, "Seg", filled ? (positive ? V4Ui.Good : V4Ui.Bad) : (partial ? new Color(0.5f, 0.5f, 0.3f) : new Color(0.02f, 0.02f, 0.025f, 1f)),
+                            UiAnchor.TL, bx + 92 + seg * 20, by + 5, 17, rowH - 10);
+                    }
+                    V4Ui.Label(card, V4Ui.Dec(bar.Progress) + "/" + threshold, 13, V4Ui.TextMain, TextAnchor.MiddleLeft, UiAnchor.TL, bx + 94 + threshold * 20, by, 40, rowH, FontStyle.Bold);
                 }
                 var fy = barTop + 3 * rowH + 4;
                 for (var k = 0; k < p.Pawns.Length; k++)
@@ -308,7 +322,7 @@ namespace MoneyRank.V4.Presentation
                 V4Ui.Label(card, "Ludo: peão " + (p.ActivePawn >= 0 ? (p.ActivePawn + 1).ToString() : "—") + "/4 · casa " + (active == null ? "—" : (active.RouteIndex < 0 ? "base" : active.RouteIndex + "/56")), 14, V4Ui.TextMuted, TextAnchor.MiddleLeft, UiAnchor.TL, 140, fy, 245, 26);
                 var asset = "Imóveis " + p.Properties + " · Checkpoints " + p.CheckpointRights + " · " + (_session.Engine.VehicleActive(p) ? "carro até rodada " + p.VehicleExpiresAfterRound : "sem carro");
                 V4Ui.Label(card, asset, 14, V4Ui.TextMain, TextAnchor.MiddleLeft, UiAnchor.TL, 20, fy + 30, 365, 22);
-                var status = p.Eliminated ? "ELIMINADO(A)" : (p.HospitalTurnsRemaining > 0 ? "HOSPITAL: perde " + p.HospitalTurnsRemaining + " turno(s)" : (p.AbilityUsedThisYear ? "Habilidade do ano: usada" : "Habilidade do ano: disponível"));
+                var status = p.Left ? "SAIU DA PARTIDA" : p.Eliminated ? "ELIMINADO(A)" : (p.HospitalTurnsRemaining > 0 ? "HOSPITAL: perde " + p.HospitalTurnsRemaining + " turno(s)" : prof.Ability + ": " + (p.AbilityUsedThisYear ? "usada neste ano" : "disponível neste ano"));
                 V4Ui.Label(card, status, 14, p.Eliminated || p.HospitalTurnsRemaining > 0 ? V4Ui.Bad : V4Ui.Good, TextAnchor.MiddleLeft, UiAnchor.TL, 20, fy + 50, 365, 22);
             }
         }

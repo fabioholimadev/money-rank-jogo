@@ -98,9 +98,11 @@ namespace MoneyRank.Tests.PlayMode.V4
             Assert.That(s.Pending.Kind, Is.EqualTo(DecisionKind.HospitalModality));
             Assert.That(Sees("Internação: escolha a modalidade"), Is.True);
             var choices = Buttons("Escolher");
-            Assert.That(choices.Length, Is.EqualTo(2));
+            Assert.That(choices.Length, Is.EqualTo(3), "public, private and stay without paying (playtest 27/11/2026)");
             Assert.That(choices[0].interactable, Is.False, "the public fund is empty, so public treatment is unavailable");
             Assert.That(choices[1].interactable, Is.True);
+            Assert.That(choices[2].interactable, Is.True, "staying without paying is always offered outside Difícil");
+            Assert.That(Sees("Ficar sem pagar"), Is.True);
 
             var wallet = me.Wallet;
             var cost = s.Pending.Amount2;
@@ -114,7 +116,7 @@ namespace MoneyRank.Tests.PlayMode.V4
         }
 
         [UnityTest]
-        public IEnumerator AthleteAbilityModalAdvancesTwoStepsAndMarksTheAbilityAsUsed()
+        public IEnumerator AthleteAbilityIsAppliedAutomaticallyWithANotice()
         {
             var s = _boot.Session.S;
             var me = s.Players[0];
@@ -122,13 +124,11 @@ namespace MoneyRank.Tests.PlayMode.V4
             yield return LandOn("H03");
             yield return SelectAndConfirm("H03_O03");                   // completes a positive bar
 
-            Assert.That(s.Pending.Kind, Is.EqualTo(DecisionKind.AbilityChoice));
-            Assert.That(Sees("Fôlego Extra (Atleta)"), Is.True);
-            Assert.That(Click("Avançar duas casas neste ciclo"), Is.True);
-            yield return Frames();
+            Assert.That(s.Pending, Is.Null, "no ability decision since the playtest: it is automatic");
             Assert.That(me.AbilityUsedThisYear, Is.True);
-            Assert.That(me.Pawns[0].RouteIndex, Is.EqualTo(1), "from base the first step enters index 0, the second reaches index 1");
-            Assert.That(Sees("Habilidade do ano: usada"), Is.True);
+            Assert.That(me.Pawns[0].RouteIndex, Is.EqualTo(5), "double of 3 cells from base");
+            Assert.That(Sees("FÔLEGO EXTRA"), Is.True, "the table sees the notice");
+            Assert.That(Sees("usada neste ano"), Is.True);
         }
 
         [UnityTest]
@@ -185,7 +185,7 @@ namespace MoneyRank.Tests.PlayMode.V4
             Assert.That(s.Pending.HouseId, Is.EqualTo("SYS_IR"));
             Assert.That(s.Pending.PlayerId, Is.EqualTo("p1"));
             Assert.That(Sees("Imposto de renda anual"), Is.True);
-            Assert.That(Sees("Tributo devido:"), Is.True);
+            Assert.That(Sees("Salário recebido agora"), Is.True, "the salary is shown before the tax decision (playtest)");
             Assert.That(s.Players[0].Wallet, Is.EqualTo(wallet + salary), "salary is paid before the tax is asked");
             var tax = s.Pending.Amount;
             yield return SelectAndConfirm("IR:pay");
@@ -200,6 +200,11 @@ namespace MoneyRank.Tests.PlayMode.V4
             Assert.That(s.YearIndex, Is.EqualTo(2));
             Assert.That(s.Phase, Is.EqualTo(V4Phase.AwaitRoll));
             Assert.That(Sees("Ano 2"), Is.True);
+            Assert.That(Sees("Fechamento do ano 1: o que cada um recebeu e pagou"), Is.True, "the annual close summary opens for the table");
+            Assert.That(Sees("Salário recebido: +"), Is.True);
+            Assert.That(Click("Continuar a partida"), Is.True);
+            yield return Frames();
+            Assert.That(Sees("Fechamento do ano 1: o que cada um recebeu e pagou"), Is.False);
             Assert.That(_boot.Session.Engine.TotalCash(), Is.EqualTo(28260));
         }
 

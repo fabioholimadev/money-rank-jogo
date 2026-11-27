@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using MoneyRank.Domain.V4;
 using NUnit.Framework;
@@ -72,7 +72,7 @@ namespace MoneyRank.Tests.EditMode
             Assert.That(p.Wallet, Is.EqualTo(100));
             Assert.That(p.VehicleExpiresAfterRound, Is.EqualTo(10), "completedRounds(0) + 9 + 1");
             Assert.That(g.Engine.VehicleActive(p), Is.True);
-            Assert.That(p.Pawns[0].RouteIndex, Is.EqualTo(1), "+4 Investimento = 1 cycle, vehicle makes the advance 2 from base");
+            Assert.That(p.Pawns[0].RouteIndex, Is.EqualTo(5), "+4 Investimento = 1 cycle; 3 cells per bar, doubled by the vehicle = 6 from base");
             g.SetWallet(0, 500);
             p.Position = 0;
             g.S.CurrentIndex = 0;
@@ -202,7 +202,7 @@ namespace MoneyRank.Tests.EditMode
             Assert.That(g.Choose("H25_O03").Ok, Is.True);
             Assert.That(g.P(0).Fiscal.Single().Status, Is.EqualTo(FiscalStatus.Inadimplente));
             Assert.That(g.P(0).Wallet, Is.EqualTo(0));
-            Assert.That(g.P(0).Attributes[(int)AttributeId.Dividas].LifetimeCycles, Is.EqualTo(1), "3 base x 1.5 = 4.5 -> one cycle");
+            Assert.That(g.P(0).Attributes[(int)AttributeId.Dividas].LifetimeCycles, Is.EqualTo(2), "3 base x Professora 2 = 6 -> two bars");
             g.AssertIdentity();
         }
 
@@ -274,7 +274,7 @@ namespace MoneyRank.Tests.EditMode
             Assert.That(g.S.Pending.OptionIds, Is.EquivalentTo(new[] { "H04_O04" }));
             Assert.That(g.Choose("H04_O04").Ok, Is.True);
             Assert.That(g.P(0).Wallet, Is.EqualTo(0));
-            Assert.That(g.P(0).Attributes[(int)AttributeId.Dividas].LifetimeCycles, Is.EqualTo(1));
+            Assert.That(g.P(0).Attributes[(int)AttributeId.Dividas].LifetimeCycles, Is.EqualTo(2), "3 base x Professora 2 = 6 -> two bars");
         }
 
         [Test]
@@ -394,15 +394,16 @@ namespace MoneyRank.Tests.EditMode
             var p = g.P(0);
             p.HasVehicle = true; p.VehicleExpiresAfterRound = 10;
             Assert.That(g.Land("H14").Ok, Is.True); // already active -> maintenance option exists
-            Assert.That(g.Choose("H14_O02").Ok, Is.True); // +1 Investimento x1.5 -> 1.5, no cycle
+            Assert.That(g.Choose("H14_O02").Ok, Is.True); // +1 Investimento x2 -> 2, no cycle
             g.TurnOf(0);
             g.SetWallet(0, 600);
             // one Investimento burst with the economist ability available and the vehicle active
             p.Pawns[0].RouteIndex = 0; p.Pawns[0].MaxIndex = 0;
             p.AbilityUsedThisYear = false;
             Assert.That(g.Land("H20").Ok, Is.True);
-            Assert.That(g.Choose("H20_O01").Ok, Is.True); // +4 Investimento x1.5 = 6 -> 2 cycles
-            Assert.That(p.Pawns[0].RouteIndex, Is.EqualTo(0 + 2 + 2), "first cycle (ability) = 2, second (vehicle) = 2; never 4 in one cycle");
+            Assert.That(g.Choose("H20_O01").Ok, Is.True); // +4 Investimento x2 = 8, plus 2 already in the bar = 10 -> 3 cycles
+            Assert.That(p.AbilityUsedThisYear, Is.True);
+            Assert.That(p.Pawns[0].RouteIndex, Is.EqualTo(0 + 6 + 6 + 6), "ability (double = 6) and vehicle (x2 = 6) never stack: at most 6 per cycle, never 12");
         }
 
         // ---------------------------------------------------------------- liquidity, idempotency, saves, rounds

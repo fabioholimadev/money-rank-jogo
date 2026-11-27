@@ -330,12 +330,14 @@ namespace MoneyRank.Domain.V4
                 if (item == "R")
                 {
                     State.CycleQueue.RemoveAt(0);
-                    var r = V4Ludo.Retreat(p);
-                    if (r.Moved) Note(p.Name + " recuou uma casa interna.");
+                    var back = 0;
+                    for (var i = 0; i < Math.Max(1, Rules.NegativeCycleSteps); i++)
+                        if (V4Ludo.Retreat(p).Moved) back++;
+                    if (back > 0) Note(p.Name + " recuou " + back + (back == 1 ? " casa interna." : " casas internas."));
                     continue;
                 }
                 var k = int.Parse(item.Substring(2), CultureInfo.InvariantCulture);
-                var steps = VehicleActive(p) ? 2 : 1;
+                var steps = NormalAdvanceSteps(p);
                 var auto = false;
                 if (!p.AbilityUsedThisYear)
                 {
@@ -343,17 +345,37 @@ namespace MoneyRank.Domain.V4
                     if (p.ProfessionId == AbilityEconomista && k == (int)AttributeId.Investimento) auto = true;
                     if (p.ProfessionId == AbilityAtleta)
                     {
-                        OpenAthleteChoice(p);
-                        return false;
+                        if (!Rules.AthleteAbilityAutomatic)
+                        {
+                            OpenAthleteChoice(p);
+                            return false;
+                        }
+                        auto = true;
                     }
                 }
-                if (auto) { steps = Math.Max(steps, 2); p.AbilityUsedThisYear = true; Note("Habilidade anual de " + p.Name + " usada (avanço de duas casas)."); }
+                if (auto)
+                {
+                    steps = Math.Max(steps, DoubledAdvanceSteps());
+                    p.AbilityUsedThisYear = true;
+                    var prof = ProfessionOf(p);
+                    Log(p, "ability", null, null, prof.Ability + " (" + prof.Name + "): habilidade anual aplicada automaticamente — " + p.Name + " avança " + Math.Min(steps, Rules.MaxStepsPerPositiveCycle) + " casas nesta barra.");
+                }
                 steps = Math.Min(steps, Rules.MaxStepsPerPositiveCycle);
                 State.CycleQueue.RemoveAt(0);
                 DoAdvance(p, steps);
             }
             return true;
         }
+
+        /// <summary>Cells advanced by one positive bar: base steps, multiplied while the vehicle is active.</summary>
+        private int NormalAdvanceSteps(PlayerState p)
+        {
+            var steps = Math.Max(1, Rules.PositiveCycleSteps);
+            return VehicleActive(p) ? steps * Math.Max(1, Rules.VehicleAdvanceMultiplier) : steps;
+        }
+
+        /// <summary>Doubling abilities ("avança o dobro"): twice the base steps; never stacks with the vehicle (capped by max).</summary>
+        private int DoubledAdvanceSteps() => Math.Max(1, Rules.PositiveCycleSteps) * 2;
 
         private void DoAdvance(PlayerState p, int steps)
         {
@@ -384,13 +406,14 @@ namespace MoneyRank.Domain.V4
                 if (!d.OptionIds.Contains(choice)) return V4Result.Fail("Opção indisponível.");
                 var p = Player(d.PlayerId);
                 State.Pending = null;
-                if (choice == "decline") { State.CycleQueue.RemoveAt(0); DoAdvance(p, Math.Min(VehicleActive(p) ? 2 : 1, Rules.MaxStepsPerPositiveCycle)); }
+                if (choice == "decline") { State.CycleQueue.RemoveAt(0); DoAdvance(p, Math.Min(NormalAdvanceSteps(p), Rules.MaxStepsPerPositiveCycle)); }
                 else if (choice == "advance2")
                 {
                     State.CycleQueue.RemoveAt(0);
                     p.AbilityUsedThisYear = true;
-                    DoAdvance(p, Math.Min(2, Rules.MaxStepsPerPositiveCycle));
-                    Note("Fôlego Extra: avanço de duas casas.");
+                    var doubled = Math.Min(Math.Max(NormalAdvanceSteps(p), DoubledAdvanceSteps()), Rules.MaxStepsPerPositiveCycle);
+                    DoAdvance(p, doubled);
+                    Note("Fôlego Extra: avanço de " + doubled + " casas.");
                 }
                 else
                 {
@@ -399,7 +422,7 @@ namespace MoneyRank.Domain.V4
                     State.CycleQueue.RemoveAt(0);
                     p.AbilityUsedThisYear = true;
                     V4Attributes.Apply(p, OneDelta(a, -1m), ProfessionOf(p), Difficulty, Rules);
-                    DoAdvance(p, Math.Min(VehicleActive(p) ? 2 : 1, Rules.MaxStepsPerPositiveCycle));
+                    DoAdvance(p, Math.Min(NormalAdvanceSteps(p), Rules.MaxStepsPerPositiveCycle));
                     Note("Fôlego Extra: redução de 1 ponto-base de " + key + ".");
                 }
                 State.Phase = V4Phase.AwaitRoll;
