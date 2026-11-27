@@ -115,6 +115,8 @@ de virar regra rígida sem aprovação.
 - **Nomes das colunas dos dados** (`custo_umr`, `base_umr`, `recompensa_imediata_umr`, `retorno_total_umr`, `salario_apos_umr`) foram mantidos: são identificadores
   estáveis do conteúdo, não texto de tela. Só o texto visível trocou de "UMR" para "CRIA Coin". Salvamentos antigos não abrem mais
   (o hash do conteúdo mudou porque os textos das cartas mudaram).
-- **DECISION_REQUIRED — hardware do cofre.** Confirmar o módulo real: LCD 1602 com adaptador I2C (endereço 0x27 ou 0x3F), biblioteca "LiquidCrystal I2C",
-  placa Arduino (Uno nas ilustrações) e porta COM. Nada disso foi testado em hardware real.
+- **DECISION_REQUIRED — hardware do cofre.** Módulo em uso confirmado em 27/11/2026: OLED 0,96" I2C SSD1306 (0x3C) num Arduino Uno
+  (clone CH340), testado com o protocolo do cofre pelo `Docs/Hardware/cofre_display/Test-CofreDisplay.ps1`. O sketch agora usa o OLED por
+  padrão e mantém o LCD 1602 como opção (`COFRE_DISPLAY_OLED 0`, não testado). Ainda falta: confirmar se o kit final usa OLED ou LCD,
+  testar a legibilidade do OLED na mesa e validar o fluxo completo pelo painel do cofre dentro do jogo.
 

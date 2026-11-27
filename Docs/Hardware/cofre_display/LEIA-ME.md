@@ -1,4 +1,4 @@
-# Display do cofre público (LCD 16x2 + Arduino)
+# Display do cofre público (OLED 0,96" ou LCD 16x2 + Arduino)
 
 O Unity só **envia o saldo do cofre**. O Arduino só **mostra** o número recebido; ele não calcula nenhuma regra.
 Enquanto nenhum número válido chegar, o LCD fica em `R$0,00`.
@@ -27,7 +27,11 @@ Serial: 115200 baud, 8N1, ASCII, uma linha por quadro.
 
 ## Arquivos
 
-- `cofre_display.ino` — sketch (abrir esta pasta no Arduino IDE; precisa da biblioteca "LiquidCrystal I2C").
+- `cofre_display.ino` — sketch (abrir esta pasta no Arduino IDE). `COFRE_DISPLAY_OLED 1` (padrão) usa o OLED sem
+  biblioteca externa; `0` usa o LCD e precisa da biblioteca "LiquidCrystal I2C".
+- `oled_ssd1306.h` — driver mínimo do OLED SSD1306 128x64 (fonte 5x7 ampliada, endereço 0x3C/0x3D automático).
+- `Test-CofreDisplay.ps1` — teste de bancada no PC sem abrir o jogo: envia saldos com o mesmo protocolo do Unity,
+  confere cada `ACK` e verifica que um quadro com CRC errado é recusado.
 - `cofre_protocol.h` — protocolo em C++ puro (sem Arduino); é o mesmo código que roda no PC nos testes.
 - `protocol_vectors.csv` — vetores compartilhados (CRC, textos de dinheiro, quadros válidos e inválidos).
 - `tests/test_cofre_protocol.cpp` — teste no PC do `cofre_protocol.h` contra os vetores (instruções de compilação no topo do arquivo).
@@ -36,8 +40,17 @@ Serial: 115200 baud, 8N1, ASCII, uma linha por quadro.
 
 ## Antes de gravar no Arduino
 
-1. Confirmar o módulo: LCD 1602 + adaptador I2C, endereço (`0x27` ou `0x3F` — se a tela acender sem texto, rode um I2C scanner e ajuste `LCD_ADDRESS`).
-2. No Unity: escolher a porta COM no painel do cofre. Sem display o jogo segue e o saldo aparece na tela.
-3. Teste de bancada: ao ligar deve mostrar `R$0,00`; ao iniciar a partida, o saldo do cofre.
+1. Escolher o display em `COFRE_DISPLAY_OLED`:
+   - OLED 0,96" SSD1306 (padrão): GND→GND, VCC→5V, SCL→A5, SDA→A4.
+   - LCD 1602 + adaptador I2C: endereço `0x27` ou `0x3F` (se a tela acender sem texto, rode um I2C scanner e ajuste `LCD_ADDRESS`).
+2. Gravar: `arduino-cli compile --fqbn arduino:avr:uno -u -p COM11 Docs\Hardware\cofre_display`
+   (o `arduino-cli` vem com a Arduino IDE 2, em `%LOCALAPPDATA%\Programs\Arduino IDE\resources\app\lib\backend\resources`).
+3. Teste de bancada sem o jogo: `powershell -ExecutionPolicy Bypass -File Docs\Hardware\cofre_display\Test-CofreDisplay.ps1 -Port COM11`.
+   Ao ligar deve mostrar `R$0,00`; o script termina com o último saldo enviado na tela.
+4. No Unity: escolher a porta COM no painel do cofre (portas USB aparecem antes das portas Bluetooth virtuais).
+   Sem display o jogo segue e o saldo aparece na tela. Feche o Serial Monitor antes: só um programa usa a porta por vez.
 
-Esta rotina ainda **não foi testada em hardware real** (ver `Docs/OPEN_DECISIONS.md`).
+Estado em 27/11/2026: **OLED testado em hardware real** (Arduino Uno clone CH340, OLED SSD1306 em 0x3C) com o
+`Test-CofreDisplay.ps1` — `PRONTO` no boot, `ACK` correto para 0, 150, 28.260 e 1.234.567 CRIA Coin, e quadro com CRC
+errado recusado. O LCD continua **sem teste em hardware real**. Se o OLED não responder, use o diagnóstico em
+`Docs/Hardware/OledNumberTest` (o primeiro problema real foi mau contato nos jumpers macho-fêmea).
