@@ -125,6 +125,7 @@ inline bool begin() {
     if (Wire.endTransmission() == 0) { address = candidates[i]; found = true; }
   }
   if (!found) return false;
+  Wire.setClock(400000);  // I2C rápido: a tela inteira em ~30 ms, para animar a ~20 quadros/s
 
   const uint8_t init[] = {
     0xAE,       // display off
@@ -194,6 +195,78 @@ inline void bigText(const char *text, uint8_t firstPage, uint8_t pageCount, uint
     });
   }
 }
+
+// ------------------------------------------------------------------ desenho por camadas (tela inteira)
+// Uma cena é uma função byteAt(page, x) que devolve os 8 pixels verticais daquela coluna; drawFrame envia
+// a tela toda (1 KB). A 400 kHz isso leva ~30 ms, então não há framebuffer na RAM (o Uno só tem 2 KB).
+
+template <typename F>
+void drawFrame(F byteAt) {
+  for (uint8_t page = 0; page < PAGES; page++) {
+    setCursor(page, 0);
+    writeData(WIDTH, [&byteAt, page](uint8_t x) -> uint8_t { return byteAt(page, x); });
+  }
+}
+
+// Sprite em PROGMEM no formato de páginas (w colunas x h linhas) com o canto superior esquerdo em (sx, sy).
+// sx/sy podem ser negativos ou passar da tela: o que fica fora é cortado. mirror = espelhado na horizontal.
+inline uint8_t spriteByte(const uint8_t *bmp, uint8_t w, uint8_t h, int16_t sx, int16_t sy, uint8_t page, uint8_t x,
+                          bool mirror = false) {
+  int16_t cx = (int16_t)x - sx;
+  if (cx < 0 || cx >= w) return 0;
+  if (mirror) cx = w - 1 - cx;
+  uint8_t out = 0;
+  for (uint8_t bit = 0; bit < 8; bit++) {
+    int16_t r = (int16_t)(page * 8 + bit) - sy;
+    if (r < 0 || r >= h) continue;
+    uint8_t b = pgm_read_byte(&bmp[(r >> 3) * w + cx]);
+    if (b & (1 << (r & 7))) out |= (uint8_t)(1 << bit);
+  }
+  return out;
+}
+
+// Texto pequeno (5x7) numa única página, começando em startX. Devolve 0 fora do texto.
+inline uint8_t smallTextByte(const char *text, uint8_t length, int16_t startX, uint8_t x) {
+  int16_t rel = (int16_t)x - startX;
+  if (rel < 0 || rel >= (int16_t)length * 6) return 0;
+  uint8_t col = (uint8_t)(rel % 6);
+  return col < 5 ? glyphColumn(text[rel / 6], col) : 0x00;
+}
+
+inline int16_t centeredSmallX(uint8_t length) { return ((int16_t)WIDTH - (int16_t)length * 6) / 2; }
+
+// Texto ampliado e centralizado: layout calculado uma vez por quadro, byte calculado por coluna.
+struct BigText {
+  const char *text;
+  uint8_t length, scaleX, scaleY, cell, start, firstPage;
+
+  void layout(const char *t, uint8_t first, uint8_t maxScaleX, uint8_t sy) {
+    text = t;
+    firstPage = first;
+    length = (uint8_t)strlen(t);
+    scaleX = maxScaleX;
+    while (scaleX > 1 && length * (5 * scaleX + 1) > WIDTH) scaleX--;
+    if (length * (5 * scaleX + 1) > WIDTH) length = WIDTH / (5 * scaleX + 1);
+    scaleY = (scaleX == 1 && sy > 2) ? 2 : sy;
+    cell = 5 * scaleX + 1;
+    start = length == 0 ? 0 : (uint8_t)((WIDTH - (length * cell - 1)) / 2);
+  }
+
+  uint8_t byteAt(uint8_t page, uint8_t x) const {
+    if (length == 0 || page < firstPage || x < start) return 0;
+    uint8_t rel = x - start;
+    if (rel >= length * cell - 1) return 0;
+    uint8_t fontCol = (rel % cell) / scaleX;
+    if (fontCol >= 5) return 0;
+    uint8_t source = glyphColumn(text[rel / cell], fontCol);
+    uint8_t p = page - firstPage, out = 0;
+    for (uint8_t bit = 0; bit < 8; bit++) {
+      uint8_t fontRow = (uint8_t)((p * 8 + bit) / scaleY);
+      if (fontRow < 7 && (source & (1 << fontRow))) out |= (uint8_t)(1 << bit);
+    }
+    return out;
+  }
+};
 
 }  // namespace oled
 

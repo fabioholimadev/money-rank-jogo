@@ -29,7 +29,17 @@ Serial: 115200 baud, 8N1, ASCII, uma linha por quadro.
 
 - `cofre_display.ino` — sketch (abrir esta pasta no Arduino IDE). `COFRE_DISPLAY_OLED 1` (padrão) usa o OLED sem
   biblioteca externa; `0` usa o LCD e precisa da biblioteca "LiquidCrystal I2C".
-- `oled_ssd1306.h` — driver mínimo do OLED SSD1306 128x64 (fonte 5x7 ampliada, endereço 0x3C/0x3D automático).
+- `oled_ssd1306.h` — driver mínimo do OLED SSD1306 128x64 (fonte 5x7 ampliada, sprites, endereço 0x3C/0x3D automático).
+- `cofre_screens.h` — telas animadas do OLED, com dois modos:
+  - **Exibição** (ao ligar, até chegar o primeiro saldo): logo da Money Rank, capivara andando com as seis profissões,
+    moedas caindo, demonstração do cofre contando até R$28.260,00 e convite "VENHA JOGAR", em loop (~18 s).
+  - **Jogo**: saldo do cofre; quando muda, o número conta até o valor novo e uma capivara atravessa com uma moeda
+    (da esquerda se o cofre ganhou, da direita se pagou). Parada, a capivara fica no canto e pula de vez em quando.
+  - Botão opcional entre o pino 2 e o GND alterna os modos (`COFRE_MODE_BUTTON_PIN`, `-1` desliga);
+    `COFRE_RETURN_TO_EXHIBITION_MS` volta sozinho à exibição após um tempo sem saldo (padrão desligado).
+  - O protocolo não muda: o `ACK` sai na hora com o valor final; a animação roda depois.
+- `oled_art.h` — logo e capivaras em bitmap, gerados por `tools/make_oled_art.ps1` a partir de
+  `Assets/Resources/MoneyRankLogo.png` e da pixel art do script (rode o script para regerar).
 - `Test-CofreDisplay.ps1` — teste de bancada no PC sem abrir o jogo: envia saldos com o mesmo protocolo do Unity,
   confere cada `ACK` e verifica que um quadro com CRC errado é recusado.
 - `cofre_protocol.h` — protocolo em C++ puro (sem Arduino); é o mesmo código que roda no PC nos testes.
