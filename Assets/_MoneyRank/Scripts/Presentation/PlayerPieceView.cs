@@ -53,6 +53,7 @@ namespace MoneyRank.Presentation.Board
             {
                 // The high-poly imported mesh was self-shadowing into tiny speckles.
                 // Board surfaces do not receive shadows either, so keep these clean.
+                renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
                 renderer.receiveShadows = false;
                 var materials = renderer.materials;
                 for (var index = 0; index < materials.Length; index++)
@@ -130,8 +131,8 @@ namespace MoneyRank.Presentation.Board
         {
             if (material == null) return;
             if (material.HasProperty("_Metallic")) material.SetFloat("_Metallic", 0f);
-            if (material.HasProperty("_Smoothness")) material.SetFloat("_Smoothness", 0.12f);
-            if (material.HasProperty("_Glossiness")) material.SetFloat("_Glossiness", 0.12f);
+            if (material.HasProperty("_Smoothness")) material.SetFloat("_Smoothness", 0.02f);
+            if (material.HasProperty("_Glossiness")) material.SetFloat("_Glossiness", 0.02f);
             if (material.HasProperty("_SpecularHighlights")) material.SetFloat("_SpecularHighlights", 0f);
             if (material.HasProperty("_EnvironmentReflections")) material.SetFloat("_EnvironmentReflections", 0f);
         }

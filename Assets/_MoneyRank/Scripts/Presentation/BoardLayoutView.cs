@@ -23,6 +23,12 @@ namespace MoneyRank.Presentation.Board
         private static readonly Color BoardNavy = HexColor("111111");
         private static readonly Color TileWhite = HexColor("FFFFFF");
         private static readonly Color SpaceGray = HexColor("B8B8B8");
+        private static readonly Color Porcelain = HexColor("D9D9D7");
+        private static readonly Color PorcelainGrout = HexColor("A89F93");
+        private static readonly Color TableWood = HexColor("805638");
+        private static readonly Color TableWoodLight = HexColor("916744");
+        private static readonly Color TableWoodDark = HexColor("69452F");
+        private static readonly Color TableLegWood = HexColor("573A29");
         private static readonly Color[] CornerColors =
         {
             HexColor("A0A0A0"), HexColor("A0A0A0"), HexColor("A0A0A0"), HexColor("A0A0A0")
@@ -40,6 +46,8 @@ namespace MoneyRank.Presentation.Board
         private readonly Transform[] _outerSlots = new Transform[OuterSlotCount];
         private readonly Dictionary<Color, Material> _colorMaterials = new Dictionary<Color, Material>();
         private readonly Dictionary<Texture2D, Material> _atlasMaterials = new Dictionary<Texture2D, Material>();
+        private readonly List<Texture2D> _generatedTextures = new List<Texture2D>();
+        private Material _porcelainMaterial;
         private Transform _generatedRoot;
         private Mesh _homePawnMesh;
 
@@ -83,10 +91,245 @@ namespace MoneyRank.Presentation.Board
             _generatedRoot.SetParent(transform, false);
             Array.Clear(_outerSlots, 0, _outerSlots.Length);
 
+            CreatePlayEnvironment();
             CreateBoardBase();
             CreateOuterTrack();
             CreateInnerLudoBoard();
             BuildLogicalAnchors();
+            CreateOuterSpaceIcons();
+        }
+
+        private void CreatePlayEnvironment()
+        {
+            // The base color shows through the grout and gives the floor a warm ceramic tone.
+            const float floorTop = -2.80f;
+            CreateBox("Porcelain Floor", _generatedRoot, new Vector3(0f, floorTop - 0.15f, 0f),
+                new Vector3(70f, 0.30f, 70f), Porcelain);
+
+            CreateCeramicFloor(floorTop);
+            CreateEnvironmentFillLight();
+
+            var tableWidth = Mathf.Max(boardSize.x, boardSize.y) + 4.8f;
+            var tableDepth = tableWidth;
+            const float tableTop = -0.48f;
+            const float tableThickness = 0.40f;
+            var tabletop = CreateBox("Square Wooden Tabletop", _generatedRoot,
+                new Vector3(0f, tableTop - tableThickness * 0.5f, 0f),
+                new Vector3(tableWidth, tableThickness, tableDepth), TableWood);
+            SetEnvironmentShadows(tabletop, true, true);
+
+            // Subtle plank seams and grain give the tabletop a wooden surface without
+            // competing with the board placed on top of it.
+            for (var plank = -2; plank <= 2; plank++)
+            {
+                var x = plank * tableWidth / 6f;
+                CreateBox($"Table Plank Seam {plank + 3}", _generatedRoot,
+                    new Vector3(x, tableTop + 0.006f, 0f),
+                    new Vector3(0.018f, 0.012f, tableDepth - 0.04f), TableWoodDark);
+            }
+
+            CreateBox("Table Front Edge", _generatedRoot,
+                new Vector3(0f, tableTop - 0.02f, -tableDepth * 0.5f + 0.06f),
+                new Vector3(tableWidth - 0.12f, 0.12f, 0.12f), TableWoodLight);
+            CreateBox("Table Back Edge", _generatedRoot,
+                new Vector3(0f, tableTop - 0.02f, tableDepth * 0.5f - 0.06f),
+                new Vector3(tableWidth - 0.12f, 0.12f, 0.12f), TableWoodLight);
+            CreateBox("Table Left Edge", _generatedRoot,
+                new Vector3(-tableWidth * 0.5f + 0.06f, tableTop - 0.02f, 0f),
+                new Vector3(0.12f, 0.12f, tableDepth - 0.12f), TableWoodLight);
+            CreateBox("Table Right Edge", _generatedRoot,
+                new Vector3(tableWidth * 0.5f - 0.06f, tableTop - 0.02f, 0f),
+                new Vector3(0.12f, 0.12f, tableDepth - 0.12f), TableWoodLight);
+
+            var legInsetX = tableWidth * 0.5f - 0.75f;
+            var legInsetZ = tableDepth * 0.5f - 0.75f;
+            const float floorToTableUnderside = 1.92f;
+            var legCenterY = floorTop + floorToTableUnderside * 0.5f;
+            foreach (var xSign in new[] { -1f, 1f })
+            {
+                foreach (var zSign in new[] { -1f, 1f })
+                {
+                    var leg = CreateBox($"Table Leg {xSign}_{zSign}", _generatedRoot,
+                        new Vector3(xSign * legInsetX, legCenterY, zSign * legInsetZ),
+                        new Vector3(0.62f, floorToTableUnderside, 0.62f), TableLegWood);
+                    SetEnvironmentShadows(leg, true, true);
+                }
+            }
+        }
+
+        private void CreateCeramicFloor(float floorTop)
+        {
+            var texture = CreateCeramicTexture();
+            var shader = Shader.Find("Universal Render Pipeline/Lit") ?? Shader.Find("Standard");
+            if (shader == null)
+                throw new InvalidOperationException("No compatible shader was found for the ceramic floor.");
+
+            _porcelainMaterial = new Material(shader) { name = "Money Rank - Matte Ceramic" };
+            if (_porcelainMaterial.HasProperty("_BaseMap"))
+                _porcelainMaterial.SetTexture("_BaseMap", texture);
+            if (_porcelainMaterial.HasProperty("_MainTex"))
+                _porcelainMaterial.SetTexture("_MainTex", texture);
+            if (_porcelainMaterial.HasProperty("_BaseColor"))
+                _porcelainMaterial.SetColor("_BaseColor", Color.white);
+            if (_porcelainMaterial.HasProperty("_Color"))
+                _porcelainMaterial.SetColor("_Color", Color.white);
+            SetMatteFinish(_porcelainMaterial, 0.12f);
+            _porcelainMaterial.mainTextureScale = new Vector2(4.85f, 4.85f);
+
+            var floor = GameObject.CreatePrimitive(PrimitiveType.Quad);
+            floor.name = "Matte Ceramic Tile Surface";
+            floor.transform.SetParent(_generatedRoot, false);
+            floor.transform.localPosition = new Vector3(0f, floorTop + 0.008f, 0f);
+            floor.transform.localRotation = Quaternion.Euler(-90f, 0f, 0f);
+            floor.transform.localScale = new Vector3(68f, 68f, 1f);
+            floor.GetComponent<Renderer>().sharedMaterial = _porcelainMaterial;
+            SetEnvironmentShadows(floor, false, true);
+            RemoveCollider(floor);
+        }
+
+        private Texture2D CreateCeramicTexture()
+        {
+            const int tilePixels = 64;
+            const int tilesPerSide = 4;
+            const int groutPixels = 2;
+            var texture = new Texture2D(tilePixels * tilesPerSide, tilePixels * tilesPerSide,
+                TextureFormat.RGBA32, true)
+            {
+                name = "Money Rank - Ceramic Tile Texture",
+                wrapMode = TextureWrapMode.Repeat,
+                filterMode = FilterMode.Bilinear,
+                anisoLevel = 2
+            };
+            var tileColors = new[]
+            {
+                HexColor("E5DED2"), HexColor("E9E2D7"), HexColor("E2DACD"), HexColor("E8E0D4"),
+                HexColor("E7DFD3"), HexColor("E1D9CD"), HexColor("EAE3D8"), HexColor("E4DCCF"),
+                HexColor("E2DACD"), HexColor("E8E0D4"), HexColor("E5DED2"), HexColor("E9E2D7"),
+                HexColor("EAE3D8"), HexColor("E4DCCF"), HexColor("E7DFD3"), HexColor("E1D9CD")
+            };
+            var pixels = new Color32[tilePixels * tilesPerSide * tilePixels * tilesPerSide];
+            for (var y = 0; y < tilePixels * tilesPerSide; y++)
+            {
+                for (var x = 0; x < tilePixels * tilesPerSide; x++)
+                {
+                    var tileX = x / tilePixels;
+                    var tileY = y / tilePixels;
+                    var localX = x % tilePixels;
+                    var localY = y % tilePixels;
+                    var grout = localX < groutPixels || localY < groutPixels;
+                    var edge = localX < groutPixels + 2 || localY < groutPixels + 2 ||
+                               localX >= tilePixels - 2 || localY >= tilePixels - 2;
+                    var color = grout
+                        ? PorcelainGrout
+                        : edge ? tileColors[tileY * tilesPerSide + tileX] * 0.96f
+                               : tileColors[tileY * tilesPerSide + tileX];
+                    pixels[y * tilePixels * tilesPerSide + x] = color;
+                }
+            }
+            texture.SetPixels32(pixels);
+            texture.Apply(true, true);
+            _generatedTextures.Add(texture);
+            return texture;
+        }
+
+        private void CreateEnvironmentFillLight()
+        {
+            var lightObject = new GameObject("Warm Room Fill Light");
+            lightObject.transform.SetParent(_generatedRoot, false);
+            lightObject.transform.localPosition = new Vector3(-2f, 8f, -3f);
+            var fillLight = lightObject.AddComponent<Light>();
+            fillLight.type = LightType.Point;
+            fillLight.color = HexColor("FFF0D9");
+            fillLight.intensity = 0.45f;
+            fillLight.range = 30f;
+            fillLight.shadows = LightShadows.None;
+        }
+
+        private static void SetEnvironmentShadows(GameObject gameObject, bool castsShadows, bool receivesShadows)
+        {
+            var renderer = gameObject != null ? gameObject.GetComponent<Renderer>() : null;
+            if (renderer == null) return;
+            renderer.shadowCastingMode = castsShadows
+                ? UnityEngine.Rendering.ShadowCastingMode.On
+                : UnityEngine.Rendering.ShadowCastingMode.Off;
+            renderer.receiveShadows = receivesShadows;
+        }
+
+        private void CreateOuterSpaceIcons()
+        {
+            var atlas = Resources.Load<Texture2D>("MoneyRankHouseIcons");
+            if (atlas == null)
+            {
+                Debug.LogWarning("MoneyRankHouseIcons was not found under a Resources folder.", this);
+                return;
+            }
+
+            var stepX = boardSize.x / 10f;
+            var stepZ = boardSize.y / 10f;
+            foreach (var space in definition.Spaces)
+            {
+                var iconIndex = GetHouseIconIndex(space.Id);
+                if (iconIndex < 0)
+                    continue;
+
+                var slot = GetOuterSlotForLogicalSpace(space.Index);
+                var anchor = _outerSlots[slot];
+                if (anchor == null)
+                    continue;
+
+                var row = iconIndex / 8;
+                var column = iconIndex % 8;
+                const float inset = 0.002f;
+                var uv = new Rect(
+                    column / 8f + inset,
+                    1f - (row + 1) / 4f + inset,
+                    1f / 8f - inset * 2f,
+                    1f / 4f - inset * 2f);
+                var iconSide = Mathf.Min(stepX, stepZ) * 0.72f;
+                CreateAtlasQuad($"House Icon - {space.DisplayName}", _generatedRoot,
+                    new Vector3(anchor.localPosition.x, 0.334f, anchor.localPosition.z),
+                    iconSide, iconSide, atlas, uv, 0f);
+            }
+        }
+
+        private static int GetHouseIconIndex(string spaceId)
+        {
+            switch (spaceId)
+            {
+                case "conta-atrasada": return 0;
+                case "cultura-e-passeio": return 1;
+                case "iof": return 2;
+                case "projeto-pessoal": return 3;
+                case "tecnologia-e-upgrade": return 4;
+                case "renegociacao": return 5;
+                case "energia-e-agua": return 6;
+                case "casa": return 7;
+                case "bolsa-programa-publico": return 8;
+                case "transporte-e-saude-basica": return 9;
+                case "aplicacao-financeira": return 10;
+                case "lazer-premium": return 11;
+                case "imposto-de-renda-fiscalizacao": return 12;
+                case "ferias-planejadas": return 13;
+                case "parceria-novo-cliente": return 14;
+                case "contribuicao-comunitaria": return 15;
+                case "cartao-de-credito": return 16;
+                case "qualificacao": return 17;
+                case "iptu": return 18;
+                case "descanso-em-casa": return 19;
+                case "reserva-de-emergencia": return 20;
+                case "alimentacao": return 21;
+                case "curso-gratuito": return 22;
+                case "compra-por-impulso": return 23;
+                case "trabalho-extra": return 24;
+                case "assinaturas-e-aplicativos": return 25;
+                case "marco-de-carreira": return 26;
+                case "moradia": return 27;
+                case "carro": return 28;
+                case "emprestimo-caro": return 29;
+                case "atividade-fisica-e-parque": return 30;
+                case "ipva": return 31;
+                default: return -1;
+            }
         }
 
         private void CreateBoardBase()
@@ -240,8 +483,8 @@ namespace MoneyRank.Presentation.Board
                     CreateBox(
                         $"Ludo Path Cell {row:00}-{column:00}",
                         _generatedRoot,
-                        center + Vector3.up * 0.445f,
-                        new Vector3(cell * 0.96f, 0.055f, cell * 0.96f),
+                        center + Vector3.up * 0.46f,
+                        new Vector3(cell * 0.87f, 0.045f, cell * 0.87f),
                         color);
                 }
             }
@@ -738,10 +981,10 @@ namespace MoneyRank.Presentation.Board
             DisableBoardSurfaceShadows(renderer);
             if (!_colorMaterials.TryGetValue(color, out var material))
             {
-                var shader = Shader.Find("Universal Render Pipeline/Unlit") ??
-                             Shader.Find("Universal Render Pipeline/Lit") ??
+                var shader = Shader.Find("Universal Render Pipeline/Lit") ??
+                             Shader.Find("Standard") ??
                              Shader.Find("Unlit/Color") ??
-                             Shader.Find("Standard");
+                             Shader.Find("Universal Render Pipeline/Unlit");
                 if (shader == null)
                     throw new InvalidOperationException("No compatible shader was found for the board materials.");
 
@@ -753,6 +996,7 @@ namespace MoneyRank.Presentation.Board
                     material.SetColor("_BaseColor", color);
                 if (material.HasProperty("_Color"))
                     material.SetColor("_Color", color);
+                SetMatteFinish(material, 0.04f);
                 _colorMaterials.Add(color, material);
             }
 
@@ -765,6 +1009,16 @@ namespace MoneyRank.Presentation.Board
             // shadow-map acne and speckled self-shadowing on those large flat surfaces.
             renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
             renderer.receiveShadows = false;
+        }
+
+        private static void SetMatteFinish(Material material, float smoothness)
+        {
+            if (material == null) return;
+            if (material.HasProperty("_Metallic")) material.SetFloat("_Metallic", 0f);
+            if (material.HasProperty("_Smoothness")) material.SetFloat("_Smoothness", smoothness);
+            if (material.HasProperty("_Glossiness")) material.SetFloat("_Glossiness", smoothness);
+            if (material.HasProperty("_SpecularHighlights")) material.SetFloat("_SpecularHighlights", 0f);
+            if (material.HasProperty("_EnvironmentReflections")) material.SetFloat("_EnvironmentReflections", 0f);
         }
 
         private void OnDestroy()
@@ -792,6 +1046,23 @@ namespace MoneyRank.Presentation.Board
                     DestroyImmediate(material);
             }
             _atlasMaterials.Clear();
+            if (_porcelainMaterial != null)
+            {
+                if (UnityEngine.Application.isPlaying)
+                    Destroy(_porcelainMaterial);
+                else
+                    DestroyImmediate(_porcelainMaterial);
+                _porcelainMaterial = null;
+            }
+            foreach (var texture in _generatedTextures)
+            {
+                if (texture == null) continue;
+                if (UnityEngine.Application.isPlaying)
+                    Destroy(texture);
+                else
+                    DestroyImmediate(texture);
+            }
+            _generatedTextures.Clear();
             if (_homePawnMesh != null)
             {
                 if (UnityEngine.Application.isPlaying)
