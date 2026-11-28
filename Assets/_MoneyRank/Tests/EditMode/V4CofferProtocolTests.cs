@@ -22,6 +22,43 @@ namespace MoneyRank.Tests.EditMode
             public string TryReceive() => Replies.Count > 0 ? Replies.Dequeue() : null;
         }
 
+        [Test]
+        public void LINK01_ConfirmedOnlyAfterTheDisplayAcknowledgesTheBalance()
+        {
+            var t = new FakeTransport();
+            var sync = new CofferDisplaySync(t, resendAfterTicks: 3);
+            sync.Publish(176);
+            sync.Tick();
+            Assert.That(t.Sent.Count, Is.EqualTo(1), "the balance is sent");
+            Assert.That(sync.DisplayAnswered, Is.False, "port open is not proof that the display is there");
+            Assert.That(sync.IsConfirmed, Is.False);
+            var seq = int.Parse(t.Sent[0].Split('|')[1]);
+            t.Replies.Enqueue(CofferProtocol.FormatAck(seq, CofferProtocol.ToCents(176)));
+            sync.Tick();
+            Assert.That(sync.DisplayAnswered && sync.IsConfirmed, Is.True);
+            Assert.That(sync.LastAckedBalance, Is.EqualTo(176));
+        }
+
+        [Test]
+        public void LINK02_SilentPortCountsTicksWithoutReplyAndReconnectProvesTheLinkAgain()
+        {
+            var t = new FakeTransport();
+            var sync = new CofferDisplaySync(t, resendAfterTicks: 3);
+            sync.Publish(0);
+            for (var i = 0; i < 10; i++) sync.Tick();
+            Assert.That(sync.TicksWithoutReply, Is.EqualTo(10), "no Arduino answering on this port");
+
+            t.Replies.Enqueue(CofferProtocol.FormatAck(int.Parse(t.Sent[t.Sent.Count - 1].Split('|')[1]), 0));
+            sync.Tick();
+            Assert.That(sync.IsConfirmed, Is.True);
+
+            var other = new FakeTransport();
+            sync.SetTransport(other);
+            Assert.That(sync.IsConfirmed, Is.False, "a new port must answer again");
+            sync.Tick();
+            Assert.That(other.Sent.Count, Is.EqualTo(1), "the confirmed balance is resent on the new port");
+        }
+
         private static string VectorsPath => Path.GetFullPath(Path.Combine(UnityEngine.Application.dataPath, "..", "Docs", "Hardware", "cofre_display", "protocol_vectors.csv"));
 
         private static List<string[]> Vectors()

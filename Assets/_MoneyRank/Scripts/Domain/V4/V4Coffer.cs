@@ -168,6 +168,12 @@ namespace MoneyRank.Domain.V4
         public int MismatchedAcks { get; private set; }
         public int UnrepresentableBalances { get; private set; }
         public CofferLinkStatus Status => _transport.Status;
+        /// <summary>The display answered with a valid frame since the port was (re)opened (proves it is the coffer sketch).</summary>
+        public bool DisplayAnswered { get; private set; }
+        /// <summary>The display confirmed the current balance (nothing pending).</summary>
+        public bool IsConfirmed => DisplayAnswered && LastAckedBalance >= 0 && _pendingSeq < 0;
+        /// <summary>Ticks spent connected without any valid reply (to tell "port open but no Arduino answering").</summary>
+        public int TicksWithoutReply { get; private set; }
 
         public CofferDisplaySync(ICofferDisplayTransport transport, int resendAfterTicks = 20)
         {
@@ -180,6 +186,8 @@ namespace MoneyRank.Domain.V4
         {
             _transport = transport ?? new NullCofferTransport();
             _wasConnected = false;
+            DisplayAnswered = false;
+            TicksWithoutReply = 0;
             if (_pendingBalance >= 0 || LastAckedBalance >= 0) Resync(_pendingBalance >= 0 ? _pendingBalance : LastAckedBalance);
         }
 
@@ -208,14 +216,23 @@ namespace MoneyRank.Domain.V4
         public void Tick()
         {
             var connected = _transport.Status == CofferLinkStatus.Connected;
-            if (connected && !_wasConnected && _pendingBalance >= 0) { _pendingSeq = ++_seq; _ticksSinceSend = _resendAfterTicks; }
+            if (connected && !_wasConnected)
+            {
+                DisplayAnswered = false;
+                TicksWithoutReply = 0;
+                if (_pendingBalance < 0 && LastAckedBalance >= 0) _pendingBalance = LastAckedBalance;   // reconnect: prove the link again
+                if (_pendingBalance >= 0) { _pendingSeq = ++_seq; _ticksSinceSend = _resendAfterTicks; }
+            }
             _wasConnected = connected;
+            if (connected && !DisplayAnswered) TicksWithoutReply++;
 
             string line;
             while ((line = _transport.TryReceive()) != null)
             {
                 CofferReplyKind kind; int seq; long cents;
                 if (!CofferProtocol.TryParseReply(line, out kind, out seq, out cents)) { RejectedReplies++; continue; }
+                DisplayAnswered = true;
+                TicksWithoutReply = 0;
                 if (kind == CofferReplyKind.Ack && seq == _pendingSeq)
                 {
                     if (cents == CofferProtocol.ToCents(_pendingBalance)) { LastAckedBalance = _pendingBalance; LastAckedSeq = seq; _pendingSeq = -1; }

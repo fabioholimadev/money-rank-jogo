@@ -63,6 +63,24 @@ namespace MoneyRank.Infrastructure.V4
             return ports;
         }
 
+        /// <summary>Only real serial/USB ports (no Bluetooth virtual ports): where an Arduino can be.</summary>
+        public static IReadOnlyList<string> ListCandidatePorts()
+        {
+            var ports = new List<string>();
+            var buffer = new StringBuilder(512);
+            for (var i = 1; i <= 64; i++)
+            {
+                var name = "COM" + i.ToString(System.Globalization.CultureInfo.InvariantCulture);
+                try
+                {
+                    buffer.Clear();
+                    if (QueryDosDevice(name, buffer, buffer.Capacity) != 0 && !IsBluetoothDevice(buffer.ToString())) ports.Add(name);
+                }
+                catch (Exception) { break; }
+            }
+            return ports;
+        }
+
         /// <summary>True for the device path of a Bluetooth virtual COM port (e.g. "\Device\BthModem0").</summary>
         public static bool IsBluetoothDevice(string devicePath) =>
             !string.IsNullOrEmpty(devicePath) && devicePath.IndexOf("BthModem", StringComparison.OrdinalIgnoreCase) >= 0;

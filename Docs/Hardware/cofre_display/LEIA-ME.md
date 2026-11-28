@@ -57,8 +57,20 @@ Serial: 115200 baud, 8N1, ASCII, uma linha por quadro.
    (o `arduino-cli` vem com a Arduino IDE 2, em `%LOCALAPPDATA%\Programs\Arduino IDE\resources\app\lib\backend\resources`).
 3. Teste de bancada sem o jogo: `powershell -ExecutionPolicy Bypass -File Docs\Hardware\cofre_display\Test-CofreDisplay.ps1 -Port COM11`.
    Ao ligar deve mostrar `R$0,00`; o script termina com o último saldo enviado na tela.
-4. No Unity: escolher a porta COM no painel do cofre (portas USB aparecem antes das portas Bluetooth virtuais).
-   Sem display o jogo segue e o saldo aparece na tela. Feche o Serial Monitor antes: só um programa usa a porta por vez.
+4. No jogo (painel "Banco e cofre"): clique em **Detectar display**. O jogo testa cada porta USB/serial até o Arduino
+   responder; não é preciso saber o número da COM (ele muda quando o cabo troca de entrada USB, ex.: COM11 → COM12).
+   No executável, com uma única porta USB, a detecção roda sozinha ao iniciar a partida. Também dá para escolher a porta
+   à mão; as portas Bluetooth virtuais não aparecem. Sem display o jogo segue e o saldo aparece na tela.
+5. O status do painel diz a verdade sobre a ligação:
+   - `Display (COMx): ✓ mostrando R$…` — o display confirmou o saldo (ACK). É a única indicação de que está tudo certo.
+   - `porta aberta, Arduino não responde` — a porta abriu, mas nenhum quadro válido voltou: grave este sketch ou troque o cabo.
+   - `porta indisponível` — outro programa está com a porta (feche o Serial Monitor / Arduino IDE) ou o cabo saiu.
+   No início da partida o cofre está em R$0,00; com o sketch animado o display sai do modo exibição para o modo jogo
+   quando o jogo conecta, o que mostra a conexão mesmo com saldo zero.
+
+Teste do caminho do próprio jogo com o hardware (não roda na suíte normal):
+`$env:MONEYRANK_COFFER_PORT='COM12'; unity test . --mode EditMode --filter V4CofferHardwareTests` e, na cena,
+`unity test . --mode PlayMode --filter V4DisplayHardwareSceneTests`.
 
 Estado em 27/11/2026: **OLED testado em hardware real** (Arduino Uno clone CH340, OLED SSD1306 em 0x3C) com o
 `Test-CofreDisplay.ps1` — `PRONTO` no boot, `ACK` correto para 0, 150, 28.260 e 1.234.567 CRIA Coin, e quadro com CRC
