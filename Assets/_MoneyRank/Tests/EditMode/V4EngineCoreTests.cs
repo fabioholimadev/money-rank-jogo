@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using MoneyRank.Domain.V4;
 using NUnit.Framework;
@@ -115,7 +115,7 @@ namespace MoneyRank.Tests.EditMode
             Assert.That(g.Land("H19").Ok, Is.True);
             Assert.That(g.S.Pending.Kind, Is.EqualTo(DecisionKind.HospitalModality));
             Assert.That(g.P(0).Position, Is.EqualTo(9));
-            Assert.That(g.S.Pending.OptionIds, Is.EquivalentTo(new[] { "private" }), "cofre starts at zero: only private is accessible");
+            Assert.That(g.S.Pending.OptionIds, Is.EquivalentTo(new[] { "private", "stay" }), "cofre starts at zero: private, or stay without paying (playtest option)");
             Assert.That(g.Hospital("private").Ok, Is.True);
             Assert.That(g.P(0).HospitalTurnsRemaining, Is.EqualTo(1));
             Assert.That(g.P(0).Wallet, Is.EqualTo(250));
@@ -139,9 +139,9 @@ namespace MoneyRank.Tests.EditMode
         public void ATR02_EasyProfessoraPlusOneConhecimentoIsThreeEffectivePoints()
         {
             var p = Bare("P01");
-            var o = Apply(p, D(k: 1), "B1_facil");
+            var o = Apply(p, D(k: 1), "B1_facil");   // 1 x Professora 2 x Fácil 2 = 4 (integer multipliers since the playtest)
             Assert.That(o.Cycles[(int)AttributeId.Conhecimento], Is.EqualTo(1));
-            Assert.That(p.Attributes[(int)AttributeId.Conhecimento].Progress, Is.EqualTo(0m));
+            Assert.That(p.Attributes[(int)AttributeId.Conhecimento].Progress, Is.EqualTo(1m));
         }
 
         [Test]
@@ -186,20 +186,20 @@ namespace MoneyRank.Tests.EditMode
             var p = g.P(0);
             p.Pawns[0].RouteIndex = 10; p.Pawns[0].MaxIndex = 10;
             g.SetWallet(0, 0);
-            // essential house with no resources -> +3 Dividas base; Economista Dividas multiplier 0.75, so use several hits
-            var o = V4Attributes.Apply(p, new decimal[] { 0, 0, 0, 0, 0, 12 }, g.Engine.ProfessionOf(p), g.Engine.Difficulty, g.Engine.Rules);
-            Assert.That(o.Cycles[(int)AttributeId.Dividas], Is.EqualTo(3)); // 12*0.75 = 9 -> 3 cycles
+            // Economista Dividas multiplier 1 (integer since the playtest): 9 points = 3 bars
+            var o = V4Attributes.Apply(p, new decimal[] { 0, 0, 0, 0, 0, 9 }, g.Engine.ProfessionOf(p), g.Engine.Difficulty, g.Engine.Rules);
+            Assert.That(o.Cycles[(int)AttributeId.Dividas], Is.EqualTo(3));
             Assert.That(p.HospitalPending, Is.False);
         }
 
         [Test]
         public void ReductionsAreNotMultipliedAndGainsAreExact()
         {
-            var p = Bare("P05"); // Empreendedora Cortisol x1.75
-            Apply(p, D(co: 1), "B1_dificil");   // 1 * 1.75 * 1.5 = 2.625
-            Assert.That(p.Attributes[(int)AttributeId.Cortisol].Progress, Is.EqualTo(2.625m));
-            Apply(p, D(co: -1), "B1_dificil");  // exactly one point
-            Assert.That(p.Attributes[(int)AttributeId.Cortisol].Progress, Is.EqualTo(1.625m));
+            var p = Bare("P05"); // Empreendedora Cortisol x2 (integer since the playtest)
+            Apply(p, D(co: 1));                 // 1 * 2 * Médio 1 = 2 whole points
+            Assert.That(p.Attributes[(int)AttributeId.Cortisol].Progress, Is.EqualTo(2m));
+            Apply(p, D(co: -1));                // reductions are not multiplied: exactly one point
+            Assert.That(p.Attributes[(int)AttributeId.Cortisol].Progress, Is.EqualTo(1m));
         }
 
         // ---------------------------------------------------------------- ludo

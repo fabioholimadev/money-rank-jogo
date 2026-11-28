@@ -22,7 +22,7 @@ namespace MoneyRank.EditorTools
             EditorUserBuildSettings.buildAppBundle = false;
             var options = new BuildPlayerOptions
             {
-                scenes = new[] { "Assets/_MoneyRank/Scenes/DevSandbox.unity" },
+                scenes = new[] { "Assets/_MoneyRank/Scenes/MoneyRankV4.unity" },
                 locationPathName = outputPath,
                 target = BuildTarget.Android,
                 options = BuildOptions.None

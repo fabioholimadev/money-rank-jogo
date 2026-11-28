@@ -130,6 +130,18 @@ namespace MoneyRank.Domain.V4
         public int HealthCyclesToHospital => Int("health_cycles_to_hospital", 3);
         public bool MultiplyReductions => Bool("multiply_reductions", false);
         public int MaxStepsPerPositiveCycle => Int("max_steps_per_positive_cycle", 2);
+        /// <summary>Internal Ludo cells advanced per completed positive bar (playtest 27/11/2026: 3).</summary>
+        public int PositiveCycleSteps => Int("positive_cycle_steps", 1);
+        /// <summary>Internal Ludo cells retreated per completed negative bar.</summary>
+        public int NegativeCycleSteps => Int("negative_cycle_steps", 1);
+        /// <summary>Advance multiplier while the vehicle is active (does not stack with the doubling abilities).</summary>
+        public int VehicleAdvanceMultiplier => Int("vehicle_advance_multiplier", 2);
+        /// <summary>When true, the hospital always offers "stay without paying" (emergency recovery), except where it eliminates.</summary>
+        public bool HospitalStayWithoutPayingOption => Bool("hospital_stay_without_paying_option", false);
+        /// <summary>When true, the Atleta's Fôlego Extra is applied automatically (no choice, no decline).</summary>
+        public bool AthleteAbilityAutomatic => Bool("athlete_ability_automatic", false);
+        /// <summary>Players may join only at the start of a year (before the first roll of the year).</summary>
+        public bool JoinOnlyAtYearStart => Bool("join_only_at_year_start", true);
         public int VehicleCost => Int("vehicle_cost", 400);
         public int VehicleDurationRounds => Int("vehicle_duration_rounds", 9);
         public int VehicleMaintenanceCost => Int("vehicle_maintenance_cost", 150);
@@ -301,12 +313,18 @@ namespace MoneyRank.Domain.V4
             var e = new List<string>();
             if (c.Houses.Count != 36) e.Add("Expected 36 houses, found " + c.Houses.Count);
             if (c.Houses.Select(h => h.Id).Distinct().Count() != c.Houses.Count) e.Add("Duplicate house IDs");
+            // House IDs are stable content IDs and need not match the board position (since the 27/11/2026 playtest H19 sits at
+            // position 28 and H28 at 19, as on the physical board). Every ID H01..H36 must exist, every position 1..36 must hold
+            // exactly one house, and the Unity index is always position - 1.
             for (var i = 0; i < c.Houses.Count; i++)
             {
-                var h = c.Houses.FirstOrDefault(x => x.Id == "H" + (i + 1).ToString("00", CultureInfo.InvariantCulture));
-                if (h == null) { e.Add("Missing house H" + (i + 1).ToString("00")); continue; }
-                if (h.UnityIndex != i || h.Position != i + 1) e.Add(h.Id + " has inconsistent position/unity index");
+                var id = "H" + (i + 1).ToString("00", CultureInfo.InvariantCulture);
+                if (c.Houses.All(x => x.Id != id)) e.Add("Missing house " + id);
+                var atPosition = c.Houses.Count(x => x.Position == i + 1);
+                if (atPosition != 1) e.Add("Position " + (i + 1) + " holds " + atPosition + " houses");
             }
+            foreach (var h in c.Houses)
+                if (h.UnityIndex != h.Position - 1) e.Add(h.Id + " has inconsistent position/unity index");
             foreach (var cat in Categories)
                 if (c.Houses.Count(h => h.Category == cat) != 4) e.Add("Category " + cat + " must have 4 houses");
             if (c.Houses.Any(h => !Categories.Contains(h.Category))) e.Add("Unknown house category present");

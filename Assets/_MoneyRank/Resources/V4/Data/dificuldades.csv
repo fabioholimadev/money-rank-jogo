@@ -1,7 +1,7 @@
 ﻿id,bateria,dificuldade,mult_positivos,mult_negativos,ir_pct,hospital_publico_custo,hospital_publico_turnos,hospital_particular_custo,hospital_particular_turnos,emergencia_turnos,emergencia_dividas_base,eliminar_sem_recursos,status
-B1_facil,1,facil,2,0.5,10,150,2,250,1,3,0,False,mult_e_ir_aprovados; hospital_numeros_preteste
-B1_medio,1,medio,1,1,20,150,2,250,1,4,2,False,mult_e_ir_aprovados; hospital_numeros_preteste
-B1_dificil,1,dificil,0.75,1.5,25,150,2,250,1,0,0,True,mult_e_ir_aprovados; hospital_numeros_preteste
-B2_facil,2,facil,2.5,0.25,10,150,2,250,1,3,0,False,mult_e_ir_aprovados; hospital_numeros_preteste
-B2_medio,2,medio,1,1,20,150,2,250,1,4,2,False,mult_e_ir_aprovados; hospital_numeros_preteste
-B2_dificil,2,dificil,0.75,1.5,25,150,2,250,1,0,0,True,mult_e_ir_aprovados; hospital_numeros_preteste
+B1_facil,1,facil,2,1,10,150,2,250,1,3,0,False,mult_e_ir_aprovados; hospital_numeros_preteste; multiplicadores_inteiros_playtest_2026-11-27
+B1_medio,1,medio,1,1,20,150,2,250,1,4,2,False,mult_e_ir_aprovados; hospital_numeros_preteste; multiplicadores_inteiros_playtest_2026-11-27
+B1_dificil,1,dificil,1,2,25,150,2,250,1,0,0,True,mult_e_ir_aprovados; hospital_numeros_preteste; multiplicadores_inteiros_playtest_2026-11-27
+B2_facil,2,facil,3,1,10,150,2,250,1,3,0,False,mult_e_ir_aprovados; hospital_numeros_preteste; multiplicadores_inteiros_playtest_2026-11-27
+B2_medio,2,medio,1,1,20,150,2,250,1,4,2,False,mult_e_ir_aprovados; hospital_numeros_preteste; multiplicadores_inteiros_playtest_2026-11-27
+B2_dificil,2,dificil,1,2,25,150,2,250,1,0,0,True,mult_e_ir_aprovados; hospital_numeros_preteste; multiplicadores_inteiros_playtest_2026-11-27

@@ -188,6 +188,9 @@ namespace MoneyRank.Domain.V4
                     var p = Player(State.TurnOrder[State.CloseCursor]);
                     if (p.Eliminated) continue;
                     Receive(p, p.Salary, "salario", "ano" + State.YearIndex);
+                    var line = YearLine(p);
+                    line.Salary = p.Salary;
+                    line.IncomeTaxDue = CeilPct(p.Salary, Difficulty.IncomeTaxPct);
                     Note(p.Name + " recebeu salário de " + p.Salary + " CRIA Coin.");
                 }
                 State.CloseStep = "tax";
@@ -217,16 +220,36 @@ namespace MoneyRank.Domain.V4
             }
         }
 
+        /// <summary>Summary line of the player for the year being closed (created on first use).</summary>
+        private YearSummaryLine YearLine(PlayerState p)
+        {
+            var line = State.YearSummaries.FirstOrDefault(l => l.Year == State.YearIndex && l.PlayerId == p.Id);
+            if (line != null) return line;
+            line = new YearSummaryLine { Year = State.YearIndex, PlayerId = p.Id };
+            State.YearSummaries.Add(line);
+            return line;
+        }
+
+        private void RecordIncomeTax(PlayerState p, string houseId, string outcome, int paid)
+        {
+            if (houseId != "SYS_IR") return;
+            var line = YearLine(p);
+            line.IncomeTaxOutcome = outcome;
+            line.IncomeTaxPaid += paid;
+        }
+
         private void SettleYear()
         {
             foreach (var id in State.TurnOrder)
             {
                 var p = Player(id);
                 if (p.Eliminated) continue;
+                var line = YearLine(p);
                 foreach (var rc in p.Receivables.Where(r => !r.Paid && r.DueYear <= State.YearIndex).ToList())
                 {
                     Receive(p, rc.TotalReturn, "retorno_parceria", rc.Id);
                     rc.Paid = true;
+                    line.PartnershipReturns += rc.TotalReturn;
                     Note(p.Name + " recebeu retorno de parceria de " + rc.TotalReturn + " CRIA Coin.");
                 }
                 if (p.ReserveBalance > 0)
@@ -235,6 +258,7 @@ namespace MoneyRank.Domain.V4
                     var room = Math.Max(0, p.Salary - p.ReserveBalance);
                     var interest = Math.Min(raw, room);
                     p.ReserveBalance += interest;
+                    line.ReserveInterest += interest;
                     if (interest > 0) Note(p.Name + " recebeu " + interest + " CRIA Coin de rendimento na reserva (passivo do banco).");
                 }
             }

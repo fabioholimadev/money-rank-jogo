@@ -101,9 +101,26 @@ namespace MoneyRank.Domain.V4
         public int HospitalTurnsRemaining;
         public bool HospitalPending;            // internment pending after current resolution
         public bool Eliminated;
+        /// <summary>Left the match by the master's decision (also Eliminated, so every rule skips the player).</summary>
+        public bool Left;
+        /// <summary>Round in which the player joined mid-match (0 = from the start).</summary>
+        public int JoinedRound;
         public List<FiscalRecord> Fiscal = new List<FiscalRecord>();
         public List<Receivable> Receivables = new List<Receivable>();
         public string Nick;
+    }
+
+    /// <summary>What one player received and paid in one annual close (shown to the table after the close).</summary>
+    public sealed class YearSummaryLine
+    {
+        public int Year;
+        public string PlayerId;
+        public int Salary;
+        public int IncomeTaxDue;
+        public int IncomeTaxPaid;          // tax or penalty actually paid to the cofre
+        public string IncomeTaxOutcome;    // pago | sonegado | multa | autuado | sem_recursos
+        public int PartnershipReturns;
+        public int ReserveInterest;
     }
 
     [SharedOnClone]
@@ -203,5 +220,7 @@ namespace MoneyRank.Domain.V4
         public bool RollAgain;
         /// <summary>Extra rolls already granted in the current turn (limit: doubles_extra_rolls_max).</summary>
         public int ExtraRollsUsed;
+        /// <summary>Per-player summary of every annual close (salary, IR, partnerships, reserve interest).</summary>
+        public List<YearSummaryLine> YearSummaries = new List<YearSummaryLine>();
     }
 }

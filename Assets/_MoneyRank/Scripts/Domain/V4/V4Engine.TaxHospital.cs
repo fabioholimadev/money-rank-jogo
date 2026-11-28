@@ -103,6 +103,7 @@ namespace MoneyRank.Domain.V4
             {
                 case "pagar_imposto":
                     Pay(p, due, "fund", "imposto_" + kind, d.HouseId);
+                    RecordIncomeTax(p, d.HouseId, "pago", due);
                     if (State.Config.VoluntaryTaxCitizenship && Rules.VoluntaryTaxCitizenshipBase > 0)
                         ApplyEffects(p, OneDelta(AttributeId.Cidadania, Rules.VoluntaryTaxCitizenshipBase));
                     Log(p, "tax", d.HouseId, optionId, p.Name + " pagou " + due + " CRIA Coin de " + kind + " ao cofre.");
@@ -119,6 +120,7 @@ namespace MoneyRank.Domain.V4
                 }
                 case "imposto_sem_recursos":
                     AddFiscal(p, kind, due, due, FiscalStatus.Inadimplente);
+                    RecordIncomeTax(p, d.HouseId, "sem_recursos", 0);
                     ApplyEffects(p, OneDelta(AttributeId.Dividas, Rules.UnpaidTaxDebtBase));
                     Log(p, "tax", d.HouseId, optionId, p.Name + " sem recursos para " + kind + ": inadimplente, +" + Rules.UnpaidTaxDebtBase + " Dívidas.");
                     break;
@@ -163,6 +165,7 @@ namespace MoneyRank.Domain.V4
             if (happy)
             {
                 AddFiscal(p, d.Tag, due, due, FiscalStatus.Sonegado);
+                RecordIncomeTax(p, d.HouseId, "sonegado", 0);
                 Log(p, "tax", d.HouseId, null, p.Name + " sonegou " + due + " CRIA Coin de " + d.Tag + " (moeda FELIZ): pendência registrada.");
             }
             else
@@ -171,12 +174,14 @@ namespace MoneyRank.Domain.V4
                 if (Capacity(p) >= penalty)
                 {
                     Pay(p, penalty, "fund", "multa_" + d.Tag, d.HouseId);
+                    RecordIncomeTax(p, d.HouseId, "multa", penalty);
                     ApplyEffects(p, OneDelta(AttributeId.Cortisol, 1m));
                     Log(p, "tax", d.HouseId, null, p.Name + " pagou " + penalty + " CRIA Coin (dobro) de " + d.Tag + " (moeda TRISTE), +1 Cortisol.");
                 }
                 else
                 {
                     AddFiscal(p, d.Tag, due, penalty, FiscalStatus.Autuado);
+                    RecordIncomeTax(p, d.HouseId, "autuado", 0);
                     ApplyEffects(p, OneDelta(AttributeId.Dividas, Rules.UnpaidTaxDebtBase));
                     Log(p, "tax", d.HouseId, null, p.Name + " autuado(a) em " + penalty + " CRIA Coin sem recursos: +" + Rules.UnpaidTaxDebtBase + " Dívidas.");
                 }
@@ -236,12 +241,21 @@ namespace MoneyRank.Domain.V4
             var d = NewDecision(DecisionKind.HospitalModality, p, "H10");
             if (pub) d.OptionIds.Add("public");
             if (priv) d.OptionIds.Add("private");
+            if (StayWithoutPayingAvailable()) d.OptionIds.Add("stay");
             d.Amount = Difficulty.PublicHospitalCost;
             d.Amount2 = PrivateCostFor(p);
+            d.Amount3 = Difficulty.EmergencyTurns;
             State.Pending = d;
             State.Phase = V4Phase.AwaitDecision;
             Note(p.Name + " foi internado(a): escolha o tratamento.");
         }
+
+        /// <summary>
+        /// "Não pagar e ficar no hospital" (playtest 27/11/2026): the emergency recovery of the difficulty offered as a choice even
+        /// when a paid treatment is affordable. Never offered where staying without paying eliminates (Difícil).
+        /// </summary>
+        private bool StayWithoutPayingAvailable() =>
+            Rules.HospitalStayWithoutPayingOption && !Difficulty.EliminateWithoutResources && Difficulty.EmergencyTurns > 0;
 
         private void Emergency(PlayerState p)
         {
@@ -250,10 +264,16 @@ namespace MoneyRank.Domain.V4
                 Eliminate(p, "sem recursos para o tratamento");
                 return;
             }
+            ApplyEmergencyRecovery(p, p.Name + " em recuperação emergencial: ");
+            Drain(p);
+        }
+
+        private void ApplyEmergencyRecovery(PlayerState p, string prefix)
+        {
             p.HospitalTurnsRemaining = Difficulty.EmergencyTurns;
             if (Difficulty.EmergencyDebtBase > 0) ApplyEffects(p, OneDelta(AttributeId.Dividas, Difficulty.EmergencyDebtBase));
-            Log(p, "hospital", "H10", null, p.Name + " em recuperação emergencial: " + Difficulty.EmergencyTurns + " turno(s) perdido(s).");
-            Drain(p);
+            Log(p, "hospital", "H10", "stay", prefix + Difficulty.EmergencyTurns + " turno(s) perdido(s)" +
+                (Difficulty.EmergencyDebtBase > 0 ? ", +" + Difficulty.EmergencyDebtBase + " Dívidas" : ", sem custo") + ".");
         }
 
         public V4Result ChooseHospital(string commandId, string decisionId, string playerId, string modality)
@@ -267,6 +287,12 @@ namespace MoneyRank.Domain.V4
                 var p = Player(playerId);
                 State.Pending = null;
                 State.Phase = V4Phase.AwaitRoll;
+                if (modality == "stay")
+                {
+                    ApplyEmergencyRecovery(p, p.Name + " escolheu não pagar e ficar no hospital: ");
+                    Resolve(p);
+                    return V4Result.Success();
+                }
                 if (modality == "public")
                 {
                     Transfer("fund", "bank", Difficulty.PublicHospitalCost, "hospital_publico", null);

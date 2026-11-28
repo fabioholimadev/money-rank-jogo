@@ -56,26 +56,23 @@ namespace MoneyRank.Tests.EditMode
         }
 
         [Test]
-        public void AthleteChoosesAnExtraStepOnceAndDecliningDoesNotConsumeTheAbility()
+        public void AthleteAbilityIsAutomaticOncePerYearAndCannotBeDeclined()
         {
+            // Playtest 27/11/2026 (user decision): Fôlego Extra is applied automatically, with a notice; it does not accumulate.
             var g = V4Game.New(new[] { V4Game.Atleta, V4Game.Professora });
             Assert.That(g.Land("H03").Ok, Is.True);
-            Assert.That(g.Choose("H03_O03").Ok, Is.True); // +3 Conhecimento x1 = one cycle
-            Assert.That(g.S.Pending.Kind, Is.EqualTo(DecisionKind.AbilityChoice));
-            Assert.That(g.S.Pending.OptionIds, Does.Contain("advance2"));
-            var decline = g.Engine.ChooseAbility(g.Cmd(), g.S.Pending.Id, "decline");
-            Assert.That(decline.Ok, Is.True, decline.Error);
-            Assert.That(g.P(0).AbilityUsedThisYear, Is.False);
-            Assert.That(g.P(0).Pawns[0].RouteIndex, Is.EqualTo(0), "normal single step from base");
+            Assert.That(g.Choose("H03_O03").Ok, Is.True); // +3 Conhecimento x1 = one bar
+            Assert.That(g.S.Pending, Is.Null, "no ability decision is opened");
+            Assert.That(g.P(0).AbilityUsedThisYear, Is.True);
+            Assert.That(g.P(0).Pawns[0].RouteIndex, Is.EqualTo(5), "first bar of the year advances double: 6 cells from base");
+            Assert.That(g.S.History.Any(h => h.PlayerId == "p1" && h.Kind == "ability" && h.Detail.Contains("automaticamente")), Is.True, "the table is notified");
 
             g.TurnOf(0);
-            g.P(0).Attributes[(int)AttributeId.Cortisol].Progress = 0.5m;
+            g.P(0).Attributes[(int)AttributeId.Cortisol].Progress = 0m;
             Assert.That(g.Land("H03").Ok, Is.True);
             Assert.That(g.Choose("H03_O03").Ok, Is.True);
-            Assert.That(g.S.Pending.OptionIds, Does.Contain("reduce:cortisol"));
-            Assert.That(g.Engine.ChooseAbility(g.Cmd(), g.S.Pending.Id, "advance2").Ok, Is.True);
-            Assert.That(g.P(0).AbilityUsedThisYear, Is.True);
-            Assert.That(g.P(0).Pawns[0].RouteIndex, Is.EqualTo(2));
+            Assert.That(g.S.Pending, Is.Null);
+            Assert.That(g.P(0).Pawns[0].RouteIndex, Is.EqualTo(8), "second bar in the same year: normal 3 cells");
         }
 
         [Test]

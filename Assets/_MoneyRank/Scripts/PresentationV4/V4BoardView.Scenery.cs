@@ -293,9 +293,10 @@ namespace MoneyRank.V4.Presentation
             Prim(PrimitiveType.Cube, "Door", hosp, new Vector3(0f, 0.24f, 0.77f), new Vector3(0.42f, 0.48f, 0.03f), Lit(new Color(0.25f, 0.4f, 0.5f)));
             Caption(props, "HOSPITAL", c9, 1);
 
-            // H19 direct to hospital: ambulance + arrow pointing to H10
-            var c18 = RingCell(18);
-            var amb = new GameObject("Ambulance").transform; amb.SetParent(props, false); amb.localPosition = c18 + new Vector3(0.35f, 0.02f, -0.5f); amb.localRotation = Quaternion.Euler(0f, -12f, 0f); amb.localScale = Vector3.one * 0.78f;
+            // H19 direct to hospital: ambulance + arrow pointing to H10. Corner cells come from casas.csv (indice_unity):
+            // since the 27/11/2026 playtest H19 sits at position 28 and H28 (cofre) at position 19, matching the physical board.
+            var c18 = RingCell(_c.House("H19").UnityIndex);
+            var amb = new GameObject("Ambulance").transform; amb.SetParent(props, false); amb.localPosition = c18 + new Vector3(0.35f, 0.02f, -0.6f); amb.localRotation = Quaternion.Euler(0f, -12f, 0f); amb.localScale = Vector3.one * 0.62f;   // small and low enough not to hide the caption
             Prim(PrimitiveType.Cube, "Box", amb, new Vector3(0f, 0.62f, -0.2f), new Vector3(0.95f, 0.85f, 1.5f), Lit(new Color(0.96f, 0.96f, 0.97f), 0.5f));
             Prim(PrimitiveType.Cube, "Cabin", amb, new Vector3(0f, 0.45f, 0.78f), new Vector3(0.95f, 0.55f, 0.6f), Lit(new Color(0.96f, 0.96f, 0.97f), 0.5f));
             Prim(PrimitiveType.Cube, "Glass", amb, new Vector3(0f, 0.55f, 1.09f), new Vector3(0.8f, 0.3f, 0.02f), Lit(new Color(0.15f, 0.25f, 0.3f), 0.9f));
@@ -314,7 +315,7 @@ namespace MoneyRank.V4.Presentation
             Caption(props, "DIRETO AO\nHOSPITAL", c18, 2);
 
             // H28 public coffer: vault with a live display
-            var c27 = RingCell(27);
+            var c27 = RingCell(_c.House("H28").UnityIndex);
             var coffer = new GameObject("Cofre").transform; coffer.SetParent(props, false); coffer.localPosition = c27 + new Vector3(-0.05f, 0.02f, -0.32f); coffer.localRotation = Quaternion.Euler(0f, 160f, 0f); coffer.localScale = Vector3.one * 0.95f;
             Prim(PrimitiveType.Cube, "Body", coffer, new Vector3(0f, 0.55f, 0f), new Vector3(1.3f, 1.1f, 1.1f), Lit(new Color(0.16f, 0.17f, 0.2f), 0.75f));
             Prim(PrimitiveType.Cube, "Frame", coffer, new Vector3(0f, 0.55f, 0.555f), new Vector3(1.18f, 0.98f, 0.02f), Lit(Gold, 0.9f));
@@ -339,6 +340,10 @@ namespace MoneyRank.V4.Presentation
             plaque.transform.position += new Vector3(0f, 0.004f, 0f);
             var tm = AddLabel(parent, text, pos + new Vector3(0f, 0.025f, 0f), lines > 1 ? 0.052f : 0.058f, new Color(1f, 0.88f, 0.5f), TextAnchor.MiddleCenter, 90f);
             tm.fontStyle = FontStyle.Bold;
+            // shrink long captions so they never spill over the plaque
+            var maxWidth = CornerSize - 0.45f;
+            var width = tm.GetComponent<MeshRenderer>().bounds.size.x;
+            if (width > maxWidth) tm.characterSize *= maxWidth / width;
         }
     }
 }

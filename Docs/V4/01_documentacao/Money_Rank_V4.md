@@ -85,7 +85,7 @@ O mestre não calcula efeitos manualmente. Ele registra escolhas e resultados f�
 As seguintes decisões são defaults operacionais, não aprovações individuais: jogo de 2–4 com solo de demonstração; um D6; cofre inicial zero; visita comum ao hospital neutra; contribuição voluntária de 50 sem pontos; desempate por ordem de resolução, vitória por sobrevivência e ausência de vencedor se todos eliminados; redução sem multiplicadores; pontos fracionários preservados; regra antiabuso da reserva proporcional ao novo principal; proteção de estrelas e mapeamento de Ludo; não empilhar carro com habilidade de avanço; prazo do carro contado por rodada; ordem simultânea de efeitos; tratamento imediato no ingresso; ajustes da habilidade da Empreendedora a casas fixas; prêmio de Cidadania por tributo voluntário; lidar com autuação sem fundos; imposto anual apenas sobre salário; pagamento de parceria e rendimento no fechamento; posição H25 ISS no antigo IOF, H32 ICMS no antigo IR (escolha de mapeamento); detalhes de preços das despesas essenciais são propostas da conversa para pré-teste. O Economista foi recuperado de proposta anterior, sem confirmação individual explícita no trecho disponível; aplicou-se a regra aprovada de periodicidade anual. O arquivo `casas.csv` e os anexos são a referência de conteúdo; o projeto Unity não foi alterado nem testado nesta entrega. A V3 integral do Drive não foi reaberta nesta execução; a revisão se baseou nas decisões registradas, foto, faixas e auditoria AS-IS anexada. Não presumir que esta versão foi homologada ou que modelos 3D externos foram obtidos.
 
 ## 16. Mapa das casas e cartas
-O mapa abaixo segue o layout de referência, com Início no canto superior esquerdo e sentido horário; na foto física o tabuleiro está girado. Os cantos são H01, H10, H19 e H28. Os quatro ícones substitutos estão no pacote visual. A posição de cada casa é numerada de 1 a 36; no Unity o índice é posição menos um. Não confundir cores das categorias com cores dos peões.
+O mapa abaixo segue o layout de referência, com Início no canto superior esquerdo e sentido horário; na foto física o tabuleiro está girado. Os cantos são H01 (posição 1), H10 (posição 10), H28 — Cofre público (posição 19) e H19 — Direto para o hospital (posição 28): desde o playtest de 27/11/2026 o Cofre e o Direto para o hospital trocaram de lugar para ficar iguais ao tabuleiro físico, mantendo os IDs. Os quatro ícones substitutos estão no pacote visual. A posição de cada casa é numerada de 1 a 36; no Unity o índice é posição menos um. Não confundir cores das categorias com cores dos peões.
 
 ### 16.1. Mapa numerado e alternativas
 
@@ -217,10 +217,12 @@ Apresenta alternativas fixas; aplica exatamente uma; recusa conforme categoria.
 - **Projeto intensivo** — recebe 75% do salário vigente; Toxina +1; Cortisol +3. Receba renda extra imediatamente, sem alterar seu salário.
 - **Recusar** — sem valores fixos adicionais. Não contratar ou comprar. Sem efeitos.
 
-### H19 — Direto para o hospital
-Envia ao hospital imediatamente e abre escolha de tratamento.
+### H28 — Cofre público
+Mostra saldo e finalidade exclusiva: tratamento público; contribuição voluntária proposta.
 
-- **Internação imediata** — sem valores fixos adicionais. Vá diretamente ao hospital e selecione modalidade de atendimento.
+- **Consultar cofre público** — sem valores fixos adicionais. Confira o saldo acumulado, destinado exclusivamente ao hospital.
+- **Contribuir voluntariamente** — custo 50 CRIA Coin. Transfira 50 CRIA Coin ao cofre, sem benefício adicional.
+- **Recusar** — sem valores fixos adicionais. Não contratar ou comprar. Sem efeitos.
 
 ### H20 — Imóvel
 Compra opcional repetível; cada imóvel concede checkpoint.
@@ -280,12 +282,10 @@ Apresenta alternativas fixas; aplica exatamente uma; recusa conforme categoria.
 - **Pagamento parcial** — custo 30 CRIA Coin. 
 - **Não pagar** — Dívidas +3. 
 
-### H28 — Cofre público
-Mostra saldo e finalidade exclusiva: tratamento público; contribuição voluntária proposta.
+### H19 — Direto para o hospital
+Envia ao hospital imediatamente e abre escolha de tratamento.
 
-- **Consultar cofre público** — sem valores fixos adicionais. Confira o saldo acumulado, destinado exclusivamente ao hospital.
-- **Contribuir voluntariamente** — custo 50 CRIA Coin. Transfira 50 CRIA Coin ao cofre, sem benefício adicional.
-- **Recusar** — sem valores fixos adicionais. Não contratar ou comprar. Sem efeitos.
+- **Internação imediata** — sem valores fixos adicionais. Vá diretamente ao hospital e selecione modalidade de atendimento.
 
 ### H29 — Contribuição comunitária
 Exibe próxima carta exclusiva da profissão; 4 etapas; recusa preserva oferta.
@@ -417,3 +417,14 @@ Estas regras foram pedidas pelo responsável do produto depois da V4 e **prevale
 - A jogada extra **não ocorre** se o turno terminar com internação hospitalar, eliminação ou fim de partida.
 - Parâmetros em `02_dados/parametros.json`: `dice_count` = 2, `doubles_extra_rolls_max` = 3 (configuráveis). Versão de regras: `4.1-pretest`.
 - Interpretação registrada em `Docs/OPEN_DECISIONS.md`: "limitar a 3 vezes essa dinâmica" foi lido como **3 jogadas extras** (4 lançamentos no máximo); basta mudar `doubles_extra_rolls_max` se a intenção for outra.
+
+## 18. Alterações após o playtest de 27/11/2026 (regras 4.2-pretest)
+Pedidas pelo responsável do produto depois do playtest de 2 anos de jogo; **prevalecem sobre o texto anterior** onde houver conflito.
+- **Multiplicadores inteiros.** 0,75 e 1,25 viram 1; 1,5 e 1,75 viram 2; 0,5 e 0,25 viram 1; 2,5 vira 3. Os pontos dos atributos nunca ficam fracionados.
+- **3 casas por barra positiva.** Cada barra positiva completa avança o peão ativo 3 casas no Ludo (antes: 1). O carro dobra (6); as habilidades da Professora, do Economista e da Atleta dobram (6) e não se somam ao carro. Barra negativa continua recuando 1 casa.
+- **Hospital: ficar sem pagar.** Além do público e do particular, o jogador pode não pagar e ficar internado: usa a recuperação emergencial da dificuldade (Fácil 3 turnos sem custo; Médio 4 turnos e +2 Dívidas). No Difícil a opção não existe.
+- **Fôlego Extra (Atleta) automático.** Uma vez por ano, na primeira barra positiva concluída, avança o dobro de casas. Não acumula entre anos, não pode ser recusado e o sistema avisa quando é aplicado.
+- **Entrada e saída de jogadores.** Novo jogador só entra no início de um ano: começa com 500 CRIA Coin (do banco), na H01, peões na base e salário inicial, e joga por último. Quem sai devolve a carteira ao banco; reserva e parcerias são canceladas; imóveis, carro e checkpoints são encerrados; as peças saem do tabuleiro. A partida mantém pelo menos 2 jogadores ativos.
+- **Mesa mais clara.** Resumo do fechamento do ano (salário, IR, parcerias e reserva de cada um), salário mostrado na decisão de IR, barras de atributo em 3 segmentos e painel de regras com multiplicadores e habilidades de cada jogador, aberto no início da partida.
+- **Tabuleiro.** Cofre público na posição 19 e Direto para o hospital na posição 28.
+- Parâmetros em `02_dados/parametros.json`: `positive_cycle_steps` = 3, `max_steps_per_positive_cycle` = 6, `hospital_stay_without_paying_option`, `athlete_ability_automatic`, `join_only_at_year_start`.

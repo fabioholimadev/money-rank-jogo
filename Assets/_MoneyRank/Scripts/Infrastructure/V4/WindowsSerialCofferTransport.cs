@@ -37,19 +37,53 @@ namespace MoneyRank.Infrastructure.V4
             _thread.Start();
         }
 
-        /// <summary>COM ports currently known to Windows (QueryDosDevice; Registry is not available in this profile).</summary>
+        /// <summary>
+        /// COM ports currently known to Windows (QueryDosDevice; Registry is not available in this profile).
+        /// Real serial/USB ports come first and Bluetooth virtual ports (\Device\BthModem*) last, because the
+        /// picker only shows the first few entries and a PC often has several Bluetooth ports before the Arduino.
+        /// </summary>
         public static IReadOnlyList<string> ListPorts()
+        {
+            var ports = new List<string>();
+            var bluetooth = new List<string>();
+            var buffer = new StringBuilder(512);
+            for (var i = 1; i <= 64; i++)
+            {
+                var name = "COM" + i.ToString(System.Globalization.CultureInfo.InvariantCulture);
+                try
+                {
+                    buffer.Clear();
+                    if (QueryDosDevice(name, buffer, buffer.Capacity) == 0) continue;
+                    if (IsBluetoothDevice(buffer.ToString())) bluetooth.Add(name);
+                    else ports.Add(name);
+                }
+                catch (Exception) { break; }
+            }
+            ports.AddRange(bluetooth);
+            return ports;
+        }
+
+        /// <summary>Only real serial/USB ports (no Bluetooth virtual ports): where an Arduino can be.</summary>
+        public static IReadOnlyList<string> ListCandidatePorts()
         {
             var ports = new List<string>();
             var buffer = new StringBuilder(512);
             for (var i = 1; i <= 64; i++)
             {
                 var name = "COM" + i.ToString(System.Globalization.CultureInfo.InvariantCulture);
-                try { if (QueryDosDevice(name, buffer, buffer.Capacity) != 0) ports.Add(name); }
+                try
+                {
+                    buffer.Clear();
+                    if (QueryDosDevice(name, buffer, buffer.Capacity) != 0 && !IsBluetoothDevice(buffer.ToString())) ports.Add(name);
+                }
                 catch (Exception) { break; }
             }
             return ports;
         }
+
+        /// <summary>True for the device path of a Bluetooth virtual COM port (e.g. "\Device\BthModem0").</summary>
+        public static bool IsBluetoothDevice(string devicePath) =>
+            !string.IsNullOrEmpty(devicePath) && devicePath.IndexOf("BthModem", StringComparison.OrdinalIgnoreCase) >= 0;
 
         public bool TrySend(string line)
         {

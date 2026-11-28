@@ -12,7 +12,7 @@ namespace MoneyRank.V4.Presentation
     /// <summary>Master HUD (uGUI built in code): setup, match, decision modal, fiscal/history panels. Never calculates rules.</summary>
     public sealed partial class V4Hud : MonoBehaviour
     {
-        private enum SidePanel { None, Fiscal, History }
+        private enum SidePanel { None, Fiscal, History, Rules, Players, YearSummary }
 
         public Action<V4Session> SessionStarted;
         public Action BackToSetup;
@@ -188,14 +188,26 @@ namespace MoneyRank.V4.Presentation
             _setupRoot.gameObject.SetActive(false);
             _matchRoot.gameObject.SetActive(true);
             _panel = SidePanel.None; _modalDismissed = false; _lastDecisionId = null; _selectedOption = null; _swapMode = false;
+            _seenHistory = session.S.History.Count;
+            _summaryYearShown = session.S.YearIndex - 1;
+            // Initial reading (playtest): a new match opens on the rules, attributes and abilities of each player.
+            if (!session.S.History.Any(h => h.Kind == "move")) _panel = SidePanel.Rules;
             V4Ui.Clear(_matchRoot);
             BuildMatchFrame();
+            // A new session starts with no display link: reuse the port of the previous match, or look for the display.
+            var previousPort = _serialPort;
+            if (_detect != null) { StopCoroutine(_detect); _detect = null; _detectingPort = null; }
+            _serial?.Dispose(); _serial = null; _serialPort = null; _lastLinkKey = null;
             Refresh();
+            if (previousPort != null) ConnectDisplay(previousPort, quiet: true);
+            else if (!Application.isEditor) AutoDetectDisplayOnStart();   // in the Editor (tests) the master clicks "Detectar display"
         }
 
         private void BuildMatchFrame()
         {
-            V4Ui.Box(_matchRoot, "TopBar", V4Ui.Panel, UiAnchor.TL, 0, 0, 1920, 72);
+            // Opaque: the 3D laptop's "MONEY RANK" screen sits behind the bar and showed through, cut by the buttons.
+            var bar = V4Ui.Panel; bar.a = 1f;
+            V4Ui.Box(_matchRoot, "TopBar", bar, UiAnchor.TL, 0, 0, 1920, 72);
             V4Ui.Label(_matchRoot, "MONEY RANK", 34, V4Ui.Gold, TextAnchor.MiddleLeft, UiAnchor.TL, 24, 0, 300, 72, FontStyle.Bold);
             V4Ui.Btn(_matchRoot, "Menu", 20, V4Ui.PanelLight, V4Ui.TextMain, UiAnchor.TR, 16, 14, 100, 44, () => BackToSetup?.Invoke());
             V4Ui.Btn(_matchRoot, "Histórico", 20, V4Ui.PanelLight, V4Ui.TextMain, UiAnchor.TR, 124, 14, 120, 44, () => { _panel = _panel == SidePanel.History ? SidePanel.None : SidePanel.History; Refresh(); });
@@ -203,6 +215,8 @@ namespace MoneyRank.V4.Presentation
             V4Ui.Btn(_matchRoot, "Exportar", 20, V4Ui.PanelLight, V4Ui.TextMain, UiAnchor.TR, 360, 14, 120, 44, DoExport);
             V4Ui.Btn(_matchRoot, "Desfazer", 20, V4Ui.PanelLight, V4Ui.TextMain, UiAnchor.TR, 488, 14, 120, 44, DoUndo);
             V4Ui.Btn(_matchRoot, "Salvar", 20, V4Ui.PanelLight, V4Ui.TextMain, UiAnchor.TR, 616, 14, 100, 44, () => { _session.Persist(); Toast(_session.LastSaveError == null ? "Partida salva." : "Falha ao salvar: " + _session.LastSaveError); });
+            V4Ui.Btn(_matchRoot, "Jogadores", 20, V4Ui.PanelLight, V4Ui.TextMain, UiAnchor.TR, 724, 14, 130, 44, () => TogglePanel(SidePanel.Players));
+            V4Ui.Btn(_matchRoot, "Regras", 20, V4Ui.Gold, V4Ui.Ink, UiAnchor.TR, 862, 14, 110, 44, () => TogglePanel(SidePanel.Rules));
             _cardsRoot = V4Ui.Rect(_matchRoot, "Cards", UiAnchor.TL, 12, 84, 392, 980);
             _sideRoot = V4Ui.Rect(_matchRoot, "Side", UiAnchor.TR, 12, 84, 392, 980);
             _controlRoot = V4Ui.Rect(_matchRoot, "Control", UiAnchor.BC, 0, 8, 980, 172);
@@ -232,6 +246,7 @@ namespace MoneyRank.V4.Presentation
         {
             if (_session == null || _cardsRoot == null) return;
             var s = _session.S;
+            AnnounceNewEvents();
             BuildTopBarInfo();
             BuildCards();
             BuildSide();
@@ -249,13 +264,13 @@ namespace MoneyRank.V4.Presentation
         {
             if (_topInfo != null) Destroy(_topInfo.gameObject);
             var s = _session.S;
-            var root = V4Ui.Rect(_matchRoot, "TopInfo", UiAnchor.TL, 360, 0, 880, 72);
+            var root = V4Ui.Rect(_matchRoot, "TopInfo", UiAnchor.TL, 300, 0, 640, 72);
             _topInfo = root;
             var diff = _session.Engine.Difficulty;
             var cur = Current;
             var turn = cur == null ? "—" : cur.Name + " · " + _session.Content.Profession(cur.ProfessionId).Name;
-            V4Ui.Label(root, "Rodada " + s.RoundIndex + " · Ano " + s.YearIndex + " (fecha em " + (_session.Engine.Rules.RoundsPerYear - (s.CompletedRounds % _session.Engine.Rules.RoundsPerYear)) + " rodada[s])", 22, V4Ui.TextMain, TextAnchor.MiddleLeft, UiAnchor.TL, 0, 6, 880, 30);
-            V4Ui.Label(root, "VEZ: " + turn + "   ·   " + diff.Difficulty.ToUpperInvariant() + " (bateria " + diff.Battery + ")", 22, V4Ui.Gold, TextAnchor.MiddleLeft, UiAnchor.TL, 0, 36, 880, 30, FontStyle.Bold);
+            V4Ui.Label(root, "Rodada " + s.RoundIndex + " · Ano " + s.YearIndex + " (fecha em " + (_session.Engine.Rules.RoundsPerYear - (s.CompletedRounds % _session.Engine.Rules.RoundsPerYear)) + " rodada[s])", 20, V4Ui.TextMain, TextAnchor.MiddleLeft, UiAnchor.TL, 0, 6, 640, 30);
+            V4Ui.Label(root, "VEZ: " + turn + "  ·  " + diff.Difficulty.ToUpperInvariant() + " (B" + diff.Battery + ")", 20, V4Ui.Gold, TextAnchor.MiddleLeft, UiAnchor.TL, 0, 36, 640, 30, FontStyle.Bold);
         }
 
         // ------------------------------------------------------------------ player cards
@@ -291,10 +306,17 @@ namespace MoneyRank.V4.Presentation
                     var bx = 20 + col * 184; var by = barTop + row * rowH;
                     var bar = p.Attributes[a];
                     var positive = a <= 2;
-                    V4Ui.Label(card, AttrNames[a], 13, V4Ui.TextMuted, TextAnchor.MiddleLeft, UiAnchor.TL, bx, by, 90, rowH);
-                    V4Ui.Box(card, "BarBg", new Color(0.02f, 0.02f, 0.025f, 1f), UiAnchor.TL, bx + 92, by + 5, 62, rowH - 10);
-                    V4Ui.Box(card, "BarFill", positive ? V4Ui.Good : V4Ui.Bad, UiAnchor.TL, bx + 92, by + 5, 62f * Mathf.Clamp01((float)bar.Progress / 3f), rowH - 10);
-                    V4Ui.Label(card, V4Ui.Dec(bar.Progress) + (bar.LifetimeCycles > 0 ? " ×" + bar.LifetimeCycles : string.Empty), 12, V4Ui.TextMain, TextAnchor.MiddleLeft, UiAnchor.TL, bx + 156, by, 40, rowH);
+                    // One segment per point of the bar (threshold 3): full bar = pawn moves (positive) or retreats (negative).
+                    var threshold = _session.Engine.Rules.AttributeThreshold;
+                    V4Ui.Label(card, AttrNames[a], 13, positive ? new Color(0.62f, 0.86f, 0.70f) : new Color(1f, 0.66f, 0.66f), TextAnchor.MiddleLeft, UiAnchor.TL, bx, by, 92, rowH, FontStyle.Bold);
+                    for (var seg = 0; seg < threshold; seg++)
+                    {
+                        var filled = bar.Progress >= seg + 1;
+                        var partial = !filled && bar.Progress > seg;
+                        V4Ui.Box(card, "Seg", filled ? (positive ? V4Ui.Good : V4Ui.Bad) : (partial ? new Color(0.5f, 0.5f, 0.3f) : new Color(0.02f, 0.02f, 0.025f, 1f)),
+                            UiAnchor.TL, bx + 92 + seg * 20, by + 5, 17, rowH - 10);
+                    }
+                    V4Ui.Label(card, V4Ui.Dec(bar.Progress) + "/" + threshold, 13, V4Ui.TextMain, TextAnchor.MiddleLeft, UiAnchor.TL, bx + 94 + threshold * 20, by, 40, rowH, FontStyle.Bold);
                 }
                 var fy = barTop + 3 * rowH + 4;
                 for (var k = 0; k < p.Pawns.Length; k++)
@@ -308,7 +330,7 @@ namespace MoneyRank.V4.Presentation
                 V4Ui.Label(card, "Ludo: peão " + (p.ActivePawn >= 0 ? (p.ActivePawn + 1).ToString() : "—") + "/4 · casa " + (active == null ? "—" : (active.RouteIndex < 0 ? "base" : active.RouteIndex + "/56")), 14, V4Ui.TextMuted, TextAnchor.MiddleLeft, UiAnchor.TL, 140, fy, 245, 26);
                 var asset = "Imóveis " + p.Properties + " · Checkpoints " + p.CheckpointRights + " · " + (_session.Engine.VehicleActive(p) ? "carro até rodada " + p.VehicleExpiresAfterRound : "sem carro");
                 V4Ui.Label(card, asset, 14, V4Ui.TextMain, TextAnchor.MiddleLeft, UiAnchor.TL, 20, fy + 30, 365, 22);
-                var status = p.Eliminated ? "ELIMINADO(A)" : (p.HospitalTurnsRemaining > 0 ? "HOSPITAL: perde " + p.HospitalTurnsRemaining + " turno(s)" : (p.AbilityUsedThisYear ? "Habilidade do ano: usada" : "Habilidade do ano: disponível"));
+                var status = p.Left ? "SAIU DA PARTIDA" : p.Eliminated ? "ELIMINADO(A)" : (p.HospitalTurnsRemaining > 0 ? "HOSPITAL: perde " + p.HospitalTurnsRemaining + " turno(s)" : prof.Ability + ": " + (p.AbilityUsedThisYear ? "usada neste ano" : "disponível neste ano"));
                 V4Ui.Label(card, status, 14, p.Eliminated || p.HospitalTurnsRemaining > 0 ? V4Ui.Bad : V4Ui.Good, TextAnchor.MiddleLeft, UiAnchor.TL, 20, fy + 50, 365, 22);
             }
         }
@@ -329,8 +351,9 @@ namespace MoneyRank.V4.Presentation
             V4Ui.Label(bank, "Reservas (passivo)  " + V4Ui.Money(reserves) + "\nParcerias a pagar  " + V4Ui.Money(receivables), 16, V4Ui.TextMuted, TextAnchor.UpperLeft, UiAnchor.TL, 16, 106, 360, 48);
             var ok = _session.Engine.TotalCash() == _session.Engine.Rules.PhysicalMoneyTotal;
             V4Ui.Label(bank, "Caixa total " + V4Ui.Money(_session.Engine.TotalCash()) + (ok ? "  ✓ conferido" : "  ✗ DIVERGENTE"), 16, ok ? V4Ui.Good : V4Ui.Bad, TextAnchor.MiddleLeft, UiAnchor.TL, 16, 158, 360, 24);
-            var link = _session.Coffer.Status == CofferLinkStatus.Connected ? "Display do cofre: conectado" : (_session.Coffer.Status == CofferLinkStatus.Reconnecting ? "Display do cofre: reconectando…" : "Display do cofre: desconectado (saldo na tela)");
-            V4Ui.Label(bank, link, 14, V4Ui.TextMuted, TextAnchor.MiddleLeft, UiAnchor.TL, 16, 184, 360, 22);
+            Color linkColor;
+            var link = DisplayLinkText(out linkColor);
+            V4Ui.Label(bank, link, 14, linkColor, TextAnchor.MiddleLeft, UiAnchor.TL, 16, 184, 368, 24, FontStyle.Bold);
             BuildDisplayPicker(bank);
             if (s.LiquidityBlocked)
                 V4Ui.Btn(_sideRoot, "PAUSADO: falta de troco/caixa — ajustei fisicamente", 16, V4Ui.Bad, V4Ui.Ink, UiAnchor.TL, 0, 264, 392, 46, () => Toast(_session.Exec(e => e.ClearLiquidityBlock(V4Session.NewCommandId(), "ajuste físico pelo mestre")).Ok ? "Pausa liberada." : "Falha."));
@@ -352,37 +375,123 @@ namespace MoneyRank.V4.Presentation
         // ------------------------------------------------------------------ coffer display (serial)
 
         private IDisposable _serial;
+        private string _serialPort;
+        private string _detectingPort;
+        private Coroutine _detect;
+        private float _nextLinkCheck;
+        private string _lastLinkKey;
+        /// <summary>Ticks connected without any valid reply before the HUD says the Arduino is not answering (~5 s).</summary>
+        private const int NoReplyTicks = 300;
+
+        /// <summary>Real link state for the master: port, whether the coffer sketch answered and what the display confirmed.</summary>
+        private string DisplayLinkText(out Color color)
+        {
+            var c = _session.Coffer;
+            color = V4Ui.TextMuted;
+            if (_detectingPort != null) { color = V4Ui.Gold; return "Procurando o display… testando " + _detectingPort; }
+            if (_serialPort == null) return "Display do cofre: sem display (saldo só na tela)";
+            if (c.Status != CofferLinkStatus.Connected) { color = V4Ui.Bad; return "Display (" + _serialPort + "): porta indisponível, tentando de novo…"; }
+            if (c.IsConfirmed) { color = V4Ui.Good; return "Display (" + _serialPort + "): ✓ mostrando " + V4Ui.Money(c.LastAckedBalance); }
+            if (!c.DisplayAnswered && c.TicksWithoutReply > NoReplyTicks) { color = V4Ui.Bad; return "Display (" + _serialPort + "): porta aberta, Arduino não responde"; }
+            color = V4Ui.Gold;
+            return "Display (" + _serialPort + "): conectando…";
+        }
 
         private void BuildDisplayPicker(Transform bank)
         {
 #if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
-            var ports = MoneyRank.Infrastructure.V4.WindowsSerialCofferTransport.ListPorts();
-            var x = 16f;
-            foreach (var port in ports.Take(3))
+            var detect = V4Ui.Btn(bank, _detect != null ? "Procurando…" : "Detectar display", 14, V4Ui.Gold, V4Ui.Ink, UiAnchor.TL, 16, 214, 138, 30, StartDisplayDetection);
+            detect.interactable = _detect == null;
+            // Only real serial/USB ports: the Bluetooth virtual ports (COM3..COM8 on this PC) can never be the Arduino.
+            var ports = MoneyRank.Infrastructure.V4.WindowsSerialCofferTransport.ListCandidatePorts();
+            var x = 160f;
+            foreach (var port in ports.Take(2))
             {
                 var name = port;
-                V4Ui.Btn(bank, name, 14, V4Ui.PanelLight, V4Ui.TextMain, UiAnchor.TL, x, 212, 70, 30, () => ConnectDisplay(name));
-                x += 76f;
+                var selected = name == _serialPort;
+                V4Ui.Btn(bank, name, 14, selected ? V4Ui.Good : V4Ui.PanelLight, selected ? V4Ui.Ink : V4Ui.TextMain, UiAnchor.TL, x, 214, 66, 30, () => ConnectDisplay(name));
+                x += 70f;
             }
-            if (ports.Count == 0) V4Ui.Label(bank, "Nenhuma porta COM encontrada.", 13, V4Ui.TextMuted, TextAnchor.MiddleLeft, UiAnchor.TL, 16, 212, 250, 30);
-            V4Ui.Btn(bank, "Sem display", 14, V4Ui.PanelLight, V4Ui.TextMuted, UiAnchor.TR, 14, 212, 90, 30, () => ConnectDisplay(null));
+            if (ports.Count == 0) V4Ui.Label(bank, "Nenhuma porta USB", 13, V4Ui.TextMuted, TextAnchor.MiddleLeft, UiAnchor.TL, 160, 214, 136, 30);
+            V4Ui.Btn(bank, "Sem display", 13, _serialPort == null ? V4Ui.Teal : V4Ui.PanelLight, V4Ui.TextMuted, UiAnchor.TR, 8, 214, 84, 30, () => ConnectDisplay(null));
 #endif
         }
 
-        private void ConnectDisplay(string port)
+        private void ConnectDisplay(string port, bool quiet = false)
         {
 #if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
+            if (!quiet && _detect != null) { StopCoroutine(_detect); _detect = null; _detectingPort = null; }
             _serial?.Dispose();
             _serial = null;
-            if (port == null) { _session.Coffer.SetTransport(null); Toast("Display do cofre desconectado."); }
+            _serialPort = port;
+            if (port == null) { _session.Coffer.SetTransport(null); if (!quiet) Toast("Display do cofre desconectado."); }
             else
             {
                 var transport = new MoneyRank.Infrastructure.V4.WindowsSerialCofferTransport(port);
                 _serial = transport;
                 _session.Coffer.SetTransport(transport);
-                Toast("Conectando ao display em " + port + "… (saldo absoluto será reenviado)");
+                if (!quiet) Toast("Conectando ao display em " + port + "… o status mostra quando ele confirmar o saldo.");
             }
             Refresh();
+#endif
+        }
+
+        /// <summary>Tries every USB/serial port until the coffer sketch answers (PRONTO/ACK), so the master never needs to know the COM number.</summary>
+        private void StartDisplayDetection()
+        {
+#if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
+            if (_detect != null) return;
+            _detect = StartCoroutine(DetectDisplay());
+#endif
+        }
+
+        private System.Collections.IEnumerator DetectDisplay()
+        {
+#if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
+            var candidates = MoneyRank.Infrastructure.V4.WindowsSerialCofferTransport.ListCandidatePorts();
+            foreach (var port in candidates)
+            {
+                _detectingPort = port;
+                ConnectDisplay(port, quiet: true);
+                var until = Time.realtimeSinceStartup + 4.5f;      // the Uno resets when the port opens (~2 s of bootloader)
+                while (Time.realtimeSinceStartup < until && !_session.Coffer.DisplayAnswered) yield return null;
+                if (_session.Coffer.DisplayAnswered)
+                {
+                    _detectingPort = null; _detect = null;
+                    Toast("Display do cofre encontrado na " + port + ".");
+                    Refresh();
+                    yield break;
+                }
+            }
+            _detectingPort = null; _detect = null;
+            ConnectDisplay(null, quiet: true);
+            Toast(candidates.Count == 0
+                ? "Nenhuma porta USB encontrada: confira o cabo do Arduino."
+                : "O display não respondeu em " + string.Join(", ", candidates) + ". Feche o Serial Monitor/Arduino IDE e confira se o sketch do cofre está gravado.");
+            Refresh();
+#else
+            yield break;
+#endif
+        }
+
+        /// <summary>The link changes without engine events (ACKs arrive on the serial thread): repaint the side column when it does.</summary>
+        private void RefreshDisplayLinkIfChanged()
+        {
+            if (_session == null || _sideRoot == null || Time.unscaledTime < _nextLinkCheck) return;
+            _nextLinkCheck = Time.unscaledTime + 0.4f;
+            var c = _session.Coffer;
+            var key = _serialPort + "|" + _detectingPort + "|" + c.Status + "|" + c.DisplayAnswered + "|" + c.IsConfirmed + "|" + c.LastAckedBalance + "|" + (c.TicksWithoutReply > NoReplyTicks);
+            if (key == _lastLinkKey) return;
+            _lastLinkKey = key;
+            BuildSide();
+        }
+
+        /// <summary>At match start, connect by itself when there is exactly one USB/serial port (the usual single-Arduino table).</summary>
+        private void AutoDetectDisplayOnStart()
+        {
+#if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
+            if (_serialPort == null && _detect == null && MoneyRank.Infrastructure.V4.WindowsSerialCofferTransport.ListCandidatePorts().Count == 1)
+                StartDisplayDetection();
 #endif
         }
 
@@ -414,6 +523,7 @@ namespace MoneyRank.V4.Presentation
         private void Update()
         {
             if (_banner != null && _banner.gameObject.activeSelf && Time.unscaledTime > _bannerUntil) _banner.gameObject.SetActive(false);
+            RefreshDisplayLinkIfChanged();
         }
 
         /// <summary>Virtual roll: the dice are thrown on the board and the result is applied when they settle.</summary>
@@ -434,6 +544,7 @@ namespace MoneyRank.V4.Presentation
         {
             var r = _session.Exec(e => e.RegisterRoll(V4Session.NewCommandId(), playerId, a, b));
             if (!r.Ok) { Toast(r.Error); return; }
+            Toast(string.Empty);                       // drops the "rolling the dice" notice once the result is in
             var extra = _session.S.RollAgain;
             ShowBanner(a + " + " + b + " = " + (a + b) + (a == b ? "   DADOS IGUAIS!" : string.Empty) + (extra ? "\nJoga de novo depois desta casa (extra " + _session.S.ExtraRollsUsed + "/" + _session.Engine.Rules.DoublesExtraRollsMax + ")" : (a == b ? "\nLimite de jogadas extras atingido: a vez passa." : string.Empty)));
         }
