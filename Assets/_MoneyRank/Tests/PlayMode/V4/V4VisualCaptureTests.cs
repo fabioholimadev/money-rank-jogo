@@ -150,6 +150,76 @@ namespace MoneyRank.Tests.PlayMode.V4
             }
         }
 
+        /// <summary>Screens added after the 27/11/2026 playtest: rules, players, hospital stay option, IR with salary, year summary.</summary>
+        [UnityTest]
+        public IEnumerator CapturePlaytestPanels()
+        {
+            string sessionId = null;
+            yield return SceneManager.LoadSceneAsync("MoneyRankV4");
+            yield return Wait(0.5f);
+            var boot = Object.FindAnyObjectByType<V4Bootstrap>();
+            try
+            {
+                Assert.That(Click("4"), Is.True);
+                yield return Wait(0.3f);
+                Assert.That(Click("INICIAR PARTIDA"), Is.True);
+                yield return Wait(0.7f);
+                sessionId = boot.Session.S.SessionId;
+                var s = boot.Session.S;
+                yield return Shot("pt_01_rules_1920", 1920, 1080);      // opens by itself at match start
+                yield return Shot("pt_01_rules_1280", 1280, 720);
+                Click("Fechar"); yield return Wait(0.2f);
+
+                Assert.That(Click("Jogadores"), Is.True); yield return Wait(0.3f);
+                yield return Shot("pt_02_players", 1920, 1080);
+                Click("Fechar"); yield return Wait(0.2f);
+
+                // attribute bars with some points
+                s.Players[0].Attributes[0].Progress = 2; s.Players[0].Attributes[4].Progress = 1;
+                s.Players[1].Attributes[1].Progress = 1; s.Players[1].Attributes[5].Progress = 2;
+
+                // hospital modal with three options
+                s.Players[0].HospitalPending = true;
+                boot.Session.Engine.CurrentPlayer.Position = 0;           // 0 + 3 -> H04
+                boot.Hud.DiceSource = () => (1, 2);
+                Click("LANÇAR DADOS");
+                var guard = 0; while (s.Phase != V4Phase.AwaitDecision && guard++ < 900) yield return null;
+                yield return Wait(0.3f);
+                Click("Selecionar", 2); yield return Wait(0.2f);
+                Click("CONFIRMAR"); yield return Wait(0.4f);
+                yield return Shot("pt_03_hospital", 1920, 1080);
+                Click("Escolher", 2); yield return Wait(0.4f);          // public is disabled (empty cofre): 2nd enabled = stay
+                yield return Shot("pt_04_board_cards", 1920, 1080);
+
+                // annual close: IR with salary, then the summary
+                s.CompletedRounds = boot.Session.Engine.Rules.RoundsPerYear - 1;
+                s.CurrentIndex = s.TurnOrder.Count - 1;
+                boot.Session.Engine.CurrentPlayer.Position = 0;
+                Click("LANÇAR DADOS");
+                guard = 0; while (s.Phase != V4Phase.AwaitDecision && guard++ < 900) yield return null;
+                yield return Wait(0.3f);
+                Click("Selecionar", 2); yield return Wait(0.2f);
+                Click("CONFIRMAR"); yield return Wait(0.4f);
+                yield return Shot("pt_05_ir_salary", 1920, 1080);
+                guard = 0;
+                while (s.Pending != null && s.Pending.HouseId == "SYS_IR" && guard++ < 10)
+                {
+                    Click("Selecionar", 1); yield return Wait(0.15f);
+                    Click("CONFIRMAR"); yield return Wait(0.3f);
+                }
+                yield return Wait(0.3f);
+                yield return Shot("pt_06_year_summary", 1920, 1080);
+            }
+            finally
+            {
+                if (sessionId != null)
+                {
+                    var store = new MoneyRank.Infrastructure.V4.V4SaveStore(Path.Combine(V4Session.RootDirectory, "Saves"));
+                    foreach (var f in new[] { store.PathFor(sessionId), store.PathFor(sessionId) + ".bak" }) if (File.Exists(f)) File.Delete(f);
+                }
+            }
+        }
+
         [UnityTest]
         public IEnumerator CaptureCoinFlip()
         {

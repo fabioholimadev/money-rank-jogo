@@ -199,7 +199,9 @@ namespace MoneyRank.V4.Presentation
 
         private void BuildMatchFrame()
         {
-            V4Ui.Box(_matchRoot, "TopBar", V4Ui.Panel, UiAnchor.TL, 0, 0, 1920, 72);
+            // Opaque: the 3D laptop's "MONEY RANK" screen sits behind the bar and showed through, cut by the buttons.
+            var bar = V4Ui.Panel; bar.a = 1f;
+            V4Ui.Box(_matchRoot, "TopBar", bar, UiAnchor.TL, 0, 0, 1920, 72);
             V4Ui.Label(_matchRoot, "MONEY RANK", 34, V4Ui.Gold, TextAnchor.MiddleLeft, UiAnchor.TL, 24, 0, 300, 72, FontStyle.Bold);
             V4Ui.Btn(_matchRoot, "Menu", 20, V4Ui.PanelLight, V4Ui.TextMain, UiAnchor.TR, 16, 14, 100, 44, () => BackToSetup?.Invoke());
             V4Ui.Btn(_matchRoot, "Histórico", 20, V4Ui.PanelLight, V4Ui.TextMain, UiAnchor.TR, 124, 14, 120, 44, () => { _panel = _panel == SidePanel.History ? SidePanel.None : SidePanel.History; Refresh(); });
